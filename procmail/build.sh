@@ -42,7 +42,7 @@ init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
-MAKE="$MAKE BASENAME=${DESTDIR}/usr"
+MAKE="$MAKE BASENAME=${DESTDIR}/usr MANDIR=\$(BASENAME)/share/man"
 build
 make_isa_stub
 make_package
