@@ -35,14 +35,23 @@ PKG=mail/procmail            # Package name (e.g. library/foo)
 SUMMARY="Versatile e-mail processor"      # One-liner, must be filled in
 DESC="Can be used to create mail-servers, mailing lists, sort your incoming mail into separate folders/files (very convenient when subscribing to one or more mailing lists or for prioritising your mail), preprocess your mail, start any programs upon mail arrival (e.g. to generate different chimes on your workstation for different types of mail) or selectively forward certain incoming mail automatically to someone."         # Longer description, must be filled in
 
-CONFIGURE_CMD=":"
-MAKE="$MAKE LOCKINGTEST=110 VISIBLE_BASENAME=/usr"
+CONFIGURE_CMD=':'
+
+make_prog() {
+    $MAKE $MAKE_JOBS LOCKINGTEST=110 CFLAGS="$CFLAGS"
+}
+
+make_install32() {
+    $MAKE VISIBLE_BASENAME=/usr BASENAME=${DESTDIR}/usr MANDIR='$(BASENAME)'/share/man BINDIR_TAIL=bin/$ISAPART install
+}
+make_install64() {
+    $MAKE VISIBLE_BASENAME=/usr BASENAME=${DESTDIR}/usr MANDIR='$(BASENAME)'/share/man BINDIR_TAIL=bin/$ISAPART64 install
+}
 
 init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
-MAKE="$MAKE BASENAME=${DESTDIR}/usr MANDIR=\$(BASENAME)/share/man"
 build
 make_isa_stub
 make_package
