@@ -44,7 +44,8 @@ build() {
     logcmd ./configure.pl --batch --hostname XXXXXX --uid-ignore \
         --install-dir $DIRPREFIX --dest-dir $DESTDIR --data-dir $DATADIR \
         --cgi-dir ${DIRPREFIX}/cgi-bin --html-dir ${DIRPREFIX}/image \
-        --html-dir-url /backuppc/image --no-set-perms --config-dir /etc/backuppc
+        --html-dir-url /backuppc/image --no-set-perms --config-dir /etc/backuppc \
+        --log-dir /var/log/backuppc
     /usr/perl5/5.14.2/bin/pod2man doc/BackupPC.pod backuppc.8
     perl -e "s/.IX Title.*/.SH NAME\nbackuppc \\- BackupPC manual/g" -p -i.tmp backuppc.8
     install -d ${DESTDIR}/usr/share/man/man8
