@@ -6,4 +6,6 @@ group groupname=backuppc
 <transform file path=usr/share/backuppc/cgi-bin/index.cgi$ -> set group daemon>
 <transform file dir path=var/lib/backuppc -> set owner backuppc>
 <transform file dir path=var/lib/backuppc -> set group backuppc>
+<transform file path=usr/share/backuppc/bin -> set mode 0755>
 <transform dir path=var/lib$ -> set mode 0755>
+<transform file dir path=etc/backuppc -> set group backuppc>
