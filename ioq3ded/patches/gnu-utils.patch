@@ -1,0 +1,13 @@
+--- Makefile.orig	2013-04-05 22:47:46.628743514 +0300
++++ Makefile	2013-04-05 22:53:11.825258111 +0300
+@@ -788,8 +788,8 @@
+ ifeq ($(PLATFORM),sunos)
+ 
+   CC=gcc
+-  INSTALL=ginstall
+-  MKDIR=gmkdir
++  INSTALL=/usr/gnu/bin/install
++  MKDIR=/usr/gnu/bin/mkdir
+   COPYDIR="/usr/local/share/games/quake3"
+ 
+   ifneq ($(ARCH),x86)
