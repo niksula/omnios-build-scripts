@@ -27,13 +27,12 @@
 # Load support functions
 . ../../lib/functions.sh
 
-PROG=irssi      # App name
-VER=0.8.15            # App version
-VERHUMAN=$VER   # Human-readable version
-#PVER=          # Branch (set in config.sh, override here if needed)
-PKG=network/chat/irssi            # Package name (e.g. library/foo)
-SUMMARY="terminal based IRC client"      # One-liner, must be filled in
-DESC="Irssi is a terminal based IRC client for UNIX systems."         # Longer description, must be filled in
+PROG=irssi
+VER=0.8.15
+VERHUMAN=$VER
+PKG=network/chat/irssi
+SUMMARY="terminal based IRC client"
+DESC="Irssi is a terminal based IRC client for UNIX systems."
 
 BUILD_DEPENDS_IPS='developer/build/pkg-config'
 

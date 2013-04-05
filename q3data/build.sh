@@ -33,13 +33,12 @@ datadir=$1
     exit 1
 } >&2
 
-PROG=q3data      # App name
-VER=1.0            # App version
-VERHUMAN=$VER   # Human-readable version
-#PVER=          # Branch (set in config.sh, override here if needed)
-PKG=games/quake3/data            # Package name (e.g. library/foo)
-SUMMARY="Quake III Arena data files"      # One-liner, must be filled in
-DESC="$SUMMARY"         # Longer description, must be filled in
+PROG=q3data
+VER=1.0
+VERHUMAN=$VER
+PKG=games/quake3/data
+SUMMARY="Quake III Arena data files"
+DESC="$SUMMARY"
 
 build() {
     target=${DESTDIR}/usr/share/games/quake3/baseq3

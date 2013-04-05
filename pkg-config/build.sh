@@ -27,13 +27,12 @@
 # Load support functions
 . ../../lib/functions.sh
 
-PROG=pkg-config      # App name
-VER=0.26            # App version
-VERHUMAN=$VER   # Human-readable version
-#PVER=          # Branch (set in config.sh, override here if needed)
-PKG=developer/build/pkg-config            # Package name (e.g. library/foo)
-SUMMARY="manage compile and link flags for libraries"      # One-liner, must be filled in
-DESC="pkg-config is a system for managing library compile and link flags that works with automake and autoconf."         # Longer description, must be filled in
+PROG=pkg-config
+VER=0.26
+VERHUMAN=$VER
+PKG=developer/build/pkg-config
+SUMMARY="manage compile and link flags for libraries"
+DESC="pkg-config is a system for managing library compile and link flags that works with automake and autoconf."
 
 BUILD_DEPENDS_IPS='library/glib2'
 

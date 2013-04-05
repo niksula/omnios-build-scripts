@@ -27,13 +27,12 @@
 # Load support functions
 . ../../lib/functions.sh
 
-PROG=procmail      # App name
-VER=3.22            # App version
-VERHUMAN=$VER   # Human-readable version
-#PVER=          # Branch (set in config.sh, override here if needed)
-PKG=mail/procmail            # Package name (e.g. library/foo)
-SUMMARY="Versatile e-mail processor"      # One-liner, must be filled in
-DESC="Can be used to create mail-servers, mailing lists, sort your incoming mail into separate folders/files (very convenient when subscribing to one or more mailing lists or for prioritising your mail), preprocess your mail, start any programs upon mail arrival (e.g. to generate different chimes on your workstation for different types of mail) or selectively forward certain incoming mail automatically to someone."         # Longer description, must be filled in
+PROG=procmail
+VER=3.22
+VERHUMAN=$VER
+PKG=mail/procmail
+SUMMARY="Versatile e-mail processor"
+DESC="Can be used to create mail-servers, mailing lists, sort your incoming mail into separate folders/files (very convenient when subscribing to one or more mailing lists or for prioritising your mail), preprocess your mail, start any programs upon mail arrival (e.g. to generate different chimes on your workstation for different types of mail) or selectively forward certain incoming mail automatically to someone."
 
 CONFIGURE_CMD=':'
 

@@ -27,13 +27,12 @@
 # Load support functions
 . ../../lib/functions.sh
 
-PROG=BackupPC      # App name
-VER=3.2.1            # App version
-VERHUMAN=$VER   # Human-readable version
-#PVER=          # Branch (set in config.sh, override here if needed)
-PKG=backup/backuppc            # Package name (e.g. library/foo)
-SUMMARY="high-performance, enterprise-grade system for backing up PCs"      # One-liner, must be filled in
-DESC="$SUMMARY"         # Longer description, must be filled in
+PROG=BackupPC
+VER=3.2.1
+VERHUMAN=$VER
+PKG=backup/backuppc
+SUMMARY="high-performance, enterprise-grade system for backing up PCs"
+DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS='runtime/perl-5142/manual'
 

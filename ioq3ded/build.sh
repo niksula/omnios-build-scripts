@@ -27,15 +27,15 @@
 # Load support functions
 . ../../lib/functions.sh
 
-PROG=ioq3ded      # App name
-VER=1.36            # App version
-VERHUMAN=1.36   # Human-readable version
+PROG=ioq3ded
+VER=1.36
+VERHUMAN=1.36
 # ioq3 team doesn't seem to make releases, so let's just decide to build some
 # known good version
 commit=6a763f0
-PKG=games/ioquake3/server            # Package name (e.g. library/foo)
-SUMMARY="Standalone server for ioQuake3 based games"      # One-liner, must be filled in
-DESC="$SUMMARY"         # Longer description, must be filled in
+PKG=games/ioquake3/server
+SUMMARY="Standalone server for ioQuake3 based games"
+DESC="$SUMMARY"
 
 DEPENDS_IPS='games/quake3/data'
 
