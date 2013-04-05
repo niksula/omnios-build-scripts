@@ -88,6 +88,9 @@ make_install() {
     isadir="${DESTDIR}/usr/sbin/$isapart"
     mkdir -p "${isadir}"
     mv "$executable" "${isadir}"/ioq3ded
+    svcdir=${DESTDIR}/lib/svc/manifest/network
+    mkdir -p $svcdir
+    install -m 0444 $SRCDIR/*.xml ${svcdir}/
 }
 
 init
