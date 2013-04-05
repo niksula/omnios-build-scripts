@@ -49,8 +49,8 @@ build() {
     perl -e "s/.IX Title.*/.SH NAME\nbackuppc \\- BackupPC manual/g" -p -i.tmp backuppc.8
     install -d ${DESTDIR}/usr/share/man/man8
     install -m 0644 backuppc.8 ${DESTDIR}/usr/share/man/man8/
-    install -d ${DESTDIR}/lib/svc/manifest
-    install -m 0444 ${SRCDIR}/backuppc.xml ${DESTDIR}/lib/svc/manifest/
+    install -d ${DESTDIR}/lib/svc/manifest/backup
+    install -m 0444 ${SRCDIR}/backuppc.xml ${DESTDIR}/lib/svc/manifest/backup/
     popd >/dev/null
 }
 
