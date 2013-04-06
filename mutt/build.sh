@@ -27,6 +27,8 @@
 # Load support functions
 . ../../lib/functions.sh
 
+MIRROR=ftp://ftp.mutt.org
+
 PROG=mutt
 VER=1.5.21
 VERHUMAN=$VER
@@ -35,7 +37,7 @@ SUMMARY="The Mutt E-Mail Client"
 DESC='All mail clients suck. This one just sucks less.'
 
 init
-download_source $PROG $PROG $VER
+download_source ${PROG}/devel $PROG $VER
 patch_source
 prep_build
 build
