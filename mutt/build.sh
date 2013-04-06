@@ -36,7 +36,8 @@ PKG=mail/mutt
 SUMMARY="The Mutt E-Mail Client"
 DESC='All mail clients suck. This one just sucks less.'
 
-CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-imap --with-ssl --with-sasl"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-imap --with-ssl --with-sasl --enable-hcache --with-libiconv-prefix=/usr"
+BUILD_DEPENDS_IPS='database/tokyocabinet'
 
 init
 download_source ${PROG}/devel $PROG $VER
