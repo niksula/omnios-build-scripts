@@ -36,6 +36,9 @@ PKG=mail/mutt
 SUMMARY="The Mutt E-Mail Client"
 DESC='All mail clients suck. This one just sucks less.'
 
+LDFLAGS32="$LDFLAGS -R/usr/gnu/lib -L/usr/gnu/lib"
+LDFLAGS64="$LDFLAGS -R/usr/gnu/lib/amd64 -L/usr/gnu/lib/amd64"
+CPPFLAGS="$CPPFLAGS -I/usr/gnu/include"
 CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-imap --with-ssl --with-sasl --enable-hcache --with-libiconv-prefix=/usr"
 BUILD_DEPENDS_IPS='database/tokyocabinet'
 
