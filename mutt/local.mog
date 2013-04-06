@@ -1,0 +1,2 @@
+<transform file path=etc/.*\.dist -> drop>
+<transform file path=etc/mime.types -> drop>
