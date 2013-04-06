@@ -36,6 +36,8 @@ PKG=mail/mutt
 SUMMARY="The Mutt E-Mail Client"
 DESC='All mail clients suck. This one just sucks less.'
 
+CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-imap --with-ssl --with-sasl"
+
 init
 download_source ${PROG}/devel $PROG $VER
 patch_source
