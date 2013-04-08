@@ -32,7 +32,7 @@ MIRROR=ftp://ftp.gnupg.org/gcrypt/
 PROG=gnupg
 VER=1.4.13
 VERHUMAN=$VER
-PKG=omniti/security/gnupg
+PKG=security/gnupg
 SUMMARY="The GNU Privacy Guard"
 DESC="The GNU project's complete and free implementation of the OpenPGP standard as defined by RFC4880."
 
