@@ -34,16 +34,9 @@ PKG=omniti/developer/debug/gdb
 SUMMARY="$PROG - the GNU Project debugger"
 DESC="GDB, the GNU Project debugger, allows you to see what is going on inside another program while it executes -- or what another program was doing at the moment it crashed."
 
-CURSES_DIR_32=/usr/gnu/lib
-CURSES_DIR_64=/usr/gnu/lib/$ISAPART64
-
-CFLAGS="-I/usr/include/ncurses"
-LDFLAGS32="-L$CURSES_DIR_32 -R$CURSES_DIR_32"
-LDFLAGS64="-L$CURSES_DIR_64 -R$CURSES_DIR_64"
-
 CONFIGURE_OPTS="--with-system-readline
                 --without-x
-                --with-curses
+                --disable-tui
                 --with-libexpat-prefix=/usr/lib
                 --without-python
                 "
