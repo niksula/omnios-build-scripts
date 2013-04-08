@@ -27,8 +27,10 @@
 # Load support functions
 . ../../lib/functions.sh
 
+MIRROR=ftp://ftp.gnupg.org/gcrypt/
+
 PROG=gnupg
-VER=1.4.12
+VER=1.4.13
 VERHUMAN=$VER
 PKG=omniti/security/gnupg
 SUMMARY="The GNU Privacy Guard"
