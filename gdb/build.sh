@@ -30,7 +30,7 @@
 PROG=gdb
 VER=7.5
 VERHUMAN=$VER
-PKG=omniti/developer/debug/gdb
+PKG=developer/debug/gdb
 SUMMARY="$PROG - the GNU Project debugger"
 DESC="GDB, the GNU Project debugger, allows you to see what is going on inside another program while it executes -- or what another program was doing at the moment it crashed."
 

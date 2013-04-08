@@ -23,8 +23,8 @@
 # Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
-<transform file path=opt/omni/lib/charset.alias -> drop>
-<transform file path=opt/omni/lib/amd64/charset.alias -> drop>
+<transform file path=usr/lib/charset.alias -> drop>
+<transform file path=usr/lib/amd64/charset.alias -> drop>
 license COPYING license=GPLv2
 license COPYING.LIB license=LGPLv2
 license COPYING3 license=GPLv3
