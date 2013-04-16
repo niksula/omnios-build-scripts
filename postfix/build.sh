@@ -41,6 +41,9 @@ AUXLIBS='-lssl -lcrypto -lldap'
 
 # create stubs for the libexec stuff too
 ISAEXEC_DIRS="bin sbin libexec/postfix"
+# 'postfix check' doesn't work if libexec/postfix/post-install is not a shell
+# script
+NOSCRIPTSTUB=1
 
 configure32() {
     logmsg '--- make makefiles'
