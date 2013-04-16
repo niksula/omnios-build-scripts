@@ -1,0 +1,14 @@
+user username=postfix group=postfix home-dir=/var/lib/postfix shell=/bin/false ftpuser=false
+group groupname=postfix
+group groupname=postdrop
+<transform file path=var/lib/postfix -> set owner postfix>
+<transform file path=var/lib/postfix -> set group postfix>
+<transform file path=var/spool/postfix -> set owner postfix>
+<transform file path=var/spool/postfix -> set group postfix>
+<transform file path=var/spool/postfix/maildrop -> set group postdrop>
+<transform file path=var/spool/postfix/public -> set group postdrop>
+# we only need setgid on the isaexec stubs
+<transform file path=usr/sbin/postdrop -> set mode 2755>
+<transform file path=usr/sbin/postdrop -> set group postdrop>
+<transform file path=usr/sbin/postqueue -> set mode 2755>
+<transform file path=usr/sbin/postqueue -> set group postdrop>

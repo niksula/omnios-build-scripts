@@ -1,0 +1,97 @@
+#!/usr/bin/bash
+#
+# CDDL HEADER START
+#
+# The contents of this file are subject to the terms of the
+# Common Development and Distribution License, Version 1.0 only
+# (the "License").  You may not use this file except in compliance
+# with the License.
+#
+# You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+# or http://www.opensolaris.org/os/licensing.
+# See the License for the specific language governing permissions
+# and limitations under the License.
+#
+# When distributing Covered Code, include this CDDL HEADER in each
+# file and include the License file at usr/src/OPENSOLARIS.LICENSE.
+# If applicable, add the following below this CDDL HEADER, with the
+# fields enclosed by brackets "[]" replaced with your own identifying
+# information: Portions Copyright [yyyy] [name of copyright owner]
+#
+# CDDL HEADER END
+#
+#
+# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Use is subject to license terms.
+#
+# Load support functions
+. ../../lib/functions.sh
+
+MIRROR=http://de.postfix.org/ftpmirror/official/
+
+PROG=postfix
+VER=2.10.0
+VERHUMAN=$VER
+PKG=service/network/smtp/postfix
+SUMMARY="Postfix MTA"
+DESC="Wietse Venema's mail server that started life at IBM research as an alternative to the widely-used Sendmail program. "
+
+CCARGS='-DUSE_TLS -DHAS_LDAP -DUSE_LDAP_SASL -DNO_NIS -DDEF_MANPAGE_DIR=\"'$PREFIX/share/man'\" -DDEF_COMMAND_DIR=\"'${PREFIX}/sbin'\" -DDEF_DAEMON_DIR=\"'${PREFIX}/libexec/postfix'\" -DDEF_MAILQ_PATH=\"'${PREFIX}/bin/mailq'\" -DDEF_NEWALIAS_PATH=\"'${PREFIX}/bin/newaliases'\" '"$CFLAGS"
+AUXLIBS='-lssl -lcrypto -lldap'
+
+# create stubs for the libexec stuff too
+ISAEXEC_DIRS="bin sbin libexec/postfix"
+
+configure32() {
+    logmsg '--- make makefiles'
+    logcmd $MAKE makefiles CCARGS="$CCARGS $CFLAGS32" AUXLIBS="$AUXLIBS"
+    cur_isa=${ISAPART}
+}
+
+configure64() {
+    logmsg '--- make makefiles'
+    logcmd $MAKE makefiles CCARGS="$CCARGS $CFLAGS64" AUXLIBS="$AUXLIBS"
+    cur_isa=${ISAPART64}
+}
+
+make_clean() {
+    logcmd $MAKE tidy
+    logcmd $MAKE -f Makefile.init makefiles
+}
+
+make_install() {
+    logmsg '--- make install'
+    [ -n "$cur_isa" ] || logerr "don't know which arch we're installing"
+
+    # postfix will generate its config file and the symlinks it installs with
+    # paths pointing to the configured directories, so let's just tell it we're
+    # installing into default directories and move binaries in the correct
+    # place after install
+
+    # sendmail will go to $PREFIX/lib if not set here
+    install_args="install_root=${DESTDIR} sendmail_path=${PREFIX}/sbin/sendmail"
+    logcmd $MAKE non-interactive-package $install_args || \
+        logerr '--- make install failed'
+    for dir in $ISAEXEC_DIRS; do
+        pushd ${DESTDIR}/${PREFIX}/${dir} >/dev/null
+        mkdir -p $cur_isa
+        find . -maxdepth 1 -type f -exec mv {} ${cur_isa}/ ';'
+        popd >/dev/null
+    done
+    unset cur_isa
+    manifest_path=${DESTDIR}/lib/svc/manifest/network/smtp
+    mkdir -p $manifest_path
+    install -m 0444 ${SRCDIR}/postfix.xml ${manifest_path}/
+}
+
+init
+download_source "" $PROG $VER
+patch_source
+prep_build
+build
+make_isa_stub
+make_package
+clean_up
+
+# Vim hints
+# vim:ts=4:sw=4:et:
