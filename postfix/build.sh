@@ -71,8 +71,12 @@ make_install() {
     # installing into default directories and move binaries in the correct
     # place after install
 
-    # sendmail will go to $PREFIX/lib if not set here
+    # sendmail will go to $PREFIX/lib if not set here. /usr/lib/sendmail is
+    # required for compatibility but we need to put binaries in bin/sbin to get
+    # correct isaexec stubs
     install_args="install_root=${DESTDIR} sendmail_path=${PREFIX}/sbin/sendmail"
+    mkdir -p ${DESTDIR}/${PREFIX}/lib
+    ln -s ../sbin/sendmail ${DESTDIR}/${PREFIX}/lib/
     logcmd $MAKE non-interactive-package $install_args || \
         logerr '--- make install failed'
     for dir in $ISAEXEC_DIRS; do
