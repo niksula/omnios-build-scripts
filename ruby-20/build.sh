@@ -50,9 +50,12 @@ CFLAGS="$CFLAGS -std=c99"
 # --enable-multiarch doesn't do exactly what we want so just hack around it by
 # hand
 CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-shared --enable-multiarch"
+# ruby looks for dynamic libs in rubylibdir by default during runtime, and from
+# the arch dir only as fallback, so we need to put 32bit dynamic libs somewhere
+# else to be able to use 64-bit ruby.
 CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32
---with-rubyarchprefix=${PREFIX}/lib/ruby
---with-rubysitearchprefix=${PREFIX}/lib/ruby"
+--with-rubyarchprefix=${PREFIX}/lib/${ISAPART}/ruby
+--with-rubysitearchprefix=${PREFIX}/lib/${ISAPART}/ruby"
 CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64
 --with-rubylibprefix=${PREFIX}/lib/ruby
 --with-rubyarchprefix=${PREFIX}/lib/${ISAPART64}/ruby
