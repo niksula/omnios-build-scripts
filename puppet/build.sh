@@ -43,6 +43,8 @@ NOSCRIPTSTUB=1
 build() {
     pushd ${TMPDIR}/${BUILDDIR} >/dev/null
     logcmd ./install.rb --destdir=${DESTDIR} || logerr 'build failed'
+    mkdir -p ${DESTDIR}/etc/puppet
+    cp ${SRCDIR}/files/puppet.conf ${DESTDIR}/etc/puppet
     popd >/dev/null
 }
 
