@@ -41,7 +41,7 @@ NOSCRIPTSTUB=1
 
 build() {
     pushd ${TMPDIR}/${BUILDDIR} >/dev/null
-    logcmd ./install.rb --destdir=${DESTDIR}
+    logcmd ./install.rb --destdir=${DESTDIR} || logerr 'build failed'
     popd >/dev/null
 }
 
