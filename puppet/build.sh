@@ -40,6 +40,8 @@ BUILD_DEPENDS_IPS='runtime/ruby-20'
 DEPENDS_IPS='runtime/ruby-20 application/hiera application/facter'
 NOSCRIPTSTUB=1
 
+PATH="${PATH}:${PREFIX}/bin"
+
 build() {
     pushd ${TMPDIR}/${BUILDDIR} >/dev/null
     logcmd ./install.rb --destdir=${DESTDIR} || logerr 'build failed'
@@ -49,7 +51,7 @@ build() {
 }
 
 init
-download_source archive $VER
+download_source $PROG $PROG $VER
 patch_source
 prep_build
 build

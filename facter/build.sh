@@ -39,6 +39,9 @@ DESC="$SUMMARY"
 BUILD_DEPENDS_IPS='runtime/ruby-20'
 NOSCRIPTSTUB=1
 
+# we need ruby to build
+PATH="$PATH:${PREFIX}/bin"
+
 build() {
     pushd ${TMPDIR}/${BUILDDIR} >/dev/null
     logcmd ./install.rb --destdir=${DESTDIR} || logerr 'build failed'
