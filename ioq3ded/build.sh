@@ -52,7 +52,7 @@ download_source() {
     popd >/dev/null
 }
 
-MAKE_ARGS_BASE="BUILD_CLIENT=0 DEFAULT_BASEDIR=/usr/share/games/quake3"
+MAKE_ARGS_BASE="BUILD_CLIENT=0 DEFAULT_BASEDIR=/${PREFIX}/share/games/quake3"
 
 configure32() {
     MAKE_ARGS="$MAKE_ARGS_BASE"
@@ -82,10 +82,10 @@ make_install() {
         binary_suffix=x86
         libdir_suffix=
     fi
-    libdir=${DESTDIR}/usr/lib$libdir_suffix
+    libdir=${DESTDIR}/${PREFIX}/lib$libdir_suffix
     logcmd $MAKE $MAKE_ARGS COPYDIR=${libdir}/ioquake3 copyfiles
     executable=${libdir}/ioquake3/ioq3ded.$binary_suffix
-    isadir="${DESTDIR}/usr/sbin/$isapart"
+    isadir="${DESTDIR}/${PREFIX}/sbin/$isapart"
     mkdir -p "${isadir}"
     mv "$executable" "${isadir}"/ioq3ded
     svcdir=${DESTDIR}/lib/svc/manifest/network
