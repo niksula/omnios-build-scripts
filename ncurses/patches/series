@@ -1,2 +1,0 @@
-configure.patch -p0
-remove-cfmakeflags.patch -p0
