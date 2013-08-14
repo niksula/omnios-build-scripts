@@ -36,9 +36,18 @@ PKG=application/rtorrent
 SUMMARY="BitTorrent client on top of libtorrent with ncurses interface"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='library/libtorrent'
+# rtorrent won't build with 4.7.2 so use older gcc
+BUILD_DEPENDS_IPS='library/libtorrent developer/build/pkg-config developer/gcc46'
+
+# we need pkg-config for configure
+PATH=$PATH:$PREFIX/bin
+# and we need to add /usr/lib/pkgconfig to its path so that the configure
+# script finds sigc++
+PKG_CONFIG_PATH=/usr/lib/pkgconfig
+export PKG_CONFIG_PATH
 
 CPPFLAGS="$CPPFLAGS -I/usr/include/ncurses"
+CPPFLAGS64="$CPPFLAGS64 -I/usr/include/amd64"
 LDFLAGS="$LDFLAGS -lnsl -lsocket"
 LDFLAGS32="$LDFLAGS32 -L/usr/gnu/lib -R/usr/gnu/lib"
 LDFLAGS64="$LDFLAGS64 -L/usr/gnu/lib/amd64 -R/usr/gnu/lib/amd64"
