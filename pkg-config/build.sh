@@ -43,6 +43,9 @@ CFLAGS64="$CFLAGS64 -I/usr/include/amd64/glib-2.0 -I/usr/lib/amd64/glib-2.0/incl
 CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 GLIB_LIBS=/usr/lib/libglib-2.0.so"
 CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 GLIB_LIBS=/usr/lib/amd64/libglib-2.0.so"
 
+# add /usr to the default search path
+CONFIGURE_OPTS="$CONFIGURE_OPTS --with-pc-path=${PREFIX}/lib/pkgconfig:${PREFIX}/share/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
+
 init
 download_source releases $PROG $VER
 patch_source
