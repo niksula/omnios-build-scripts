@@ -37,7 +37,7 @@ PKG=games/ioquake3/server
 SUMMARY="Standalone server for ioQuake3 based games"
 DESC="$SUMMARY"
 
-DEPENDS_IPS='games/quake3/data'
+RUN_DEPENDS_IPS='games/quake3/data'
 
 download_source() {
     TARGETDIR=$TMPDIR
