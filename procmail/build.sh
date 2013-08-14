@@ -37,14 +37,14 @@ DESC="Can be used to create mail-servers, mailing lists, sort your incoming mail
 CONFIGURE_CMD=':'
 
 make_prog() {
-    $MAKE $MAKE_JOBS LOCKINGTEST=110 CFLAGS="$CFLAGS"
+    logcmd $MAKE $MAKE_JOBS LOCKINGTEST=110 CFLAGS="$CFLAGS" || logerr 'make failed'
 }
 
 make_install32() {
-    $MAKE VISIBLE_BASENAME=$PREFIX BASENAME=${DESTDIR}$PREFIX MANDIR='$(BASENAME)'/share/man BINDIR_TAIL=bin/$ISAPART install
+    logcmd $MAKE VISIBLE_BASENAME=$PREFIX BASENAME=${DESTDIR}$PREFIX MANDIR='$(BASENAME)'/share/man BINDIR_TAIL=bin/$ISAPART install || logerr 'make install failed'
 }
 make_install64() {
-    $MAKE VISIBLE_BASENAME=$PREFIX BASENAME=${DESTDIR}$PREFIX MANDIR='$(BASENAME)'/share/man BINDIR_TAIL=bin/$ISAPART64 install
+    logcmd $MAKE VISIBLE_BASENAME=$PREFIX BASENAME=${DESTDIR}$PREFIX MANDIR='$(BASENAME)'/share/man BINDIR_TAIL=bin/$ISAPART64 install || logerr 'make install failed'
 }
 
 init
