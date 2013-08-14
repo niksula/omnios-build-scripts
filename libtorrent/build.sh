@@ -29,6 +29,11 @@
 
 MIRROR=http://libtorrent.rakshasa.no/downloads/
 
+# build fails on gcc 4.7.2 so use 4.6
+CC=/opt/gcc-4.6.3/bin/gcc
+CXX=/opt/gcc-4.6.3/bin/g++
+BUILD_DEPENDS_IPS='developer/gcc46'
+
 PROG=libtorrent
 VER=0.13.2
 VERHUMAN=$VER
