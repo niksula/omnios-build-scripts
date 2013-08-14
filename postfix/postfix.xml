@@ -14,9 +14,9 @@
             <service_fmri value="svc:/system/filesystem/autofs"/>
         </dependency>
 
-        <exec_method type="method" name="start" exec="/usr/sbin/postfix start" timeout_seconds="60"/>
-        <exec_method type="method" name="stop" exec="/usr/sbin/postfix stop" timeout_seconds="60"/>
-        <exec_method type="method" name="refresh" exec="/usr/sbin/postfix reload" timeout_seconds="60"/>
+        <exec_method type="method" name="start" exec="/opt/lotheac/sbin/postfix start" timeout_seconds="60"/>
+        <exec_method type="method" name="stop" exec="/opt/lotheac/sbin/postfix stop" timeout_seconds="60"/>
+        <exec_method type="method" name="refresh" exec="/opt/lotheac/sbin/postfix reload" timeout_seconds="60"/>
 
         <property_group name="startd" type="framework">
             <propval name="duration" type="astring" value="contract"/>
