@@ -34,6 +34,9 @@ PKG=developer/debug/gdb
 SUMMARY="$PROG - the GNU Project debugger"
 DESC="GDB, the GNU Project debugger, allows you to see what is going on inside another program while it executes -- or what another program was doing at the moment it crashed."
 
+LDFLAGS32="$LDFLAGS32 -L/usr/gnu/lib -R/usr/gnu/lib"
+LDFLAGS64="$LDFLAGS64 -L/usr/gnu/lib/$ISAPART64 -R/usr/gnu/lib/$ISAPART64"
+
 CONFIGURE_OPTS="--with-system-readline
                 --without-x
                 --disable-tui
