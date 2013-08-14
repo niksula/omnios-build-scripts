@@ -36,6 +36,12 @@ DESC="Irssi is a terminal based IRC client for UNIX systems."
 
 BUILD_DEPENDS_IPS='developer/build/pkg-config'
 
+# pkg-config is in $PREFIX
+PATH=$PATH:$PREFIX/bin
+
+LDFLAGS32="$LDFLAGS32 -L/usr/gnu/lib -R/usr/gnu/lib"
+LDFLAGS64="$LDFLAGS64 -L/usr/gnu/lib/$ISAPART64 -R/usr/gnu/lib/$ISAPART64"
+
 init
 download_source $PROG $PROG $VER
 patch_source
