@@ -30,7 +30,7 @@
 MIRROR=http://downloads.puppetlabs.com/
 
 PROG=puppet
-VER=3.2.3
+VER=3.2.4
 VERHUMAN=$VER
 PKG=system/management/puppet
 SUMMARY="Declarative configuration management tool"
