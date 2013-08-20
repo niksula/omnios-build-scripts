@@ -30,8 +30,8 @@
 MIRROR=ftp://ftp.ruby-lang.org/pub
 
 PROG=ruby
-VERHUMAN=2.0.0-p195
-VER=2.0.0.195
+VERHUMAN=2.0.0-p247
+VER=2.0.0.247
 PKG=runtime/ruby-20
 SUMMARY="Ruby $VER"
 DESC="$SUMMARY"
