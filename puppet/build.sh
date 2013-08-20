@@ -27,8 +27,6 @@
 # Load support functions
 . ../../lib/functions.sh
 
-MIRROR=http://downloads.puppetlabs.com/
-
 PROG=puppet
 VER=3.2.4
 VERHUMAN=$VER

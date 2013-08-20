@@ -27,8 +27,6 @@
 # Load support functions
 . ../../lib/functions.sh
 
-MIRROR=http://dlc.sun.com/osol/jds/downloads/extras/time-slider/
-
 PROG=zfs-snapshot
 VER=0.11.2
 VERHUMAN=$VER

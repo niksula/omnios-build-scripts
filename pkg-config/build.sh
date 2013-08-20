@@ -27,8 +27,6 @@
 # Load support functions
 . ../../lib/functions.sh
 
-MIRROR=http://pkgconfig.freedesktop.org/
-
 PROG=pkg-config
 VER=0.26
 VERHUMAN=$VER
@@ -44,7 +42,7 @@ CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 GLIB_LIBS=/usr/lib/libglib-2.0.so"
 CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 GLIB_LIBS=/usr/lib/amd64/libglib-2.0.so"
 
 init
-download_source releases $PROG $VER
+download_source $PROG $PROG $VER
 patch_source
 prep_build
 build

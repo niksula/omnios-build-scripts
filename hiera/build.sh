@@ -27,8 +27,6 @@
 # Load support functions
 . ../../lib/functions.sh
 
-MIRROR=http://downloads.puppetlabs.com/
-
 PROG=hiera
 VER=1.2.1
 VERHUMAN=$VER

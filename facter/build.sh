@@ -27,8 +27,6 @@
 # Load support functions
 . ../../lib/functions.sh
 
-MIRROR=http://downloads.puppetlabs.com/
-
 PROG=facter
 VER=1.7.2
 VERHUMAN=$VER

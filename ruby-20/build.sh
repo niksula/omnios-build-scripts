@@ -27,8 +27,6 @@
 # Load support functions
 . ../../lib/functions.sh
 
-MIRROR=ftp://ftp.ruby-lang.org/pub
-
 PROG=ruby
 VERHUMAN=2.0.0-p247
 VER=2.0.0.247
@@ -63,7 +61,7 @@ CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64
 "
 
 init
-download_source ${PROG}/2.0 $PROG $VERHUMAN
+download_source $PROG $PROG $VERHUMAN
 patch_source
 prep_build
 build
