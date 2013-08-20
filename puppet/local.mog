@@ -1,3 +1,4 @@
+license LICENSE license=Apache2
 group groupname=puppet
 user group=puppet username=puppet
 dir owner=puppet group=puppet mode=0750 path=var/lib/puppet
