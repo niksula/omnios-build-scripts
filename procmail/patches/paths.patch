@@ -6,8 +6,8 @@
   */
 -/*#define DEFSPATH	"PATH=/bin:/usr/bin"			/* */
 -/*#define DEFPATH	"PATH=$HOME/bin:/bin:/usr/bin"		/* */
-+#define DEFSPATH	"PATH=/opt/lotheac/bin:/bin:/usr/bin"
-+#define DEFPATH	"PATH=$HOME/bin:/opt/lotheac/bin:/bin:/usr/bin"
++#define DEFSPATH	"PATH=/opt/niksula/bin:/bin:/usr/bin"
++#define DEFPATH	"PATH=$HOME/bin:/opt/niksula/bin:/bin:/usr/bin"
  
  /* every environment variable appearing in PRESTENV will be set or wiped
   * out of the environment (variables without an '=' sign will be thrown

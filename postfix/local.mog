@@ -8,7 +8,7 @@ group groupname=postdrop
 <transform dir path=var/spool/postfix/public -> set group postdrop>
 <transform dir path=var/spool/postfix/pid -> set owner root>
 # we only need setgid on the isaexec stubs
-<transform file path=opt/lotheac/sbin/postdrop -> set mode 2755>
-<transform file path=opt/lotheac/sbin/postdrop -> set group postdrop>
-<transform file path=opt/lotheac/sbin/postqueue -> set mode 2755>
-<transform file path=opt/lotheac/sbin/postqueue -> set group postdrop>
+<transform file path=opt/niksula/sbin/postdrop -> set mode 2755>
+<transform file path=opt/niksula/sbin/postdrop -> set group postdrop>
+<transform file path=opt/niksula/sbin/postqueue -> set mode 2755>
+<transform file path=opt/niksula/sbin/postqueue -> set group postdrop>

@@ -5,7 +5,7 @@
   */
  # ifndef HACKDIR
 -#  define HACKDIR "/usr/games/lib/nethackdir"
-+#  define HACKDIR "/opt/lotheac/games/lib/nethack"
++#  define HACKDIR "/opt/niksula/games/lib/nethack"
  # endif
  
  /*
