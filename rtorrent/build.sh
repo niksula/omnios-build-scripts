@@ -27,8 +27,6 @@
 # Load support functions
 . ../../lib/functions.sh
 
-MIRROR=http://libtorrent.rakshasa.no/downloads/
-
 PROG=rtorrent
 VER=0.9.2
 VERHUMAN=$VER
@@ -36,8 +34,7 @@ PKG=application/rtorrent
 SUMMARY="BitTorrent client on top of libtorrent with ncurses interface"
 DESC="$SUMMARY"
 
-# rtorrent won't build with 4.7.2 so use older gcc
-BUILD_DEPENDS_IPS='library/libtorrent developer/build/pkg-config developer/gcc46'
+BUILD_DEPENDS_IPS='library/libtorrent developer/build/pkg-config'
 
 # we need pkg-config
 PATH=$PATH:$PREFIX/bin
