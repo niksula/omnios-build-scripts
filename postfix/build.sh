@@ -27,10 +27,8 @@
 # Load support functions
 . ../../lib/functions.sh
 
-MIRROR=http://de.postfix.org/ftpmirror/official/
-
 PROG=postfix
-VER=2.10.0
+VER=2.10.1
 VERHUMAN=$VER
 PKG=service/network/smtp/postfix
 SUMMARY="Postfix MTA"
