@@ -39,8 +39,11 @@ PKG=library/libtorrent
 SUMMARY="a BitTorrent library"
 DESC="LibTorrent is a BitTorrent library written in C++ for *nix, with a focus on high performance and good code. The library differentiates itself from other implementations by transfering directly from file pages to the network stack."
 
+# we need pkg-config in PATH
+PATH=$PATH:$PREFIX/bin
+
 init
-download_source "" $PROG $VER
+download_source $PROG $PROG $VER
 patch_source
 prep_build
 build
