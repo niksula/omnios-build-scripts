@@ -26,30 +26,38 @@
 #
 # Load support functions
 . ../../lib/functions.sh
+datadir=$1
+[ -n "$datadir" ] || {
+    echo "Please provide directory containing quake3 data files pak[0-8].pk3"
+    echo "on the command line."
+    exit 1
+} >&2
 
-PROG=pkg-config
-VER=0.26
+PROG=q3data
+VER=1.0
 VERHUMAN=$VER
-PKG=developer/build/pkg-config
-SUMMARY="manage compile and link flags for libraries"
-DESC="pkg-config is a system for managing library compile and link flags that works with automake and autoconf."
+PKG=games/quake3/data
+SUMMARY="Quake III Arena data files"
+DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='library/glib2'
-
-CFLAGS32="$CFLAGS32 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include"
-CFLAGS64="$CFLAGS64 -I/usr/include/amd64/glib-2.0 -I/usr/lib/amd64/glib-2.0/include"
-CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 GLIB_LIBS=/usr/lib/libglib-2.0.so"
-CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 GLIB_LIBS=/usr/lib/amd64/libglib-2.0.so"
-
-# add /usr to the default search path
-CONFIGURE_OPTS="$CONFIGURE_OPTS --with-pc-path=${PREFIX}/lib/pkgconfig:${PREFIX}/share/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
+build() {
+    target=${DESTDIR}/usr/share/games/quake3/baseq3
+    mkdir -p $target
+    pushd "$datadir" >/dev/null
+    for n in `seq 0 8`; do
+        install -m 0644 pak${n}.pk3 ${target}/ || logerr "pak${n}.pk3 not found"
+    done
+    ln -s /etc/quake3/baseq3.cfg ${target}/server.cfg
+    mkdir -p ${DESTDIR}/etc/quake3
+    cat > ${DESTDIR}/etc/quake3/baseq3.cfg <<EOF
+exec ffa.config
+EOF
+    popd >/dev/null
+}
 
 init
-download_source $PROG $PROG $VER
-patch_source
 prep_build
 build
-make_isa_stub
 make_package
 clean_up
 

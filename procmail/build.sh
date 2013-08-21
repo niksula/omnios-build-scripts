@@ -27,22 +27,25 @@
 # Load support functions
 . ../../lib/functions.sh
 
-PROG=pkg-config
-VER=0.26
+PROG=procmail
+VER=3.22
 VERHUMAN=$VER
-PKG=developer/build/pkg-config
-SUMMARY="manage compile and link flags for libraries"
-DESC="pkg-config is a system for managing library compile and link flags that works with automake and autoconf."
+PKG=mail/procmail
+SUMMARY="Versatile e-mail processor"
+DESC="Can be used to create mail-servers, mailing lists, sort your incoming mail into separate folders/files (very convenient when subscribing to one or more mailing lists or for prioritising your mail), preprocess your mail, start any programs upon mail arrival (e.g. to generate different chimes on your workstation for different types of mail) or selectively forward certain incoming mail automatically to someone."
 
-BUILD_DEPENDS_IPS='library/glib2'
+CONFIGURE_CMD=':'
 
-CFLAGS32="$CFLAGS32 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include"
-CFLAGS64="$CFLAGS64 -I/usr/include/amd64/glib-2.0 -I/usr/lib/amd64/glib-2.0/include"
-CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 GLIB_LIBS=/usr/lib/libglib-2.0.so"
-CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 GLIB_LIBS=/usr/lib/amd64/libglib-2.0.so"
+make_prog() {
+    logcmd $MAKE $MAKE_JOBS LOCKINGTEST=110 CFLAGS="$CFLAGS" || logerr 'make failed'
+}
 
-# add /usr to the default search path
-CONFIGURE_OPTS="$CONFIGURE_OPTS --with-pc-path=${PREFIX}/lib/pkgconfig:${PREFIX}/share/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
+make_install32() {
+    logcmd $MAKE VISIBLE_BASENAME=$PREFIX BASENAME=${DESTDIR}$PREFIX MANDIR='$(BASENAME)'/share/man BINDIR_TAIL=bin/$ISAPART install || logerr 'make install failed'
+}
+make_install64() {
+    logcmd $MAKE VISIBLE_BASENAME=$PREFIX BASENAME=${DESTDIR}$PREFIX MANDIR='$(BASENAME)'/share/man BINDIR_TAIL=bin/$ISAPART64 install || logerr 'make install failed'
+}
 
 init
 download_source $PROG $PROG $VER

@@ -21,31 +21,30 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2013 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 # Load support functions
 . ../../lib/functions.sh
 
-PROG=pkg-config
-VER=0.26
+MIRROR=ftp://ftp.mutt.org
+
+PROG=mutt
+VER=1.5.21
 VERHUMAN=$VER
-PKG=developer/build/pkg-config
-SUMMARY="manage compile and link flags for libraries"
-DESC="pkg-config is a system for managing library compile and link flags that works with automake and autoconf."
+PKG=mail/mutt
+SUMMARY="The Mutt E-Mail Client"
+DESC='All mail clients suck. This one just sucks less.'
 
-BUILD_DEPENDS_IPS='library/glib2'
+# link against ncurses
+LDFLAGS32="$LDFLAGS32 -R/usr/gnu/lib -L/usr/gnu/lib"
+LDFLAGS64="$LDFLAGS64 -R/usr/gnu/lib/$ISAPART64 -L/usr/gnu/lib/$ISAPART64"
 
-CFLAGS32="$CFLAGS32 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include"
-CFLAGS64="$CFLAGS64 -I/usr/include/amd64/glib-2.0 -I/usr/lib/amd64/glib-2.0/include"
-CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 GLIB_LIBS=/usr/lib/libglib-2.0.so"
-CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 GLIB_LIBS=/usr/lib/amd64/libglib-2.0.so"
-
-# add /usr to the default search path
-CONFIGURE_OPTS="$CONFIGURE_OPTS --with-pc-path=${PREFIX}/lib/pkgconfig:${PREFIX}/share/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-imap --with-ssl --with-sasl --enable-hcache --with-libiconv-prefix=/usr"
+BUILD_DEPENDS_IPS='database/tokyocabinet'
 
 init
-download_source $PROG $PROG $VER
+download_source ${PROG}/devel $PROG $VER
 patch_source
 prep_build
 build

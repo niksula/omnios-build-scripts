@@ -27,27 +27,30 @@
 # Load support functions
 . ../../lib/functions.sh
 
-PROG=pkg-config
-VER=0.26
-VERHUMAN=$VER
-PKG=developer/build/pkg-config
-SUMMARY="manage compile and link flags for libraries"
-DESC="pkg-config is a system for managing library compile and link flags that works with automake and autoconf."
+MIRROR=http://lotheac.fi/s/
 
-BUILD_DEPENDS_IPS='library/glib2'
+PROG=tf
+VER=5.0.8
+VERHUMAN=5.0b8
+PKG=games/mud/tinyfugue
+SUMMARY="flexible, screen-oriented MUD client"
+DESC="$SUMMARY"
 
-CFLAGS32="$CFLAGS32 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include"
-CFLAGS64="$CFLAGS64 -I/usr/include/amd64/glib-2.0 -I/usr/lib/amd64/glib-2.0/include"
-CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 GLIB_LIBS=/usr/lib/libglib-2.0.so"
-CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 GLIB_LIBS=/usr/lib/amd64/libglib-2.0.so"
+CFLAGS="$CFLAGS -I/usr/include/pcre"
 
-# add /usr to the default search path
-CONFIGURE_OPTS="$CONFIGURE_OPTS --with-pc-path=${PREFIX}/lib/pkgconfig:${PREFIX}/share/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
+BUILDDIR=${PROG}-${VERHUMAN//./}
+
+mkinstalldirs() {
+    for d in bin/$ISAPART bin/$ISAPART64 share; do
+        mkdir -p ${DESTDIR}/${PREFIX}/$d
+    done
+}
 
 init
-download_source $PROG $PROG $VER
+download_source "" $BUILDDIR
 patch_source
 prep_build
+mkinstalldirs
 build
 make_isa_stub
 make_package

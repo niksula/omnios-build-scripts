@@ -1,0 +1,9 @@
+--- a/src/plugins/quota/quota-status.c	2013-04-07 23:46:44.974297565 +0300
++++ b/src/plugins/quota/quota-status.c	2013-04-07 23:44:49.057847475 +0300
+@@ -1,5 +1,6 @@
+ /* Copyright (c) 2013 Dovecot authors, see the included COPYING file */
+ 
++#include <stdio.h>
+ #include "lib.h"
+ #include "ostream.h"
+ #include "connection.h"

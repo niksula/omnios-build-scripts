@@ -21,31 +21,39 @@
 # CDDL HEADER END
 #
 #
-# Copyright 2011-2013 OmniTI Computer Consulting, Inc.  All rights reserved.
+# Copyright 2011-2012 OmniTI Computer Consulting, Inc.  All rights reserved.
 # Use is subject to license terms.
 #
 # Load support functions
 . ../../lib/functions.sh
 
-PROG=pkg-config
-VER=0.26
+MIRROR=ftp://ftp.tin.org/pub/news/clients/
+
+PROG=tin
+VER=2.0.1
 VERHUMAN=$VER
-PKG=developer/build/pkg-config
-SUMMARY="manage compile and link flags for libraries"
-DESC="pkg-config is a system for managing library compile and link flags that works with automake and autoconf."
+PKG=news/tin
+SUMMARY="a threaded NNTP and spool based UseNet newsreader"
+DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='library/glib2'
+NOSCRIPTSTUB=1
 
-CFLAGS32="$CFLAGS32 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include"
-CFLAGS64="$CFLAGS64 -I/usr/include/amd64/glib-2.0 -I/usr/lib/amd64/glib-2.0/include"
-CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 GLIB_LIBS=/usr/lib/libglib-2.0.so"
-CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 GLIB_LIBS=/usr/lib/amd64/libglib-2.0.so"
+make_prog() {
+    pushd src >/dev/null
+    logcmd $MAKE $MAKE_JOBS || logerr 'make failed'
+    popd >/dev/null
+}
 
-# add /usr to the default search path
-CONFIGURE_OPTS="$CONFIGURE_OPTS --with-pc-path=${PREFIX}/lib/pkgconfig:${PREFIX}/share/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
+make_install() {
+    pushd src >/dev/null
+    logcmd $MAKE DESTDIR=${DESTDIR} install || logerr 'install failed'
+    popd >/dev/null
+}
+
+CONFIGURE_OPTS="$CONFIGURE_OPTS --mandir=${PREFIX}/share/man"
 
 init
-download_source $PROG $PROG $VER
+download_source $PROG/stable $PROG $VER
 patch_source
 prep_build
 build

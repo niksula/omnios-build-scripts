@@ -27,22 +27,20 @@
 # Load support functions
 . ../../lib/functions.sh
 
-PROG=pkg-config
-VER=0.26
+PROG=irssi
+VER=0.8.15
 VERHUMAN=$VER
-PKG=developer/build/pkg-config
-SUMMARY="manage compile and link flags for libraries"
-DESC="pkg-config is a system for managing library compile and link flags that works with automake and autoconf."
+PKG=network/chat/irssi
+SUMMARY="terminal based IRC client"
+DESC="Irssi is a terminal based IRC client for UNIX systems."
 
-BUILD_DEPENDS_IPS='library/glib2'
+BUILD_DEPENDS_IPS='developer/build/pkg-config'
 
-CFLAGS32="$CFLAGS32 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include"
-CFLAGS64="$CFLAGS64 -I/usr/include/amd64/glib-2.0 -I/usr/lib/amd64/glib-2.0/include"
-CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 GLIB_LIBS=/usr/lib/libglib-2.0.so"
-CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 GLIB_LIBS=/usr/lib/amd64/libglib-2.0.so"
+# pkg-config is in $PREFIX
+PATH=$PATH:$PREFIX/bin
 
-# add /usr to the default search path
-CONFIGURE_OPTS="$CONFIGURE_OPTS --with-pc-path=${PREFIX}/lib/pkgconfig:${PREFIX}/share/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
+LDFLAGS32="$LDFLAGS32 -L/usr/gnu/lib -R/usr/gnu/lib"
+LDFLAGS64="$LDFLAGS64 -L/usr/gnu/lib/$ISAPART64 -R/usr/gnu/lib/$ISAPART64"
 
 init
 download_source $PROG $PROG $VER

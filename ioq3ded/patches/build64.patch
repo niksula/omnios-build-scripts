@@ -1,0 +1,11 @@
+--- Makefile.orig	2013-04-05 22:53:54.909198062 +0300
++++ Makefile	2013-04-05 22:54:25.796200835 +0300
+@@ -793,7 +793,7 @@
+   COPYDIR="/usr/local/share/games/quake3"
+ 
+   ifneq ($(ARCH),x86)
+-    ifneq ($(ARCH),sparc)
++    ifneq ($(ARCH),x86_64)
+       $(error arch $(ARCH) is currently not supported)
+     endif
+   endif

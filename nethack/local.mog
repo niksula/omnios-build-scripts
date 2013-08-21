@@ -1,0 +1,6 @@
+<transform file path=var/games/nethack -> set group games>
+<transform file path=var/games/nethack -> set mode 0664>
+<transform dir path=var/games/nethack -> set group games>
+<transform dir path=var/games/nethack -> set mode 2775>
+<transform file path=opt/lotheac/bin/nethack -> set group games>
+<transform file path=opt/lotheac/bin/nethack -> set mode 2755>

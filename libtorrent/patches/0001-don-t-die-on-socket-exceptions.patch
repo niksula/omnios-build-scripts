@@ -1,0 +1,32 @@
+From 6bdce6f06145f585a0a1191555ed86635e8eef01 Mon Sep 17 00:00:00 2001
+From: Lauri Tirkkonen <lotheac@iki.fi>
+Date: Sun, 21 Jul 2013 16:30:16 +0300
+Subject: [PATCH] don't die on socket exceptions
+
+---
+ src/net/listen.cc | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/src/net/listen.cc b/src/net/listen.cc
+index c0e7232..4d41c70 100644
+--- a/src/net/listen.cc
++++ b/src/net/listen.cc
+@@ -125,7 +125,14 @@ Listen::event_write() {
+ 
+ void
+ Listen::event_error() {
+-  throw internal_error("Listener port received an error event.");
++  int socket = get_fd().get_fd();
++  int error = 0;
++  socklen_t errorLen = sizeof(error);
++
++  if (getsockopt(socket, SOL_SOCKET, SO_ERROR, &error, &errorLen) != -1 && error != 0) {
++    std::string errorMsg = std::string("Listener port received an error event: ") + strerror(error);
++    throw internal_error(errorMsg.c_str());
++  }
+ }
+ 
+ }
+-- 
+1.8.1.3
+
