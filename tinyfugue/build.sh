@@ -45,7 +45,7 @@ mkinstalldirs() {
 }
 
 init
-download_source "" $BUILDDIR
+download_source $PROG $BUILDDIR
 patch_source
 prep_build
 mkinstalldirs
