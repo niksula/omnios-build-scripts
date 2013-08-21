@@ -34,24 +34,22 @@ PKG=service/network/smtp/postfix
 SUMMARY="Postfix MTA"
 DESC="Wietse Venema's mail server that started life at IBM research as an alternative to the widely-used Sendmail program. "
 
-CCARGS='-DUSE_TLS -DHAS_LDAP -DUSE_LDAP_SASL -DNO_NIS -DDEF_MANPAGE_DIR=\"'$PREFIX/share/man'\" -DDEF_COMMAND_DIR=\"'${PREFIX}/sbin'\" -DDEF_DAEMON_DIR=\"'${PREFIX}/libexec/postfix'\" -DDEF_MAILQ_PATH=\"'${PREFIX}/bin/mailq'\" -DDEF_NEWALIAS_PATH=\"'${PREFIX}/bin/newaliases'\" '"$CFLAGS"
+CCARGS='-DUSE_TLS -DHAS_LDAP -DUSE_LDAP_SASL -DNO_NIS -DDEF_MANPAGE_DIR=\"'$PREFIX/share/man'\" -DDEF_COMMAND_DIR=\"'${PREFIX}/sbin'\" -DDEF_MAILQ_PATH=\"'${PREFIX}/bin/mailq'\" -DDEF_NEWALIAS_PATH=\"'${PREFIX}/bin/newaliases'\" -DDEF_CONFIG_DIR=\"'${PREFIX}/etc/postfix'\" '"$CFLAGS"
+CCARGS32='-DDEF_DAEMON_DIR=\"'${PREFIX}/libexec/postfix'\"'
+CCARGS64='-DDEF_DAEMON_DIR=\"'${PREFIX}/libexec/$ISAPART64/postfix'\"'
 AUXLIBS='-lssl -lcrypto -lldap'
 
-# create stubs for the libexec stuff too
-ISAEXEC_DIRS="bin sbin libexec/postfix"
-# 'postfix check' doesn't work if libexec/postfix/post-install is not a shell
-# script
 NOSCRIPTSTUB=1
 
 configure32() {
     logmsg '--- make makefiles'
-    logcmd $MAKE makefiles CCARGS="$CCARGS $CFLAGS32" AUXLIBS="$AUXLIBS"
+    logcmd $MAKE makefiles CCARGS="$CCARGS $CCARGS32 $CFLAGS32" AUXLIBS="$AUXLIBS"
     cur_isa=${ISAPART}
 }
 
 configure64() {
     logmsg '--- make makefiles'
-    logcmd $MAKE makefiles CCARGS="$CCARGS $CFLAGS64" AUXLIBS="$AUXLIBS"
+    logcmd $MAKE makefiles CCARGS="$CCARGS $CCARGS64 $CFLAGS64" AUXLIBS="$AUXLIBS"
     cur_isa=${ISAPART64}
 }
 
@@ -69,15 +67,12 @@ make_install() {
     # installing into default directories and move binaries in the correct
     # place after install
 
-    # sendmail will go to $PREFIX/lib if not set here. /usr/lib/sendmail is
-    # required for compatibility but we need to put binaries in bin/sbin to get
-    # correct isaexec stubs
+    # sendmail will go to /usr/lib if not set here, but system sendmail is
+    # already there. put it in PREFIX/sbin to get correct isaexec stubs
     install_args="install_root=${DESTDIR} sendmail_path=${PREFIX}/sbin/sendmail"
-    mkdir -p ${DESTDIR}/${PREFIX}/lib
-    ln -s ../sbin/sendmail ${DESTDIR}/${PREFIX}/lib/
     logcmd $MAKE non-interactive-package $install_args || \
         logerr '--- make install failed'
-    for dir in $ISAEXEC_DIRS; do
+    for dir in ${ISAEXEC_DIRS-bin sbin}; do
         pushd ${DESTDIR}/${PREFIX}/${dir} >/dev/null
         mkdir -p $cur_isa
         find . -maxdepth 1 -type f -exec mv {} ${cur_isa}/ ';'
