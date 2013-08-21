@@ -46,7 +46,7 @@ LDFLAGS32="$LDFLAGS32 -L/usr/gnu/lib -R/usr/gnu/lib"
 LDFLAGS64="$LDFLAGS64 -L/usr/gnu/lib/amd64 -R/usr/gnu/lib/amd64"
 
 init
-download_source "" $PROG $VER
+download_source $PROG $PROG $VER
 patch_source
 prep_build
 build
