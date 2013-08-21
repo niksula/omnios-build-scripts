@@ -1,3 +1,4 @@
+license LICENSE license=IBM
 user username=postfix group=postfix home-dir=/var/lib/postfix shell=/bin/false ftpuser=false
 group groupname=postfix
 group groupname=postdrop
