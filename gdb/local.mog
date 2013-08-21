@@ -27,12 +27,3 @@ license COPYING license=GPLv2
 license COPYING.LIB license=LGPLv2
 license COPYING3 license=GPLv3
 license COPYING3.LIB license=LGPLv3
-
-# gnu-binutils includes these files as well
-<transform file path=usr/share/locale/.*/LC_MESSAGES/.* -> drop>
-<transform file path=usr/share/info/standards.info -> drop>
-<transform file path=usr/share/info/configure.info -> drop>
-<transform file path=usr/share/info/bfd.info -> drop>
-<transform file path=usr/include/amd64 -> drop>
-<transform file path=usr/include/[^/]*.h -> drop>
-<transform file path=usr/lib -> drop>
