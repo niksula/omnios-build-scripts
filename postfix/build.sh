@@ -62,16 +62,21 @@ make_install() {
     logmsg '--- make install'
     [ -n "$cur_isa" ] || logerr "don't know which arch we're installing"
 
+    # If postfix finds a configuration file in the destination it will use
+    # paths defined there in the install script, so let's install to different
+    # DESTDIRs for different ISAs and merge afterwards
+
+    # sendmail will go to /usr/lib if not set here, but system sendmail is
+    # already there. put it in PREFIX/sbin to get correct isaexec stubs.
+    install_args="install_root=${DESTDIR}/$cur_isa sendmail_path=${PREFIX}/sbin/sendmail"
+    logcmd $MAKE non-interactive-package $install_args || \
+        logerr '--- make install failed'
+    cp -fRP ${DESTDIR}/$cur_isa/* ${DESTDIR}
+    rm -fr ${DESTDIR}/$cur_isa
     # postfix will generate its config file and the symlinks it installs with
     # paths pointing to the configured directories, so let's just tell it we're
     # installing into default directories and move binaries in the correct
-    # place after install
-
-    # sendmail will go to /usr/lib if not set here, but system sendmail is
-    # already there. put it in PREFIX/sbin to get correct isaexec stubs
-    install_args="install_root=${DESTDIR} sendmail_path=${PREFIX}/sbin/sendmail"
-    logcmd $MAKE non-interactive-package $install_args || \
-        logerr '--- make install failed'
+    # place after install -- this way we get a sensible default conf file
     for dir in ${ISAEXEC_DIRS-bin sbin}; do
         pushd ${DESTDIR}/${PREFIX}/${dir} >/dev/null
         mkdir -p $cur_isa
