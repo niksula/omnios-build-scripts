@@ -90,7 +90,7 @@ make_install() {
 }
 
 init
-download_source "" $PROG $VER
+download_source $PROG $PROG $VER
 patch_source
 prep_build
 build
