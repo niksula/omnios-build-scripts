@@ -27,8 +27,6 @@
 # Load support functions
 . ../../lib/functions.sh
 
-MIRROR=ftp://ftp.tin.org/pub/news/clients/
-
 PROG=tin
 VER=2.0.1
 VERHUMAN=$VER
@@ -53,7 +51,7 @@ make_install() {
 CONFIGURE_OPTS="$CONFIGURE_OPTS --mandir=${PREFIX}/share/man"
 
 init
-download_source $PROG/stable $PROG $VER
+download_source $PROG $PROG $VER
 patch_source
 prep_build
 build

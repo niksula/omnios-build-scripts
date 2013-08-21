@@ -27,9 +27,6 @@
 # Load support functions
 . ../../lib/functions.sh
 
-# FIXME should use a more reliable mirror :)
-MIRROR="http://lotheac.fi/s/"
-
 PROG=nethack
 VER=3.4.3
 VERHUMAN=$VER

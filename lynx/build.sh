@@ -27,8 +27,6 @@
 # Load support functions
 . ../../lib/functions.sh
 
-MIRROR=http://lynx.isc.org/
-
 PROG=lynx
 VER=2.8.7
 VERHUMAN=$VER
@@ -41,7 +39,7 @@ BUILDDIR=$PROG${VER//./-}
 CONFIGURE_OPTS=--mandir=${PREFIX}/share/man
 
 init
-download_source $PROG$VER $PROG$VER
+download_source $PROG $PROG$VER
 patch_source
 prep_build
 build

@@ -27,8 +27,6 @@
 # Load support functions
 . ../../lib/functions.sh
 
-MIRROR=ftp://ftp.mutt.org
-
 PROG=mutt
 VER=1.5.21
 VERHUMAN=$VER
@@ -44,7 +42,7 @@ CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-imap --with-ssl --with-sasl --enable-hc
 BUILD_DEPENDS_IPS='database/tokyocabinet'
 
 init
-download_source ${PROG}/devel $PROG $VER
+download_source $PROG $PROG $VER
 patch_source
 prep_build
 build

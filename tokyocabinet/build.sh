@@ -27,8 +27,6 @@
 # Load support functions
 . ../../lib/functions.sh
 
-MIRROR=fallabs.com
-
 PROG=tokyocabinet
 VER=1.4.48
 VERHUMAN=$VER

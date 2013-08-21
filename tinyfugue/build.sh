@@ -27,8 +27,6 @@
 # Load support functions
 . ../../lib/functions.sh
 
-MIRROR=http://lotheac.fi/s/
-
 PROG=tf
 VER=5.0.8
 VERHUMAN=5.0b8
