@@ -64,7 +64,7 @@ make_install64() {
 }
 
 init
-download_source "" "nethack-343-src" ""
+download_source $PROG "nethack-343-src"
 patch_source
 prep_build
 build
