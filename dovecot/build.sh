@@ -27,17 +27,15 @@
 # Load support functions
 . ../../lib/functions.sh
 
-MIRROR=www.dovecot.org
-
 PROG=dovecot
-VER=2.1.16
+VER=2.2.5
 VERHUMAN=$VER
 PKG=service/network/imap/dovecot
 SUMMARY="dovecot secure IMAP server"
 DESC="$SUMMARY"
 
 init
-download_source releases/2.1 $PROG $VER
+download_source $PROG $PROG $VER
 patch_source
 prep_build
 build
