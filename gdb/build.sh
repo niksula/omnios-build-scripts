@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=gdb
-VER=7.5
+VER=7.6
 VERHUMAN=$VER
 PKG=developer/debug/gdb
 SUMMARY="$PROG - the GNU Project debugger"
