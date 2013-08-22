@@ -1,0 +1,6 @@
+license LICENSE license=OpenLDAP
+group groupname=openldap
+user username=openldap group=openldap home-dir=/opt/openldap/var/openldap ftpuser=false
+<transform file path=opt/openldap/etc/ -> set preserve renamenew>
+# building twice results in two identical schema dirs, drop the other
+<transform dir path=opt/openldap/etc/openldap/schema\.+$ -> drop>
