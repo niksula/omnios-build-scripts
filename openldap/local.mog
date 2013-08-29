@@ -4,6 +4,9 @@ user username=openldap group=openldap home-dir=/var/openldap-data ftpuser=false
 <transform file path=opt/openldap/etc/ -> set preserve renamenew>
 <transform file path=opt/openldap/etc/ -> set owner openldap>
 <transform file path=opt/openldap/etc/ -> set group openldap>
+<transform dir path=var/openldap-data -> set owner openldap>
+<transform file path=var/openldap-data -> set owner openldap>
+<transform file path=var/openldap-data -> set group openldap>
 # building twice results in two identical schema dirs, drop the other one
 <transform file path=opt/openldap/etc/openldap/schema\.[0-9]+/ -> drop>
 <transform dir path=opt/openldap/etc/openldap/schema\.[0-9]+ -> drop>
