@@ -43,19 +43,19 @@ CONFIGURE_OPTS="$CONFIGURE_OPTS --localstatedir=/var"
 install_manifest() {
     smfdir=${DESTDIR}/lib/svc/manifest/network/ldap
     mkdir -p $smfdir
-    cp $SRCDIR/files/slapd.xml $smfdir
+    cp ${SRCDIR}/files/slapd.xml $smfdir
 }
 
 # the default config file puts pidfile and argsfile under LOCALSTATEDIR/run,
 # but that location won't be writable for openldap user (which we run slapd
 # as), so let's ship a different default
 install_slapdconf() {
-    install -m 0600 $SRCDIR/files/slapd.conf ${DESTDIR}/${PREFIX}/etc/openldap/slapd.conf
+    install -m 0600 ${SRCDIR}/files/slapd.conf ${DESTDIR}/${PREFIX}/etc/openldap/slapd.conf
 }
 
 install_solaris_schema() {
     for f in solaris.ldif solaris.schema; do
-        install -m 0444 $SRCDIR/files/$f ${DESTDIR}/${PREFIX}/etc/openldap/schema/$f
+        install -m 0444 ${SRCDIR}/files/$f ${DESTDIR}/${PREFIX}/etc/openldap/schema/$f
     done
 }
 
