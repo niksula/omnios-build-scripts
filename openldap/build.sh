@@ -53,6 +53,12 @@ install_slapdconf() {
     install -m 0600 $SRCDIR/files/slapd.conf ${DESTDIR}/${PREFIX}/etc/openldap/slapd.conf
 }
 
+install_solaris_schema() {
+    for f in solaris.ldif solaris.schema; do
+        install -m 0444 $SRCDIR/files/$f ${DESTDIR}/${PREFIX}/etc/openldap/schema/$f
+    done
+}
+
 init
 download_source $PROG $PROG $VER
 patch_source
@@ -60,6 +66,7 @@ prep_build
 build
 install_manifest
 install_slapdconf
+install_solaris_schema
 make_isa_stub
 make_package
 clean_up
