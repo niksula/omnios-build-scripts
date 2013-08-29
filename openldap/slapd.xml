@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
 <service_bundle type="manifest" name="slapd">
-    <service name="/network/ldap/slapd" type="service" version="1">
+    <service name="network/ldap/slapd" type="service" version="1">
         <create_default_instance enabled="false"/>
         <single_instance/>
 
@@ -17,7 +17,7 @@
             <method_credential user="openldap" group="openldap" privileges="basic,net_privaddr"/>
         </method_context>
 
-        <exec_method type="method" name="start" exec="/opt/openldap/lib/slapd -f %{config_file} -h &#34;ldap:/// ldaps:/// ldapi://%2Fopt%2Fopenldap%2Fvar%2Frun%2Fldapi&#34;" timeout_seconds="60"/>
+        <exec_method type="method" name="start" exec="/opt/openldap/libexec/slapd -f %{config_file} -h &#34;ldap:/// ldaps:/// ldapi://%%2Fvar%%2Frun%%2Fldapi&#34;" timeout_seconds="60"/>
 
         <exec_method type="method" name="stop" exec=":kill" timeout_seconds="60"/>
 
