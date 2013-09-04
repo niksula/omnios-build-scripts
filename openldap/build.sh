@@ -38,7 +38,7 @@ BUILD_DEPENDS_IPS='database/bdb'
 
 PREFIX=/opt/openldap
 reset_configure_opts
-CONFIGURE_OPTS="$CONFIGURE_OPTS --localstatedir=/var"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --localstatedir=/var --enable-overlays"
 
 install_manifest() {
     smfdir=${DESTDIR}/lib/svc/manifest/network/ldap
