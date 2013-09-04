@@ -12,4 +12,3 @@ user username=openldap group=openldap home-dir=/var/openldap-data ftpuser=false
 <transform dir path=opt/openldap/etc/openldap/schema\.[0-9]+ -> drop>
 # we don't need two copies of config files
 <transform file path=opt/openldap/etc/openldap/.+\.default$ -> drop>
-dir path=var/run/openldap owner=openldap group=openldap
