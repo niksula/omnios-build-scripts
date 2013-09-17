@@ -38,11 +38,9 @@ BUILD_DEPENDS_IPS='library/glib2'
 
 CFLAGS32="$CFLAGS32 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include"
 CFLAGS64="$CFLAGS64 -I/usr/include/amd64/glib-2.0 -I/usr/lib/amd64/glib-2.0/include"
-CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 GLIB_LIBS=/usr/lib/libglib-2.0.so"
-CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 GLIB_LIBS=/usr/lib/amd64/libglib-2.0.so"
-
-# add /usr to the default search path
-CONFIGURE_OPTS="$CONFIGURE_OPTS --with-pc-path=${PREFIX}/lib/pkgconfig:${PREFIX}/share/pkgconfig:/usr/lib/pkgconfig:/usr/share/pkgconfig"
+# add /usr to the default search paths
+CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 GLIB_LIBS=/usr/lib/libglib-2.0.so --with-pc-path=${PREFIX}/lib/pkgconfig:/usr/lib/pkgconfig"
+CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 GLIB_LIBS=/usr/lib/amd64/libglib-2.0.so --with-pc-path=${PREFIX}/lib/${ISAPART64}/pkgconfig:/usr/lib/${ISAPART64}/pkgconfig"
 
 init
 download_source $PROG $PROG $VER
