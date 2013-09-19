@@ -34,7 +34,9 @@ PKG=network/chat/irssi
 SUMMARY="terminal based IRC client"
 DESC="Irssi is a terminal based IRC client for UNIX systems."
 
-BUILD_DEPENDS_IPS='developer/build/pkg-config'
+# we need 64bit perl to get script support for 64bit irssi
+# TODO: KYSTY and use own perl instead of system
+BUILD_DEPENDS_IPS='developer/build/pkg-config runtime/perl-64'
 
 # pkg-config is in $PREFIX
 PATH=$PATH:$PREFIX/bin
