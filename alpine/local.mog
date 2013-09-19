@@ -1,0 +1,3 @@
+license LICENSE license=Apache2
+<transform file path=.+(share/man/man1/)(pico|pilot)\.1$ -> drop>
+<transform file path=.+/bin/(amd64/|i386/)?(pico|pilot)$ -> drop>
