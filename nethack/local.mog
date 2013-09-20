@@ -5,3 +5,4 @@ license dat/license license=nethack
 <transform dir path=var/games/nethack -> set mode 2775>
 <transform file path=opt/niksula/bin/nethack -> set group games>
 <transform file path=opt/niksula/bin/nethack -> set mode 2755>
+<transform file path=var/games/nethack -> set preserve true>
