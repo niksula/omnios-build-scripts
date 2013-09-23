@@ -1,0 +1,3 @@
+license COPYING license=GPLv3
+<transform file path=.+/bin/(amd64/|i386/)?ctags -> drop>
+<transform file path=.+/share/man/man1/ctags.1 -> drop>
