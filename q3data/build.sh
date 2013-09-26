@@ -47,9 +47,9 @@ build() {
     for n in `seq 0 8`; do
         install -m 0644 pak${n}.pk3 ${target}/ || logerr "pak${n}.pk3 not found"
     done
-    ln -s /etc/quake3/baseq3.cfg ${target}/server.cfg
-    mkdir -p ${DESTDIR}/etc/quake3
-    cat > ${DESTDIR}/etc/quake3/baseq3.cfg <<EOF
+    ln -s ${PREFIX}/etc/quake3/baseq3.cfg ${target}/server.cfg
+    mkdir -p ${DESTDIR}${PREFIX}/etc/quake3
+    cat > ${DESTDIR}${PREFIX}/etc/quake3/baseq3.cfg <<EOF
 exec ffa.config
 EOF
     popd >/dev/null
