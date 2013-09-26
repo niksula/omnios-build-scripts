@@ -36,7 +36,7 @@ datadir=$1
 PROG=q3data
 VER=1.0
 VERHUMAN=$VER
-PKG=games/quake3/data
+PKG=games/quake3-data
 SUMMARY="Quake III Arena data files"
 DESC="$SUMMARY"
 
