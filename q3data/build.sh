@@ -41,7 +41,7 @@ SUMMARY="Quake III Arena data files"
 DESC="$SUMMARY"
 
 build() {
-    target=${DESTDIR}/usr/share/games/quake3/baseq3
+    target=${DESTDIR}${PREFIX}/share/games/quake3/baseq3
     mkdir -p $target
     pushd "$datadir" >/dev/null
     for n in `seq 0 8`; do
