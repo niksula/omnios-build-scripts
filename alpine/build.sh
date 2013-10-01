@@ -39,7 +39,7 @@ CONFIGURE_OPTS="--with-ssl-dir=/etc/ssl
 --without-ldap
 --without-tcl
 --with-system-pinerc=${PREFIX}/etc/pine.conf
---with-system-fixed-pinerc=${PREFIX}/etc/pine.conf
+--with-system-fixed-pinerc=${PREFIX}/etc/pine.conf.fixed
 "
 
 CFLAGS="$CFLAGS -g"
