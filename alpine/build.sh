@@ -56,6 +56,7 @@ download_source $PROG $PROG $VER
 patch_source
 prep_build
 build
+ln -s alpine ${DESTDIR}${PREFIX}/bin/pine
 make_isa_stub
 make_package
 clean_up
