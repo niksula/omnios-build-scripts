@@ -1,0 +1,63 @@
+#!/bin/sh
+# netmot 2.0, 27.12.2002
+# Author: tontti@cc.hut.fi
+#        3.0, 12.02.2007 jasso@niksula.hut.fi
+#        3.1, 12.02.2007 sslaitin@niksula.hut.fi
+#	 3.2, 01.06.2009 jasso@niksula.hut.fi
+
+url="http://mot.kielikone.fi/mot/tkk/netmot.exe?UI=file"
+englanti="&Opt=8&dic=1&SearchWord="
+espanja="&Opt=8&dic=6&SearchWord="
+italia="&Opt=8&dic=8&SearchWord="
+ranska="&Opt=8&dic=4&SearchWord="
+ruotsi="&Opt=8&dic=2&SearchWord="
+saksa="&Opt=8&dic=3&SearchWord="
+venaja="&Opt=8&dic=5&SearchWord="
+atk="&Opt=8&dic=13&SearchWord="
+globaldix="&Opt=8&dic=10&SearchWord="
+gummerus="&Opt=8&dic=11&SearchWord="
+vnkorkeakoulu="&Opt=8&dic=12&SearchWord="
+lang="$englanti"
+pager=${PAGER-less}
+AWK=nawk
+
+usage () {
+  echo "usage: $0 [option]... word..."
+  echo "Lookup word in NetMOT's dictionary."
+  echo ""
+  echo "Language selection for dictionary:"
+  echo "  -e    English [default]"
+  echo "  -f    French"
+  echo "  -s    German"
+  echo "  -i    Italian"
+  echo "  -v    Russian"
+  echo "  -r    Swedish"
+  echo "  -ñ    Spanish"
+#  echo "  -a    ATK-sanakirja"
+#  echo "  -g    GlobalDix"
+  exit 2
+}
+
+while true; do
+  case "$1" in
+   -e) lang="$englanti"; shift ;;
+   -s) lang="$saksa"; shift ;;
+   -f) lang="$ranska"; shift ;;
+   -i) lang="$italia"; shift ;;
+   -v) lang="$venaja"; shift ;;
+   -r) lang="$ruotsi"; shift ;;
+   -ñ) lang="$espanja"; shift ;;
+#   -a) lang="$atk"; shift ;;
+#   -g) lang="$globaldix"; shift ;;
+   --) shift; break ;;
+   -*) usage ;;
+   *)  break ;;
+  esac
+done
+
+word=`echo "$@" | sed -e 's/ /%20/'`
+[ "$word" ] || usage
+
+export http_proxy
+#lynx -dump "$url$lang$word" | $AWK 'BEGIN { foo = 0 } match($0, /______/) { foo++ } foo == 4 { print $0 }'
+lynx -dump "$url$lang$word" | $AWK 'NR == 33, /^   Copyright /' | $AWK 'NR==1,/GlobalDix/'|grep -v GlobalDix

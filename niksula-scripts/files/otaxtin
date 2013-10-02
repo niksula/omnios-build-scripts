@@ -1,0 +1,40 @@
+#!/bin/sh
+
+name=`basename $0`
+tin=/opt/niksula/bin/rtin
+
+case $name in
+        otax*)
+                NNTPSERVER=news.tky.fi
+                ;;
+        news*)
+                NNTPSERVER=news.cs.hut.fi
+                ;;
+        *)
+                if [ " $NNTPSERVER" = " " ]; then
+                        NNTPSERVER=news.cs.hut.fi
+                fi
+                ;;
+esac
+
+export NNTPSERVER
+
+newsrc="$HOME/.newsrc-$NNTPSERVER"
+
+cat << __EOF__
+
+( ripoff from LK :)
+Nntpserver is $NNTPSERVER
+__EOF__
+
+if [ ! -f "$newsrc" ]; then
+        echo "Found $newsrc"
+fi
+
+cat << __EOF__
+Running $tin -f $newsrc $@
+
+__EOF__
+
+sleep 1
+exec $tin -f $newsrc $@
