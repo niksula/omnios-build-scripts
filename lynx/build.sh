@@ -36,13 +36,14 @@ DESC="$SUMMARY"
 
 BUILDDIR=$PROG${VER//./-}
 
-CONFIGURE_OPTS=--mandir=${PREFIX}/share/man
+CONFIGURE_OPTS="--mandir=${PREFIX}/share/man --enable-locale-charset"
 
 init
 download_source $PROG $PROG$VER
 patch_source
 prep_build
 build
+cp ${SRCDIR}/files/lynx.cfg ${DESTDIR}${PREFIX}/etc/lynx.cfg
 make_isa_stub
 make_package
 clean_up
