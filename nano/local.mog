@@ -1,0 +1,2 @@
+license COPYING license=GPLv3
+<transform file path=opt/niksula/share/info/dir -> drop>
