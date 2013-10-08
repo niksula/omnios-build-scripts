@@ -34,6 +34,10 @@ PKG=network/chat/ircii
 SUMMARY="IRC and ICB client that runs under most UNIX platforms"
 DESC="$SUMMARY"
 
+# mandir default is PREFIX/man, which apparently breaks all man pages under
+# PREFIX/share/man if present
+CONFIGURE_OPTS="$CONFIGURE_OPTS --mandir=${PREFIX}/share/man"
+
 init
 download_source $PROG $PROG $VER
 patch_source
