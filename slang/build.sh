@@ -34,6 +34,10 @@ PKG=library/slang
 SUMMARY="S-Lang programming library"
 DESC="$SUMMARY"
 
+# slang will pick up libpng if it is installed on the build machine but we
+# don't want it to
+CONFIGURE_OPTS='--without-png'
+
 init
 download_source $PROG $PROG $VER
 patch_source
