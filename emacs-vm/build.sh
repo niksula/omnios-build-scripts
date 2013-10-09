@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=vm
-VER=8.1.1
+VER=8.1.2
 VERHUMAN=$VER
 PKG=editor/gnu-emacs/vm
 SUMMARY="VM is a mail reader that runs inside GNU Emacs and XEmacs."
