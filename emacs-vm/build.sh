@@ -35,6 +35,7 @@ SUMMARY="VM is a mail reader that runs inside GNU Emacs and XEmacs."
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS='editor/gnu-emacs'
+RUN_DEPENDS_IPS='editor/gnu-emacs'
 # need to put emacs in PATH for build
 PATH=${PATH}:${PREFIX}/bin
 
