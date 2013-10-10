@@ -48,7 +48,7 @@ make_install() {
     popd >/dev/null
 }
 
-CONFIGURE_OPTS="$CONFIGURE_OPTS --mandir=${PREFIX}/share/man"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --mandir=${PREFIX}/share/man --with-domain-name=/etc/defaultdomain"
 
 init
 download_source $PROG $PROG $VER
