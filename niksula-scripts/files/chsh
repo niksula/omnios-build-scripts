@@ -1,0 +1,5 @@
+#!/bin/sh
+
+user="${1-`whoami`}"
+echo "Changing shell for $user" 2>&1
+exec passwd -r ldap -e "$user"
