@@ -36,7 +36,7 @@ DESC="$SUMMARY"
 
 BUILDDIR=$PROG${VER//./-}
 
-CONFIGURE_OPTS="--mandir=${PREFIX}/share/man --enable-locale-charset"
+CONFIGURE_OPTS="--mandir=${PREFIX}/share/man --enable-locale-charset --with-ssl"
 
 init
 download_source $PROG $PROG$VER
