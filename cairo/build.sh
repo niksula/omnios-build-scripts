@@ -34,7 +34,7 @@ PKG=library/cairo
 SUMMARY="2D graphics library with support for multiple output devices"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='library/libpng library/pixman library/freetype'
+BUILD_DEPENDS_IPS='library/libpng library/pixman library/freetype library/fontconfig'
 
 PKG_CONFIG=${PREFIX}/bin/pkg-config
 export PKG_CONFIG
