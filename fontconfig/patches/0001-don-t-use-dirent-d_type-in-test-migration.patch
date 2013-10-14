@@ -1,0 +1,42 @@
+From 89ce3fd5158c065058f414f2cb051f27db236972 Mon Sep 17 00:00:00 2001
+From: Lauri Tirkkonen <lotheac@iki.fi>
+Date: Mon, 14 Oct 2013 15:10:05 +0300
+Subject: [PATCH] don't use dirent d_type in test-migration
+
+---
+ test/test-migration.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/test/test-migration.c b/test/test-migration.c
+index a0ab839..b373d7a 100644
+--- a/test/test-migration.c
++++ b/test/test-migration.c
+@@ -5,6 +5,7 @@
+ #include <sys/types.h>
+ #include <dirent.h>
+ #include <fontconfig/fontconfig.h>
++#include <sys/stat.h>
+ 
+ FcBool
+ mkdir_p(const char *dir)
+@@ -42,6 +43,7 @@ unlink_dirs(const char *dir)
+     while ((e = readdir(d)) != NULL)
+     {
+ 	size_t l;
++	struct stat st;
+ 
+ 	if (strcmp (e->d_name, ".") == 0 ||
+ 	    strcmp (e->d_name, "..") == 0)
+@@ -53,7 +55,8 @@ unlink_dirs(const char *dir)
+ 	strcpy (n, dir);
+ 	n[len] = '/';
+ 	strcpy (&n[len + 1], e->d_name);
+-	if (e->d_type == DT_DIR)
++	stat(e->d_name, &st);
++	if (st.st_mode & S_IFDIR)
+ 	{
+ 	    if (!unlink_dirs (n))
+ 	    {
+-- 
+1.8.1.3
+
