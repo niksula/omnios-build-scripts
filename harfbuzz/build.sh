@@ -34,6 +34,11 @@ PKG=library/harfbuzz
 SUMMARY="OpenType text shaping engine"
 DESC="$SUMMARY"
 
+BUILD_DEPENDS_IPS='library/freetype library/cairo'
+
+PKG_CONFIG=${PREFIX}/bin/pkg-config
+export PKG_CONFIG
+
 init
 download_source $PROG $PROG $VER
 patch_source
