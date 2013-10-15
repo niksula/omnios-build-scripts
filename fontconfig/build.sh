@@ -35,6 +35,9 @@ SUMMARY="library for configuring and customizing font access"
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS='library/freetype'
+# fonts are not strictly required, but most people who install font libraries
+# probably want at least one font
+RUN_DEPENDS_IPS='font/truetype/dejavu'
 
 PKG_CONFIG=${PREFIX}/bin/pkg-config
 export PKG_CONFIG
