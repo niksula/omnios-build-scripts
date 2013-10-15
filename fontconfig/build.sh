@@ -39,6 +39,8 @@ BUILD_DEPENDS_IPS='library/freetype'
 PKG_CONFIG=${PREFIX}/bin/pkg-config
 export PKG_CONFIG
 
+CONFIGURE_OPTS="$CONFIGURE_OPTS --with-default-fonts=${PREFIX}/share/fonts"
+
 init
 download_source $PROG $PROG $VER
 patch_source
