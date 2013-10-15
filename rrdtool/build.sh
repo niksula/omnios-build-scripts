@@ -39,6 +39,11 @@ BUILD_DEPENDS_IPS='library/cairo library/pango'
 PKGCONFIG=${PREFIX}/bin/pkg-config
 export PKGCONFIG
 
+# getting the perl install paths right is complicated to escape since it
+# requires passing an arg with spaces to configure. In addition to conform to
+# KYSTY we should not depend on system perl
+CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-perl"
+
 init
 download_source $PROG $PROG $VER
 patch_source
