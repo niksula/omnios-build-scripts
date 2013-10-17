@@ -32,7 +32,7 @@ usage () {
   echo "  -i    Italian"
   echo "  -v    Russian"
   echo "  -r    Swedish"
-  echo "  -ñ    Spanish"
+  echo "  -Ã±    Spanish"
 #  echo "  -a    ATK-sanakirja"
 #  echo "  -g    GlobalDix"
   exit 2
@@ -46,7 +46,7 @@ while true; do
    -i) lang="$italia"; shift ;;
    -v) lang="$venaja"; shift ;;
    -r) lang="$ruotsi"; shift ;;
-   -ñ) lang="$espanja"; shift ;;
+   -Ã±) lang="$espanja"; shift ;;
 #   -a) lang="$atk"; shift ;;
 #   -g) lang="$globaldix"; shift ;;
    --) shift; break ;;
@@ -58,6 +58,6 @@ done
 word=`echo "$@" | sed -e 's/ /%20/'`
 [ "$word" ] || usage
 
-export http_proxy
-#lynx -dump "$url$lang$word" | $AWK 'BEGIN { foo = 0 } match($0, /______/) { foo++ } foo == 4 { print $0 }'
-lynx -dump "$url$lang$word" | $AWK 'NR == 33, /^   Copyright /' | $AWK 'NR==1,/GlobalDix/'|grep -v GlobalDix
+lynx -dump -nolist "$url$lang$word" | $AWK 'BEGIN { foo = 0 }
+foo == 4 && !(/__/ && NF == 1) && !/^$/ { print $0 }
+/__/ && NF == 1 { foo++ }'
