@@ -38,8 +38,8 @@ PREFIX=/opt/niksula
 
 build() {
     mkdir -p ${DESTDIR}${PREFIX}
-    rm -rf ${DESTDIR}${PREFIX}/bin
-    cp -PR ${SRCDIR}/files ${DESTDIR}${PREFIX}/bin
+    rm -rf ${DESTDIR}${PREFIX}
+    cp -PR ${SRCDIR}/files ${DESTDIR}${PREFIX}
 }
 
 init
