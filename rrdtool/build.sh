@@ -34,7 +34,7 @@ PKG=application/rrdtool
 SUMMARY="data logging and graphing system for time series data"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='library/cairo library/pango'
+BUILD_DEPENDS_IPS='library/cairo library/pango perl/manual'
 
 PKGCONFIG=${PREFIX}/bin/pkg-config
 export PKGCONFIG
@@ -43,6 +43,12 @@ export PKGCONFIG
 # requires passing an arg with spaces to configure. In addition to conform to
 # KYSTY we should not depend on system perl
 CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-perl"
+# not so much KYSTY with these, but we need them to generate the documentation
+# (though it already is generated in the tarball, it will get removed by 'make
+# clean' for the second build (not for the first build because there is no
+# makefile until configure has been run))
+export POD2MAN=/usr/perl5/5.16.1/bin/pod2man
+export POD2HTML=/usr/perl5/5.16.1/bin/pod2html
 
 init
 download_source $PROG $PROG $VER
