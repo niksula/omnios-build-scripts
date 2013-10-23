@@ -1,1 +1,2 @@
 dont-rebuild-doc.patch
+dont-use-posix_fallocate.patch
