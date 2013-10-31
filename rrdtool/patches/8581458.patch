@@ -1,0 +1,42 @@
+From 85814586268578f2c73ca8e4c46d3dd9427da272 Mon Sep 17 00:00:00 2001
+From: Tobias Oetiker <tobi@oetiker.ch>
+Date: Thu, 31 Oct 2013 09:47:55 +0100
+Subject: [PATCH] properly detect failing fallocate and fall back to seeking
+
+---
+ src/rrd_open.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
+
+diff --git a/src/rrd_open.c b/src/rrd_open.c
+index 46a5fcf..7bc33e8 100644
+--- a/src/rrd_open.c
++++ b/src/rrd_open.c
+@@ -223,20 +223,19 @@ rrd_file_t *rrd_open(
+     } else {
+         rrd_file->file_len = newfile_size;
+ #ifdef HAVE_POSIX_FALLOCATE
+-        if (posix_fallocate(rrd_simple_file->fd, 0, newfile_size) == -1) {
+-            rrd_set_error("posix_fallocate '%s': %s", file_name,
+-                          rrd_strerror(errno));
+-            goto out_close;
++        if (posix_fallocate(rrd_simple_file->fd, 0, newfile_size) == 0){
++            /* if all  is well we skip the seeking below */            
++            goto no_lseek_necessary;        
+         }
+-#else
++#endif
+         lseek(rrd_simple_file->fd, newfile_size - 1, SEEK_SET);
+         if ( write(rrd_simple_file->fd, "\0", 1) == -1){    /* poke */
+             rrd_set_error("write '%s': %s", file_name, rrd_strerror(errno));
+             goto out_close;
+         }
+         lseek(rrd_simple_file->fd, 0, SEEK_SET);
+-#endif
+     }
++    no_lseek_necessary:
+ #ifdef HAVE_POSIX_FADVISE
+     /* In general we need no read-ahead when dealing with rrd_files.
+        When we stop reading, it is highly unlikely that we start up again.
+-- 
+1.8.4
+
