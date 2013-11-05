@@ -48,10 +48,18 @@ PERLVERLIST="5.18.1"
 
 # XXX: config.sh sets PERL_MAKEFILE_OPTS but build script looks at
 # MAKEFILE_OPTS?
-MAKEFILE_OPTS="$PERL_MAKEFILE_OPTS SYSCONFDIR=${PREFIX}/etc"
+MAKEFILE_OPTS="$PERL_MAKEFILE_OPTS \
+    SYSCONFDIR=${PREFIX}/etc \
+    LOCALSTATEDIR=${PREFIX}/var/spamassassin"
+
+# we need to do install, not pure_install, to get rules files and default
+# config installed
+make_pure_install() {
+    make_install
+}
 
 # Add any additional deps here; perl runtime added below
-BUILD_DEPENDS_IPS="niksula/perl/html-parser niksula/perl/net-dns niksula/perl/netaddr-ip niksula/perl/mail-dkim niksula/perl/db_file niksula/perl/encode-detect"
+BUILD_DEPENDS_IPS="niksula/perl/html-parser niksula/perl/net-dns niksula/perl/netaddr-ip niksula/perl/mail-dkim niksula/perl/db_file niksula/perl/encode-detect niksula/perl/lwp"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 # We require a Perl version to use for this build and there is no default
 case $DEPVER in
