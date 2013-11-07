@@ -52,6 +52,15 @@ MAKEFILE_OPTS="$PERL_MAKEFILE_OPTS \
     SYSCONFDIR=${PREFIX}/etc \
     LOCALSTATEDIR=${PREFIX}/var/spamassassin"
 
+install_links() {
+    pushd ${DESTDIR}${PREFIX}/bin >/dev/null
+    mkdir -p ${DESTDIR}${PREFIX}/../bin
+    for f in *; do
+        [ -f "$f" ] && [ -x "$f" ] && ln -s ../perl5/bin/$f ${DESTDIR}${PREFIX}/../bin/$f
+    done
+    popd >/dev/null
+}
+
 # we need to do install, not pure_install, to get rules files and default
 # config installed
 make_pure_install() {
@@ -84,6 +93,7 @@ patch_source
 prep_build
 buildperl
 make_isa_stub
+install_links
 make_package
 clean_up
 
