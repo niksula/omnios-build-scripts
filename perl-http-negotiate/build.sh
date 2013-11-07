@@ -38,7 +38,7 @@ DESC="$SUMMARY"
 
 MIRROR=ftp://ftp.funet.fi/pub/languages/perl/
 
-PREFIX=/opt/niksula
+PREFIX=/opt/niksula/perl5
 reset_configure_opts
 
 NO_PARALLEL_MAKE=1

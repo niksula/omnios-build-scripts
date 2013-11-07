@@ -36,6 +36,7 @@ PKG=niksula/runtime/perl
 SUMMARY="$PROG - Perl $VER Programming Language"
 DESC="$SUMMARY"
 
+PREFIX=/opt/niksula/perl5
 SHELL=/usr/bin/bash
 
 BUILD_DEPENDS_IPS="text/gnu-sed"
