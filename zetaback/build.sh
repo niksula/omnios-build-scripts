@@ -31,7 +31,7 @@ PROG=zetaback      # App name
 VER=1.0.6            # App version
 VERHUMAN=$VER   # Human-readable version
 #PVER=          # Branch (set in config.sh, override here if needed)
-PKG=omniti/backup/zetaback            # Package name (e.g. library/foo)
+PKG=backup/zetaback            # Package name (e.g. library/foo)
 SUMMARY="$PROG"      # One-liner, must be filled in
 DESC="$SUMMARY ($VER) - Lets you backup allz your ZFS's"         # Longer description, must be filled in
 
