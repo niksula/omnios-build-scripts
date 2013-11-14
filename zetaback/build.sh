@@ -38,9 +38,6 @@ DESC="$SUMMARY ($VER) - Lets you backup allz your ZFS's"         # Longer descri
 BUILD_DEPENDS_IPS="developer/build/gnu-make runtime/perl"
 DEPENDS_IPS="runtime/perl"
 
-# We changed the prefix - need to regenerate the CONFIGURE_OPTS
-CONFIGURE_OPTS_32="--prefix=$PREFIX"
-
 # Build 32 bit by default
 [[ "$BUILDARCH" == "both" ]] && BUILDARCH=32
 
