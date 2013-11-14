@@ -1,0 +1,33 @@
+From 1208bdf5008961a7d08a63947c42e3eac9b88e33 Mon Sep 17 00:00:00 2001
+From: Lauri Tirkkonen <lotheac@iki.fi>
+Date: Thu, 14 Nov 2013 15:02:52 +0200
+Subject: [PATCH] use zfs list -o instead of multiple invocations
+
+---
+ zetaback_agent.in | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/zetaback_agent.in b/zetaback_agent.in
+index 97dd4c0..4f970ad 100755
+--- a/zetaback_agent.in
++++ b/zetaback_agent.in
+@@ -262,13 +262,13 @@ sub zfs_agent_perform_dataset {
+ 
+ sub zfs_agent_list {
+   my (%zfs, %storageclass);
+-  open(ZFSLIST, "__ZFS__ list -H -t snapshot,filesystem,volume |");
++  open(ZFSLIST, "__ZFS__ list -H -t snapshot,filesystem,volume -o name,com.omniti.labs.zetaback:exclude,com.omniti.labs.zetaback:class |");
+   while(<ZFSLIST>) {
+     chomp;
+     my @line = split /\t/;
+     (my $fs = $line[0]) =~ s/\@.+//;
+-    my $excl = (split(/\s+/,`__ZFS__ get -H com.omniti.labs.zetaback:exclude $fs 2>/dev/null`))[2];
+-    my $class = (split(/\s+/,`__ZFS__ get -H com.omniti.labs.zetaback:class $fs 2>/dev/null`))[2];
++    my $excl = $line[1];
++    my $class = $line[2];
+     if(($excl ne "on") && ($fs =~ /$conf{pattern}/)) {
+       if($line[0] =~ /(\S+)\@([^\@]+)$/) {
+         $zfs{$1} ||= [];
+-- 
+1.8.1.3
+
