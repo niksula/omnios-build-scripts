@@ -1,3 +1,0 @@
-pod2man.patch -p0
-Makefile.in.patch -p0
-0001-use-zfs-list-o-instead-of-multiple-invocations.patch
