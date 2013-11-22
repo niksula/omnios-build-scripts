@@ -28,8 +28,9 @@
 . ../../lib/functions.sh
 
 PROG=ruby
-VERHUMAN=2.0.0-p247
-VER=2.0.0.247
+PATCHLEVEL=353
+VERHUMAN=2.0.0-p$PATCHLEVEL
+VER=2.0.0.$PATCHLEVEL
 PKG=runtime/ruby-20
 SUMMARY="Ruby $VER"
 DESC="$SUMMARY"
