@@ -48,7 +48,7 @@ make_install() {
     popd >/dev/null
 }
 
-CONFIGURE_OPTS="$CONFIGURE_OPTS --mandir=${PREFIX}/share/man --with-domain-name=/etc/defaultdomain --with-mime-default-charset=UTF-8"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --mandir=${PREFIX}/share/man --with-domain-name=/etc/defaultdomain --with-mime-default-charset=UTF-8 --enable-cancel-locks"
 
 init
 download_source $PROG $PROG $VER
