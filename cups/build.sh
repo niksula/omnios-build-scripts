@@ -43,6 +43,12 @@ make_install() {
 # disable DNS-SD/mDNS because incompatible libraries
 CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-dnssd"
 
+# fix runtime R_AMD64_PC32 relocation errors by using -shared for libs
+save_function configure64 configure64_orig
+configure64() {
+    DSOFLAGS='-shared' configure64_orig
+}
+
 init
 download_source $PROG $PROG ${VER}-source
 patch_source
