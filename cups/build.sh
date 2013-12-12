@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=cups
-VER=1.6.4
+VER=1.7.0
 VERHUMAN=$VER
 PKG=print/cups
 SUMMARY="Common Unix Printing System"
@@ -40,11 +40,8 @@ make_install() {
         logerr "--- Make install failed"
 }
 
-# fix runtime R_AMD64_PC32 relocation errors by using -shared for libs
-save_function configure64 configure64_orig
-configure64() {
-    DSOFLAGS='-shared' configure64_orig
-}
+# disable DNS-SD/mDNS because incompatible libraries
+CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-dnssd"
 
 init
 download_source $PROG $PROG ${VER}-source
