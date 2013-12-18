@@ -35,11 +35,15 @@ SUMMARY="terminal based IRC client"
 DESC="Irssi is a terminal based IRC client for UNIX systems."
 
 # we need 64bit perl to get script support for 64bit irssi
-# TODO: KYSTY and use own perl instead of system
-BUILD_DEPENDS_IPS='developer/build/pkg-config runtime/perl-64'
+BUILD_DEPENDS_IPS='developer/build/pkg-config niksula/runtime/perl'
+CONFIGURE_OPTS="$CONFIGURE_OPTS --with-perl=yes perlpath=${PREFIX}/perl5/bin/perl --with-perl-lib=vendor"
 
-# pkg-config is in $PREFIX
-PATH=$PATH:$PREFIX/bin
+# configure script has some broken checks which use plain 'perl', so let's put
+# our own perl first in path
+PATH=${PREFIX}/perl5/bin:${PATH}
+
+PKG_CONFIG=${PREFIX}/bin/pkg-config
+export PKG_CONFIG
 
 LDFLAGS32="$LDFLAGS32 -L/usr/gnu/lib -R/usr/gnu/lib"
 LDFLAGS64="$LDFLAGS64 -L/usr/gnu/lib/$ISAPART64 -R/usr/gnu/lib/$ISAPART64"
