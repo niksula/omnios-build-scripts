@@ -1,3 +1,43 @@
+diff -rNu -x .svn -x config.log -x config.status -x tf-help -x Makefile -x chartables.c -x tfconfig.h -x tfdefs.h -x '*.build' -x '*.bak' -x '*.idx' -x '*.o' -x '*.pyc' -x html2tf -x default -x makehelp -x tf -x dftables -x 'libpcre*' -x html2tif tf-50b8-clean/configure tf-50b8-py/configure
+--- tf-50b8-clean/configure	2008-01-05 15:39:40.000000000 -0800
++++ tf-50b8-py/configure	2008-01-11 15:16:33.000000000 -0800
+@@ -857,6 +857,7 @@
+                           NAME=BINDIR/tf
+   --enable-core           enable debugging core files
+   --disable-ssl           disable SSL support
++  --disable-python        disable python scripting support
+   --enable-getaddrinfo    enable getaddrinfo() (if configure complains)
+   --disable-getaddrinfo   disable getaddrinfo() (implies --disable-inet6)
+   --disable-inet6         disable IPv6 support
+@@ -1373,6 +1374,13 @@
+ else
+   enable_ssl=yes
+ fi;
++# Check whether --enable-python or --disable-python was given.
++if test "${enable_python+set}" = set; then
++  enableval="$enable_python"
++
++else
++  enable_python=yes
++fi;
+ # Check whether --enable-getaddrinfo or --disable-getaddrinfo was given.
+ if test "${enable_getaddrinfo+set}" = set; then
+   enableval="$enable_getaddrinfo"
+@@ -5500,6 +5508,14 @@
+     fi
+ fi
+ 
++if test "$enable_python" = "yes"; then
++   CFLAGS="$CFLAGS -DTFPYTHON"
++   pyinc=`python -c "import distutils.sysconfig; print distutils.sysconfig.get_python_inc()"`
++   pyver=`python -c "import distutils.sysconfig; print distutils.sysconfig.get_python_version()"`
++   CPPFLAGS="$CPPFLAGS -I$pyinc"
++   LIBS="$LIBS -lpython${pyver}"
++fi
++
+ 
+ terminal_hardcode="TERM_vt100";
+ 
 diff -rNu -x .svn -x config.log -x config.status -x tf-help -x Makefile -x chartables.c -x tfconfig.h -x tfdefs.h -x '*.build' -x '*.bak' -x '*.idx' -x '*.o' -x '*.pyc' -x html2tf -x default -x makehelp -x tf -x dftables -x 'libpcre*' -x html2tif tf-50b8-clean/configure.in tf-50b8-py/configure.in
 --- tf-50b8-clean/configure.in	2008-01-05 15:39:40.000000000 -0800
 +++ tf-50b8-py/configure.in	2008-01-11 15:16:33.000000000 -0800
@@ -2955,3 +2995,35 @@ diff -rNu -x .svn -x config.log -x config.status -x tf-help -x Makefile -x chart
 +# write an empty file so there's at least something there
 +write_file()
 +
+diff -rNu -x .svn -x config.log -x config.status -x tf-help -x Makefile -x chartables.c -x tfconfig.h -x tfdefs.h -x '*.build' -x '*.bak' -x '*.idx' -x '*.o' -x '*.pyc' -x html2tf -x default -x makehelp -x tf -x dftables -x 'libpcre*' -x html2tif tf-50b8-clean/.tfrc tf-50b8-py/.tfrc
+--- tf-50b8-clean/.tfrc	1969-12-31 16:00:00.000000000 -0800
++++ tf-50b8-py/.tfrc	2008-01-25 22:16:14.000000000 -0800
+@@ -0,0 +1,28 @@
++/python sys.stdout.output=tf.out
++/addworld _dummy localhost 9999
++/addworld L1 localhost 2035
++/addworld L2 localhost 2035
++/addworld -x -Ttiny.muck FSa Sarusa wubba muck.furry.com 8899
++/def con=/connect %{*}
++
++/def -PCcyan -t'^(== )'
++/def -PCcyan -t'^\[[0-9]*:[0-9]*[ap]m\]'
++/def -PBCmagenta -t'^\#\# '
++/def -p9 -P0BCgreen -t'Vash' -F _hivash
++/def -p9 -P0hBCgreen -t'Sarusa' -F _hisarusa
++
++; Scream Channels
++/def -p2 -aCmagenta -mglob -t'\[public\:*\]*' _hipublic
++/def -p2 -ahCmagenta -mglob -t'\[pub\:*\]*' _hipub
++/def -p2 -aBhCred -mglob -t'\[peanut\:*\]*' _hipeanut
++/def -p2 -ahBCcyan -mglob -t'\[unixgeeks\:*\]*' _hiunix
++/def -p2 -ahBCgreen -mglob -t'\[programmers\:*\]*' _hiprog
++/def -p2 -ahBCgreen -mglob -t'\[clu\:*\]*' _hiclu
++/def -p2 -ahBCgreen -mglob -t'\[fb6\:*\]*' _hifb6
++/def -p2 -ahBCred -mglob -t'\[gamers\:*\]*' _higamers
++/def -p2 -aCyellow -mglob -t'\[gamer\:*\]*' _higamer
++/def -p2 -ahBCyellow -mglob -t'\[bafur\:*\]*' _hiba
++/def -p2 -ahBCgreen -mglob -t'\[windowshelp\:*\]*' _hiwin
++/def -p2 -ahBCcyan -mglob -t'\[GPChat\:*\]*' _higp
++
++/python_load tf4
