@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=hiera
-VER=1.3.0
+VER=1.3.1
 VERHUMAN=$VER
 PKG=application/hiera
 SUMMARY="Light weight hierarchical data store"
