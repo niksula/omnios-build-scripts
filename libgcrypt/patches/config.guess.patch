@@ -1,5 +1,5 @@
---- libgcrypt-1.5.0/config.guess.orig	Wed Jun 29 08:52:30 2011
-+++ libgcrypt-1.5.0/config.guess	Fri Mar  2 22:12:08 2012
+--- a/build-aux/config.guess.orig	Wed Jun 29 08:52:30 2011
++++ b/build-aux/config.guess	Fri Mar  2 22:12:08 2012
 @@ -348,7 +348,7 @@
  	# This test works for both compilers.
  	if [ "$CC_FOR_BUILD" != 'no_compiler_found' ]; then
