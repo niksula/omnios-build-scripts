@@ -1,7 +1,8 @@
 license LICENSE.txt license=CUPS
 # drop initscripts and desktop stuff (that doesn't even go to PREFIX for some
 # reason)
-<transform file path=etc/(init|rc[0-6])\.d -> drop>
-<transform dir path=etc/(init|rc[0-6])\.d -> drop>
+<transform file path=etc/ -> drop>
+<transform dir path=etc/ -> drop>
+<transform link path=etc/ -> drop>
 <transform file path=usr/share/(applications|icons) -> drop>
 <transform dir path=usr/share/(applications|icons) -> drop>
