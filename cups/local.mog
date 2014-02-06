@@ -6,3 +6,14 @@ license LICENSE.txt license=CUPS
 <transform link path=etc/ -> drop>
 <transform file path=usr/share/(applications|icons) -> drop>
 <transform dir path=usr/share/(applications|icons) -> drop>
+# by default cupsd is only executable by root
+<transform file path=opt/niksula/sbin/(amd64|i386)/cupsd -> set group lp>
+<transform file path=opt/niksula/sbin/(amd64|i386)/cupsd -> set mode 0550>
+<transform dir path=opt/niksula/var/.*/cups -> set owner cupsd>
+<transform dir path=opt/niksula/var/.*/cups -> set group lp>
+user group=lp username=cupsd home-dir=/opt/niksula/var/spool/cups
+# set config files readable by cupsd (but not writable by default)
+<transform file path=opt/niksula/etc/cups -> set group lp>
+# allow configuring printer ppds and automatic ssl cert generation
+<transform dir path=opt/niksula/etc/cups/ppd$ -> set owner cupsd>
+<transform dir path=opt/niksula/etc/cups/ssl$ -> set owner cupsd>

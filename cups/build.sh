@@ -40,8 +40,14 @@ make_install() {
         logerr "--- Make install failed"
 }
 
+install_manifest() {
+    smfdir=${DESTDIR}/lib/svc/manifest/print
+    mkdir -p $smfdir
+    cp ${SRCDIR}/cups.xml $smfdir
+}
+
 # disable DNS-SD/mDNS because incompatible libraries
-CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-dnssd"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-dnssd --with-cups-user=lp"
 
 # fix runtime R_AMD64_PC32 relocation errors by using -shared for libs
 save_function configure64 configure64_orig
@@ -54,6 +60,7 @@ download_source $PROG $PROG ${VER}-source
 patch_source
 prep_build
 build
+install_manifest
 make_isa_stub
 make_package
 clean_up

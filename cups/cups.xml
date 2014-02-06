@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
+<!--
+        Created by Manifold
+--><service_bundle type="manifest" name="cups">
+
+    <service name="print/cups" type="service" version="1">
+
+        <create_default_instance enabled="false"/>
+        
+        <single_instance/>
+
+        <dependency name="network" grouping="require_all" restart_on="error" type="service">
+            <service_fmri value="svc:/milestone/network:default"/>
+        </dependency>
+
+        <dependency name="filesystem" grouping="require_all" restart_on="error" type="service">
+            <service_fmri value="svc:/system/filesystem/local"/>
+        </dependency>
+
+
+        
+        
+        
+        
+        <method_context>
+            <!-- We run as cupsd user for now; if we wanted to give cupsd write
+                 permission to its own config files, it might be useful to also
+                 give it proc_setid privilege so that it can setuid to a
+                 different user to run filters and whatnot. However this isn't
+                 as much of an issue since we're not running as root, and are
+                 not giving cupsd write permission to its config files by
+                 default anyway. -->
+            <method_credential user="cupsd" group="lp" privileges="basic,net_privaddr"/>
+        </method_context>
+
+        <exec_method type="method" name="start" exec="/opt/niksula/sbin/cupsd" timeout_seconds="60"/>
+
+        <exec_method type="method" name="stop" exec=":kill" timeout_seconds="60"/>
+
+        <property_group name="startd" type="framework">
+            
+            
+            <propval name="duration" type="astring" value="contract"/>
+            <propval name="ignore_error" type="astring" value="core,signal"/>
+        </property_group>
+
+        <property_group name="application" type="application">
+            
+        </property_group>
+        
+        
+        <stability value="Evolving"/>
+
+        <template>
+            <common_name>
+                <loctext xml:lang="C">
+                    CUPS print server
+                </loctext>
+            </common_name>
+        </template>
+
+    </service>
+
+</service_bundle>
