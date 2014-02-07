@@ -1,0 +1,13 @@
+diff --git a/Makefile.in b/Makefile.in
+index a7bc529..6351950 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -117,7 +117,7 @@ AUTOMAKE_OPTIONS = 1.6 foreign dist-bzip2 no-dependencies
+ 
+ MAINT_CHARSET = latin1
+ m4datadir = $(datadir)/aclocal
+-pkgconfigdatadir = $(prefix)/lib/pkgconfig
++pkgconfigdatadir = $(libdir)/pkgconfig
+ 
+ lib_LTLIBRARIES = libijs.la
+ 
