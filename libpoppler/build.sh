@@ -34,9 +34,11 @@ PKG=library/libpoppler
 SUMMARY="Poppler PDF rendering library"
 DESC="$SUMMARY"
 
-# iconv declaration configure check is broken. just disable the cpp wrapper to
-# workaround for now
-CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-poppler-cpp --disable-static --enable-xpdf-headers"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static --enable-xpdf-headers"
+
+# iconv signature check in configure is broken (probably due to restrict
+# pointers), but we can work around it by using POSIX-1.2001
+CPPFLAGS="$CPPFLAGS -std=c99 -D_XOPEN_SOURCE=600"
 
 PKG_CONFIG=${PREFIX}/bin/pkg-config
 export PKG_CONFIG
