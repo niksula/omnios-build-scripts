@@ -36,7 +36,7 @@ DESC="$SUMMARY"
 
 # iconv declaration configure check is broken. just disable the cpp wrapper to
 # workaround for now
-CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-poppler-cpp --disable-static"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-poppler-cpp --disable-static --enable-xpdf-headers"
 
 PKG_CONFIG=${PREFIX}/bin/pkg-config
 export PKG_CONFIG
