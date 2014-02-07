@@ -38,6 +38,8 @@ PKG=library/libijs
 SUMMARY="IJS raster image transport protocol library"
 DESC="$SUMMARY"
 
+CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static --enable-shared"
+
 init
 download_source $PROG $PROG $VER
 patch_source
