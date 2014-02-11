@@ -36,7 +36,7 @@ DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS='print/cups library/liblcms library/libijs library/libpoppler library/libqpdf'
 
-CONFIGURE_OPTS="$CONFIGURE_OPTS --with-cups-config=${PREFIX}/bin/cups-config --without-jpeg --without-tiff --with-pdftops=pdftops --with-pdftops-path=${PREFIX}/bin/pdftops"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --with-cups-config=${PREFIX}/bin/cups-config --without-jpeg --without-tiff --with-pdftops=pdftops --with-pdftops-path=${PREFIX}/bin/pdftops --with-pdftocairo-path=${PREFIX}/bin/pdftocairo"
 
 # configure script looks at *BOTH* PKG_CONFIG and PKGCONFIG separately
 PKG_CONFIG=${PREFIX}/bin/pkg-config
