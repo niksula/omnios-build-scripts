@@ -6,6 +6,9 @@ license LICENSE.txt license=CUPS
 <transform link path=etc/ -> drop>
 <transform file path=usr/share/(applications|icons) -> drop>
 <transform dir path=usr/share/(applications|icons) -> drop>
+# dupes with cups-filters (and only the cups-filters banners actually work)
+<transform file path=opt/niksula/share/cups/data -> drop>
+<transform file path=opt/niksula/share/cups/banners -> drop>
 # by default cupsd is only executable by root
 <transform file path=opt/niksula/sbin/(amd64|i386)/cupsd -> set group lp>
 <transform file path=opt/niksula/sbin/(amd64|i386)/cupsd -> set mode 0550>

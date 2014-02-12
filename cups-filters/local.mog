@@ -3,6 +3,3 @@ license COPYING license=mixed
 <transform dir path=etc -> drop>
 <transform file path=etc -> drop>
 <transform link path=etc -> drop>
-# dupes with cups
-<transform file path=opt/niksula/share/cups/data -> drop>
-<transform file path=opt/niksula/share/cups/banners -> drop>
