@@ -1,2 +1,3 @@
 foomatic-rip-pid_t.patch
 fix-with-pdftocairo-path-with-pdftops-path.patch
+gstoraster-EINTR.patch
