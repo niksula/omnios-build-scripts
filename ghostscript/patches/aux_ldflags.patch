@@ -1,0 +1,13 @@
+--- a/Makefile.in	Fri Aug 30 13:37:29 2013
++++ b/Makefile.in	Fri Feb  7 14:20:15 2014
+@@ -387,8 +387,8 @@
+ # Solaris may need -lnsl -lsocket -lposix4.
+ # (Libraries required by individual drivers are handled automatically.)
+ 
+-EXTRALIBS=$(XTRALIBS) @LIBS@ @DYNAMIC_LIBS@ @FONTCONFIG_LIBS@ @FT_LIBS@
+-AUXEXTRALIBS=$(XTRALIBS) @LIBS@ @DYNAMIC_LIBS@ @FONTCONFIG_LIBS@ @FT_LIBS@ @AUX_SHARED_ZLIB@
++EXTRALIBS=$(XTRALIBS) @LIBS@ @DYNAMIC_LIBS@ @FONTCONFIG_LIBS@ @FT_LIBS@ @LDFLAGS@
++AUXEXTRALIBS=$(XTRALIBS) @LIBS@ @DYNAMIC_LIBS@ @FONTCONFIG_LIBS@ @FT_LIBS@ @AUX_SHARED_ZLIB@ @LDFLAGS@
+ 
+ # Define the standard libraries to search at the end of linking.
+ # Most platforms require -lpthread for the POSIX threads library;
