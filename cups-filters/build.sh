@@ -34,9 +34,10 @@ PKG=print/cups-filters
 SUMMARY="OpenPrinting filters and backends for CUPS"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='print/cups library/liblcms library/libijs library/libpoppler library/libqpdf'
+BUILD_DEPENDS_IPS='print/cups library/liblcms library/libijs library/libpoppler library/libqpdf print/filter/ghostscript'
+RUN_DEPENDS_IPS='print/filter/ghostscript'
 
-CONFIGURE_OPTS="$CONFIGURE_OPTS --with-cups-config=${PREFIX}/bin/cups-config --without-jpeg --without-tiff --with-pdftops=pdftops --with-pdftops-path=${PREFIX}/bin/pdftops --with-pdftocairo-path=${PREFIX}/bin/pdftocairo"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --with-cups-config=${PREFIX}/bin/cups-config --without-jpeg --without-tiff --with-pdftops=pdftops --with-pdftops-path=${PREFIX}/bin/pdftops --with-pdftocairo-path=${PREFIX}/bin/pdftocairo --with-gs-path=${PREFIX}/bin/gs"
 
 # configure script looks at *BOTH* PKG_CONFIG and PKGCONFIG separately
 PKG_CONFIG=${PREFIX}/bin/pkg-config
