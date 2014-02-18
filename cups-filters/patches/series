@@ -1,1 +1,2 @@
 gstoraster-EINTR.patch
+gstoraster-ignore-SIGCHLD.patch
