@@ -28,9 +28,9 @@
 . ../../lib/functions.sh
 
 PROG=jpeg
-VER=8d
+VER=9a
 VERHUMAN=$VER
-PKG=omniti/library/libjpeg
+PKG=library/libjpeg
 SUMMARY="$PROG - Free Library for JPEG Image Compression (v$VER)"
 DESC="$SUMMARY"
 
