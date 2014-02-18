@@ -1,0 +1,14 @@
+diff --git a/prnt/hpcups/ErnieFilter.cpp b/prnt/hpcups/ErnieFilter.cpp
+index 6207fac..7b87ac5 100644
+--- a/prnt/hpcups/ErnieFilter.cpp
++++ b/prnt/hpcups/ErnieFilter.cpp
+@@ -50,9 +50,7 @@
+ #include "ErnieFilter.h"
+ 
+ 
+-#if defined(__APPLE__) || defined(__linux) || defined(__GLIBC__) || defined(__NetBSD__)
+ #include <math.h>
+-#endif
+ 
+ 
+ #if kGatherStats == 1
