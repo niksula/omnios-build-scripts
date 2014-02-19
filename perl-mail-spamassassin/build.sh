@@ -30,7 +30,7 @@
 AUTHORID=KMCGRAIL
 PROG=Mail-SpamAssassin
 MODNAME=Mail::SpamAssassin
-VER=3.3.2
+VER=3.4.0
 VERHUMAN=$VER
 PKG=niksula/perl/$(echo $PROG | tr '[A-Z]' '[a-z]')  # Module name, lowercased
 SUMMARY="Spam detector and markup engine"
@@ -68,7 +68,7 @@ make_pure_install() {
 }
 
 # Add any additional deps here; perl runtime added below
-BUILD_DEPENDS_IPS="niksula/perl/html-parser niksula/perl/net-dns niksula/perl/netaddr-ip niksula/perl/mail-dkim niksula/perl/db_file niksula/perl/encode-detect niksula/perl/lwp"
+BUILD_DEPENDS_IPS="niksula/perl/html-parser niksula/perl/net-dns niksula/perl/netaddr-ip niksula/perl/mail-dkim niksula/perl/db_file niksula/perl/encode-detect"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 # We require a Perl version to use for this build and there is no default
 case $DEPVER in
@@ -88,7 +88,7 @@ esac
 
 init
 test_if_core
-download_source CPAN/authors/id/${AUTHORID:0:1}/${AUTHORID:0:2}/${AUTHORID} $PROG $VER
+download_source CPAN/authors/id/${AUTHORID:0:1}/${AUTHORID:0:2}/${AUTHORID}/SpamAssassin $PROG $VER
 patch_source
 prep_build
 buildperl
