@@ -12,6 +12,11 @@ license LICENSE.txt license=CUPS
 # by default cupsd is only executable by root
 <transform file path=opt/niksula/sbin/(amd64|i386)/cupsd -> set group lp>
 <transform file path=opt/niksula/sbin/(amd64|i386)/cupsd -> set mode 0550>
+# some backends (ipp, lpd) also seem to be mode 0700 and root-owned, which
+# won't fly with nonroot cups.
+<transform file path=opt/niksula/lib/cups/backend -> set group lp>
+<transform file path=opt/niksula/lib/cups/backend -> set mode 0550>
+# spool and log directories
 <transform dir path=opt/niksula/var/.*/cups -> set owner cupsd>
 <transform dir path=opt/niksula/var/.*/cups -> set group lp>
 user group=lp username=cupsd home-dir=/opt/niksula/var/spool/cups
