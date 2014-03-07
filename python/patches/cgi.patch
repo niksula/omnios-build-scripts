@@ -1,0 +1,10 @@
+diff --git a/Lib/cgi.py b/Lib/cgi.py
+index 0f50d0e..784ea47 100755
+--- a/Lib/cgi.py
++++ b/Lib/cgi.py
+@@ -1,4 +1,4 @@
+-#! /usr/local/bin/python
++#! /opt/niksula/bin/python3
+ 
+ # NOTE: the above "/usr/local/bin/python" is NOT a mistake.  It is
+ # intentionally NOT "/usr/bin/env python".  On many systems
