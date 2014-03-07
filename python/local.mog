@@ -1,0 +1,2 @@
+license LICENSE license=Python
+<transform file path=.*/lib/python.*/config.*/libpython.*\.a$ -> drop>
