@@ -1,0 +1,13 @@
+diff --git a/Makefile.pre.in b/Makefile.pre.in
+index fdca38e..0c56dd7 100644
+--- a/Makefile.pre.in
++++ b/Makefile.pre.in
+@@ -114,7 +114,7 @@ BINDIR=		@bindir@
+ LIBDIR=		@libdir@
+ MANDIR=		@mandir@
+ INCLUDEDIR=	@includedir@
+-CONFINCLUDEDIR=	$(exec_prefix)/include
++CONFINCLUDEDIR=	@includedir@
+ SCRIPTDIR=	$(prefix)/lib
+ ABIFLAGS=	@ABIFLAGS@
+ 
