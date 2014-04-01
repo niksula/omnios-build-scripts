@@ -1,0 +1,15 @@
+diff --git a/src/lib/svc/method/zfs-auto-snapshot b/src/lib/svc/method/zfs-auto-snapshot
+index acc19d5..99fa1bc 100644
+--- a/src/lib/svc/method/zfs-auto-snapshot
++++ b/src/lib/svc/method/zfs-auto-snapshot
+@@ -558,7 +558,9 @@ function destroy_older_snapshots {
+ 	for snapshot in $(zfs list -r -t snapshot -H -o name $FILESYS \
+ 		 | grep "$FILESYS@${PREFIX}${LABEL}" | sort -r) ; do
+ 
+-	    if [ $COUNTER -le 0 ] ; then
++	    # don't attempt destroy if there are userrefs (holds)
++	    userrefs=$(zfs get -Ho value userrefs $snapshot)
++	    if [ $COUNTER -le 0 -a $userrefs -eq 0 ] ; then
+ 	        # using print_note, as this checks our $VERBOSE flag
+ 	        print_note "$snapshot being destroyed ${RECURSIVE} as per \
+  retention policy."
