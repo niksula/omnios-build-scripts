@@ -1,0 +1,13 @@
+diff --git a/src/lib/svc/method/zfs-auto-snapshot b/src/lib/svc/method/zfs-auto-snapshot
+index a6f1f1d..5193153 100644
+--- a/src/lib/svc/method/zfs-auto-snapshot
++++ b/src/lib/svc/method/zfs-auto-snapshot
+@@ -404,7 +404,7 @@ function take_snapshot {
+ 		zfs_smf_props $FMRI
+ 	fi
+ 
+-	typeset DATE=$(date +%F-%H${SEP}%M)
++	typeset DATE=$(TZ=UTC date +%F-%H${SEP}%MZ)
+ 	typeset FILESYS="$fs_name"
+ 	typeset KEEP=$keep
+ 	typeset SNAP_CHILDREN=$snapshot_children
