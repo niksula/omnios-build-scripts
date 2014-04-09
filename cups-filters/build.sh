@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=cups-filters
-VER=1.0.45
+VER=1.0.52
 VERHUMAN=$VER
 PKG=print/cups-filters
 SUMMARY="OpenPrinting filters and backends for CUPS"
