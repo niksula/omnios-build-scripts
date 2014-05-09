@@ -28,11 +28,11 @@
 . ../../lib/functions.sh
 
 PROG=zfsbackup
-VER=1.0.0
+VER=1.1.0
 VERHUMAN=$VER
 PKG=niksula/application/zfsbackup
 SUMMARY="simple zfs send -R -based backup program"
-DESC="$SUMMARY"
+DESC="$SUMMARY - https://github.com/niksula/zfsbackup"
 
 # solaris tar doesn't like pax_global_header
 TAR=gtar
