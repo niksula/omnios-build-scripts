@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=tin
-VER=2.2.0
+VER=2.2.1
 VERHUMAN=$VER
 PKG=news/tin
 SUMMARY="a threaded NNTP and spool based UseNet newsreader"
