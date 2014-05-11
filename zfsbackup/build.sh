@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=zfsbackup
-VER=1.1.0
+VER=1.1.1
 VERHUMAN=$VER
 PKG=niksula/application/zfsbackup
 SUMMARY="simple zfs send -R -based backup program"
