@@ -39,7 +39,18 @@ BUILDARCH=64
 CONFIGURE_OPTS_64="--prefix=$PREFIX
 --with-ipv6
 --with-http_ssl_module
---with-ld-opt=-m64"
+--with-ld-opt=-m64
+--http-client-body-temp-path=tmp/client_body
+--http-proxy-temp-path=tmp/proxy
+--http-fastcgi-temp-path=tmp/fastcgi
+--http-uwsgi-temp-path=tmp/uwsgi
+--http-scgi-temp-path=tmp/scgi"
+
+install_manifest() {
+    smfdir=${DESTDIR}/lib/svc/manifest/http
+    mkdir -p ${smfdir}
+    install -m 0444 ${SRCDIR}/nginx.xml ${smfdir}/
+}
 
 init
 download_source $PROG $PROG $VER
@@ -47,6 +58,7 @@ patch_source
 prep_build
 build
 make_isa_stub
+install_manifest
 make_package
 clean_up
 
