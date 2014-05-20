@@ -4,3 +4,4 @@ user username=nginx group=nginx home-dir=/opt/nginx/logs
 <transform dir path=opt/nginx/logs -> set owner nginx>
 <transform dir path=opt/nginx/logs -> set group nginx>
 dir path=opt/nginx/tmp mode=0750 owner=nginx group=nginx
+<transform file path=opt/nginx/conf -> set preserve renamenew>
