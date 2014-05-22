@@ -1,0 +1,23 @@
+From 942a52cc167337dc476a32ac0908f3e97139b14c Mon Sep 17 00:00:00 2001
+From: Lauri Tirkkonen <lotheac@iki.fi>
+Date: Thu, 22 May 2014 14:07:36 +0300
+Subject: [PATCH] AC_USE_SYSTEM_EXTENSIONS
+
+---
+ configure.ac | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/configure.ac b/configure.ac
+index 514ac02..81238da 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -1,5 +1,6 @@
+ dnl Process this file with autoconf to produce a configure script.
+ AC_INIT([collectd],[m4_esyscmd(./version-gen.sh)])
++AC_USE_SYSTEM_EXTENSIONS
+ AC_CONFIG_SRCDIR(src/collectd.c)
+ AC_CONFIG_HEADERS(src/config.h)
+ AC_CONFIG_AUX_DIR([libltdl/config])
+-- 
+1.8.1.3
+
