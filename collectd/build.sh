@@ -47,6 +47,12 @@ export PKG_CONFIG
 
 TAR=gtar
 
+install_manifest() {
+    smfdir=${DESTDIR}/lib/svc/manifest/application
+    mkdir -p $smfdir
+    install -m 0444 ${SRCDIR}/collectd.xml ${smfdir}/
+}
+
 init
 download_source $PROG $PROG $VER
 patch_source
@@ -54,6 +60,7 @@ prep_build
 logcmd autoconf
 build
 make_isa_stub
+install_manifest
 make_package
 clean_up
 
