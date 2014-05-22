@@ -34,10 +34,13 @@ PKG=application/collectd
 SUMMARY="system statistics collection daemon"
 DESC="$SUMMARY"
 
+BUILDARCH=64
+
 # need autoconf to apply some patches to configure.ac
 BUILD_DEPENDS_IPS='application/rrdtool developer/build/pkg-config developer/build/autoconf'
 
-CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static"
+# daemon is not useful when run as smf wait service
+CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static --disable-daemon"
 
 PKG_CONFIG=${PREFIX}/bin/pkg-config
 export PKG_CONFIG
