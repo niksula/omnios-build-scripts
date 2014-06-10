@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=ircii
-VER=20111115
+VER=20131230
 VERHUMAN=$VER
 PKG=network/chat/ircii
 SUMMARY="IRC and ICB client that runs under most UNIX platforms"
