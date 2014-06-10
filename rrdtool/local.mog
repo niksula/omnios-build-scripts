@@ -1,1 +1,2 @@
 license COPYING license=GPLv2
+<transform file path=.*/perllocal.pod -> drop>

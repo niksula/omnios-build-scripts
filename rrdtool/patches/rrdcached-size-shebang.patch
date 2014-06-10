@@ -1,0 +1,12 @@
+Without this, pkgdepend gives us a dependency on pkg://omnios/runtime/perl
+which we really don't need
+diff --git a/examples/rrdcached/rrdcached-size.pl b/examples/rrdcached/rrdcached-size.pl
+index df6aaf6..58e2ecb 100644
+--- a/examples/rrdcached/rrdcached-size.pl
++++ b/examples/rrdcached/rrdcached-size.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/opt/niksula/perl5/bin/perl
+ 
+ =head1 NAME
+ 

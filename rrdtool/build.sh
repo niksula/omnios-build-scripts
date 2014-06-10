@@ -34,21 +34,27 @@ PKG=application/rrdtool
 SUMMARY="data logging and graphing system for time series data"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='library/cairo library/pango perl/manual'
+BUILD_DEPENDS_IPS='library/cairo library/pango niksula/runtime/perl pkg://niksula.hut.fi/developer/build/pkg-config'
 
 PKGCONFIG=${PREFIX}/bin/pkg-config
 export PKGCONFIG
 
-# getting the perl install paths right is complicated to escape since it
-# requires passing an arg with spaces to configure. In addition to conform to
-# KYSTY we should not depend on system perl
-CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-perl"
-# not so much KYSTY with these, but we need them to generate the documentation
-# (though it already is generated in the tarball, it will get removed by 'make
-# clean' for the second build (not for the first build because there is no
-# makefile until configure has been run))
-export POD2MAN=/usr/perl5/5.16.1/bin/pod2man
-export POD2HTML=/usr/perl5/5.16.1/bin/pod2html
+CONFIGURE_OPTS="$CONFIGURE_OPTS --with-perl-options=PREFIX=/opt/niksula/perl5 --disable-python"
+save_function configure32 conf32_orig
+save_function configure64 conf64_orig
+configure32() {
+    PERLLDFLAGS="$LDFLAGS $LDFLAGS32" PERLCCFLAGS="$CFLAGS $CFLAGS32" conf32_orig
+}
+configure64() {
+    PERLLDFLAGS="$LDFLAGS $LDFLAGS64" PERLCCFLAGS="$CFLAGS $CFLAGS64" conf64_orig
+}
+export PERL=/opt/niksula/perl5/bin/perl
+# we need these to generate the documentation (though it already is generated
+# in the tarball, it will get removed by 'make clean' for the second build (not
+# for the first build because there is no makefile until configure has been
+# run))
+export POD2MAN=/opt/niksula/perl5/bin/pod2man
+export POD2HTML=/opt/niksula/perl5/bin/pod2html
 
 init
 download_source $PROG $PROG $VER
