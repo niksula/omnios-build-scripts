@@ -28,16 +28,21 @@
 . ../../lib/functions.sh
 
 PROG=ruby
-PATCHLEVEL=353
-VERHUMAN=2.0.0-p$PATCHLEVEL
-VER=2.0.0.$PATCHLEVEL
-PKG=runtime/ruby-20
+VER=2.1.2
+VERHUMAN=$VER
+PKG=runtime/ruby-21
 SUMMARY="Ruby $VER"
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS='developer/build/pkg-config library/libffi'
 
-BUILDDIR=${PROG}-${VERHUMAN}
+# required for configure.in patch
+BUILD_DEPENDS_IPS="$BUILD_DEPENDS_IPS developer/build/autoconf"
+gen_configure() {
+    pushd ${TMPDIR}/${BUILDDIR} >/dev/null
+    logcmd autoconf || logerr 'autoconf failed'
+    popd >/dev/null
+}
 
 # if we do distclean, we need ruby to regenerate some files, so skip it
 make_clean() {
@@ -46,25 +51,39 @@ make_clean() {
 
 # signbit macro that is needed for miniruby requires c99
 CFLAGS="$CFLAGS -std=c99"
-# --enable-multiarch doesn't do exactly what we want so just hack around it by
-# hand
+# ruby (at least 2.0.0) looks for dynamic libs in rubylibdir by default during
+# runtime, and from the arch dir only as fallback, so we need to put 32bit
+# dynamic libs in a place other than where the shared .rb files reside.
+# Let's use the following directory structure:
+#
+#     bin/{i386,amd64}/*
+#     lib/{,amd64}/libruby.so*
+#     lib/ruby/2.1.0/*.rb
+#     lib/ruby/2.1.0/{i386,amd64}/*.so
+#
+# --enable-multiarch causes ruby 2.1 to put both bit width binaries in the same
+# place (lib/ruby/2.1.0/i386-solaris2.11). We still need to pass that flag
+# because it also causes a #define.
+
 CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-shared --enable-multiarch"
-# ruby looks for dynamic libs in rubylibdir by default during runtime, and from
-# the arch dir only as fallback, so we need to put 32bit dynamic libs somewhere
-# else to be able to use 64-bit ruby.
 CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32
---with-rubyarchprefix=${PREFIX}/lib/${ISAPART}/ruby
---with-rubysitearchprefix=${PREFIX}/lib/${ISAPART}/ruby"
-CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64
+--with-archlibdir=${PREFIX}/lib
+--with-archincludedir=${PREFIX}/include
 --with-rubylibprefix=${PREFIX}/lib/ruby
---with-rubyarchprefix=${PREFIX}/lib/${ISAPART64}/ruby
---with-rubysitearchprefix=${PREFIX}/lib/${ISAPART64}/ruby
-"
+--with-rubyarchprefix=${PREFIX}/lib/ruby/${ISAPART}
+--with-rubysitearchprefix=${PREFIX}/lib/ruby/${ISAPART}"
+CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64
+--with-archlibdir=${PREFIX}/lib/${ISAPART64}
+--with-archincludedir=${PREFIX}/include/${ISAPART64}
+--with-rubylibprefix=${PREFIX}/lib/ruby
+--with-rubyarchprefix=${PREFIX}/lib/ruby/${ISAPART64}
+--with-rubysitearchprefix=${PREFIX}/lib/ruby/${ISAPART64}"
 
 init
 download_source $PROG $PROG $VERHUMAN
 patch_source
 prep_build
+gen_configure
 build
 make_isa_stub
 make_package

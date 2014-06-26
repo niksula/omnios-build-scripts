@@ -1,3 +1,4 @@
 license COPYING license=ruby.license
 license GPL license=GPLv2
 license COPYING.ja license=ruby.license.japanese
+depend type=exclude fmri=pkg://niksula.hut.fi/runtime/ruby-20

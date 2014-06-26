@@ -1,0 +1,17 @@
+https://bugs.ruby-lang.org/issues/8973
+diff --git a/configure.in b/configure.in
+index 881449e..1f32670 100644
+--- a/configure.in
++++ b/configure.in
+@@ -2956,6 +2956,11 @@ if test ${multiarch+set}; then
+ fi
+ 
+ archlibdir='${libdir}/${arch}'
++AC_ARG_WITH(archlibdir,
++	    AS_HELP_STRING([--with-archlibdir=DIR],
++			   [prefix for libruby [[LIBDIR/ARCH]]]),
++	    [archlibdir="$withval"])
++
+ sitearchlibdir='${libdir}/${sitearch}'
+ archincludedir='${includedir}/${arch}'
+ sitearchincludedir='${includedir}/${sitearch}'

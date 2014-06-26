@@ -1,0 +1,15 @@
+diff --git a/configure.in b/configure.in
+index 5f79232..95af4bc 100644
+--- a/configure.in
++++ b/configure.in
+@@ -3108,6 +3108,10 @@ AC_ARG_WITH(archlibdir,
+ 
+ sitearchlibdir='${libdir}/${sitearch}'
+ archincludedir='${includedir}/${arch}'
++AC_ARG_WITH(archincludedir,
++        AS_HELP_STRING([--with-archincludedir=DIR],
++                       [directory for architecture-specific header files [[INCLUDEDIR/ARCH]]]),
++        [archincludedir="$withval"])
+ sitearchincludedir='${includedir}/${sitearch}'
+ 
+ AC_ARG_WITH(soname,
