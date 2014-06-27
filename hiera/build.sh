@@ -34,19 +34,14 @@ PKG=application/hiera
 SUMMARY="Light weight hierarchical data store"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='runtime/ruby-20'
-DEPENDS_IPS='runtime/ruby-20'
+BUILD_DEPENDS_IPS='runtime/ruby-21'
 NOSCRIPTSTUB=1
+
+PATH="${PATH}:${PREFIX}/bin"
 
 build() {
     pushd ${TMPDIR}/${BUILDDIR} >/dev/null
-    # hiera doesn't ship a install.rb like facter and puppet so just do this
-    # manually
-    targetlibdir=${DESTDIR}/${PREFIX}/lib/ruby/site_ruby/2.0.0
-    targetbindir=${DESTDIR}/${PREFIX}/bin
-    mkdir -p $targetlibdir $targetbindir
-    logcmd cp -PR lib/* ${targetlibdir}/
-    logcmd cp -PR bin/* ${targetbindir}/
+    logcmd ./install.rb --destdir=${DESTDIR} || logerr 'build failed'
     popd >/dev/null
 }
 
