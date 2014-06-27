@@ -34,7 +34,7 @@ PKG=application/facter
 SUMMARY="Facter, a system inventory tool"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='runtime/ruby-20'
+BUILD_DEPENDS_IPS='runtime/ruby-21'
 NOSCRIPTSTUB=1
 
 # we need ruby to build
