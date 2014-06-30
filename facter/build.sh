@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=facter
-VER=2.0.2
+VER=2.1.0
 VERHUMAN=$VER
 PKG=application/facter
 SUMMARY="Facter, a system inventory tool"
