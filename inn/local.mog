@@ -1,0 +1,7 @@
+license LICENSE license=ISC
+license doc/GPL license=GPLv2
+group groupname=news
+user username=news group=news home-dir=/opt/news
+<transform file dir path=. -> set owner news>
+<transform file dir path=. -> set group news>
+<transform file path=opt/news/etc -> set preserve renamenew>

@@ -1,0 +1,13 @@
+diff --git a/site/Makefile b/site/Makefile
+index 203dd51..3cfad92 100644
+--- a/site/Makefile
++++ b/site/Makefile
+@@ -129,7 +129,7 @@ config:		$(ALL)
+ ##  Don't use parallel rules -- we want this to be viewed carefully.
+ install:	all $(PAUSE) install-config $(RELOAD_AND_GO)
+ reload-install:	all pause    install-config reload go
+-install-config:		update $(REST_INSTALLED) $(SPECIAL)
++install-config:		update $(REST_INSTALLED)
+ 
+ ##  Install scripts, not per-host config files.
+ update:		all $(MOST_INSTALLED)
