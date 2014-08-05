@@ -8,3 +8,4 @@ dir path=opt/nginx/tmp mode=0750 owner=nginx group=nginx
 <transform file path=opt/nginx/conf -> set preserve renamenew>
 <transform file path=opt/nginx/conf -> set group nginx>
 <transform file path=opt/nginx/conf -> set mode 0640>
+<transform file path=opt/nginx/sbin/nginx -> set restart_fmri svc:/network/http/nginx:default>
