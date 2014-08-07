@@ -1,0 +1,1 @@
+Forced Privilege:solaris:cmd:::/opt/news/bin/innbind:    privs=net_privaddr

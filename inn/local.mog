@@ -1,7 +1,12 @@
 license LICENSE license=ISC
 license doc/GPL license=GPLv2
 group groupname=news
-user username=news group=news home-dir=/opt/news
-<transform file dir path=. -> set owner news>
-<transform file dir path=. -> set group news>
+user username=news group=news home-dir=/opt/news password=NP
+<transform file dir path=opt/news -> set owner news>
+<transform file dir path=opt/news -> set group news>
 <transform file path=opt/news/etc -> set preserve renamenew>
+# because innbind is setuid root, 'news' user should not be able to move or
+# modify the it binary (and it doesn't need to do that for the other binaries
+# either)
+<transform file dir path=opt/news/bin -> set owner root>
+<transform file path=opt/news/bin/innbind -> set mode 4750>

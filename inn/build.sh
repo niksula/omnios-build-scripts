@@ -44,15 +44,27 @@ export GPGV=${PREFIX}/bin/gpgv
 PREFIX=/opt/news
 reset_configure_opts
 
-# install chowns/chgrps binaries, so make it not fail and use local.mog to
-# change ownership. also don't make isa stubs; bindir seems to have subdirs.
-CONFIGURE_OPTS="$CONFIGURE_OPTS --with-spool-dir=/var/spool/news --with-perl --enable-ipv6 --with-news-user=$(whoami) --with-news-group=$(id -gn) --bindir=${PREFIX}/bin"
+# don't make isa stubs; bindir seems to have subdirs.
+CONFIGURE_OPTS="$CONFIGURE_OPTS --with-perl --with-berkeleydb=/opt/niksula --enable-ipv6 --bindir=${PREFIX}/bin"
+
+install_manifest() {
+    manifestdir=${DESTDIR}/lib/svc/manifest/network/nntp
+    mkdir -p $manifestdir
+    cp ${SRCDIR}/files/inn.xml ${manifestdir}/
+}
+install_exec_attr() {
+    targetdir=${DESTDIR}/etc/security/exec_attr.d
+    mkdir -p $targetdir
+    cp ${SRCDIR}/files/innbind.exec_attr ${targetdir}/innbind
+}
 
 init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
 build
+install_manifest
+install_exec_attr
 make_package
 clean_up
 

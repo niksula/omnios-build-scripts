@@ -1,0 +1,15 @@
+diff --git a/Makefile.global.in b/Makefile.global.in
+index 4095cf6..1cbf241 100644
+--- a/Makefile.global.in
++++ b/Makefile.global.in
+@@ -282,8 +282,8 @@ INEWSMODE	= @INEWSMODE@
+ RNEWSMODE	= @RNEWSMODE@
+ FILEMODE	= @FILEMODE@
+ 
+-OWNER		= -o $(RUNASUSER) -g $(RUNASGROUP)
+-ROWNER		= -o $(RUNASUSER) -g $(RNEWSGROUP)
++OWNER		=
++ROWNER		=
+ 
+ INSTALL		= $(top)/support/install-sh -c
+ 
