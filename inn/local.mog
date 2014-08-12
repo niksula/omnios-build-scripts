@@ -10,3 +10,4 @@ user username=news group=news home-dir=/opt/news password=NP
 # either)
 <transform file dir path=opt/news/bin -> set owner root>
 <transform file path=opt/news/bin/innbind -> set mode 4750>
+<transform file path=opt/news/bin/rnews -> set mode 0550>
