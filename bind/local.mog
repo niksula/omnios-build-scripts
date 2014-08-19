@@ -1,0 +1,11 @@
+# don't bother shipping libraries, headers or their documentation; OmniOS core
+# package nerwork/dns/bind provides those
+<transform file dir path=opt/bind/lib -> drop>
+<transform file dir path=opt/bind/include -> drop>
+<transform file dir hardlink path=opt/bind/share/man/man3 -> drop>
+<transform file path=opt/bind/sbin/(amd64/|i386/)?named$ -> set restart_fmri svc:/network/dns/bind:default>
+group groupname=bind
+user username=bind group=bind home-dir=/opt/bind gcos-field="BIND/named User"
+license COPYRIGHT license=ISC
+<transform dir path=opt/bind/var -> set owner bind>
+<transform dir path=opt/bind/var -> set group bind>
