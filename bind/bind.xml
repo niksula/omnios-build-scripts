@@ -26,6 +26,11 @@
 
         <property_group name="application" type="application">
         </property_group>
+        <property_group name='general' type='framework'>
+            <propval name='action_authorization' type='astring' value='niksula.smf.manage.bind'/>
+            <propval name='value_authorization' type='astring' value='niksula.smf.manage.bind'/>
+        </property_group>
+
         
         <stability value="Evolving"/>
 
