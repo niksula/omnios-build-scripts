@@ -34,6 +34,7 @@ PKG=application/openldap
 SUMMARY="OpenLDAP, community developed LDAP software"
 DESC="$SUMMARY"
 
+BUILDARCH=32 # https://www.illumos.org/issues/4215 not yet fixed in 151006
 BUILD_DEPENDS_IPS='database/bdb'
 
 PREFIX=/opt/openldap
