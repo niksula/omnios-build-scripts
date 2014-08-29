@@ -11,3 +11,4 @@ user username=news group=news home-dir=/opt/news password=NP
 <transform file dir path=opt/news/bin -> set owner root>
 <transform file path=opt/news/bin/innbind -> set mode 4750>
 <transform file path=opt/news/bin/rnews -> set mode 0550>
+<transform file path=etc/security/exec_attr.d/innbind -> set refresh_fmri svc:/system/rbac:default>
