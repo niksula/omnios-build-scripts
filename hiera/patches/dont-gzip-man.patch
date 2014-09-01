@@ -1,0 +1,14 @@
+diff --git a/install.rb b/install.rb
+index 6f5c855..535994a 100755
+--- a/install.rb
++++ b/install.rb
+@@ -81,9 +81,6 @@ def do_man(man, strip = 'man/')
+     chmod(0755, om)
+     install(mf, omf, {:mode => 0644, :preserve => true, :verbose => true})
+ 
+-    gzip = %x{which gzip}
+-    gzip.chomp!
+-    %x{#{gzip} -f #{omf}}
+   end
+ end
+ 
