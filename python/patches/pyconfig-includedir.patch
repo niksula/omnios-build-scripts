@@ -1,0 +1,46 @@
+diff -r 9d335a54d728 Lib/distutils/sysconfig.py
+--- a/Lib/distutils/sysconfig.py	Fri Sep 05 11:01:43 2014 +0300
++++ b/Lib/distutils/sysconfig.py	Fri Sep 05 22:24:40 2014 +0300
+@@ -12,6 +12,7 @@
+ import os
+ import re
+ import sys
++import sysconfig
+ 
+ from .errors import DistutilsPlatformError
+ 
+@@ -110,8 +111,8 @@
+             else:
+                 incdir = os.path.join(get_config_var('srcdir'), 'Include')
+             return os.path.normpath(incdir)
+-        python_dir = 'python' + get_python_version() + build_flags
+-        return os.path.join(prefix, "include", python_dir)
++        incvar = 'CONFINCLUDEPY' if plat_specific else 'INCLUDEPY'
++        return sysconfig.get_config_var(incvar)
+     elif os.name == "nt":
+         return os.path.join(prefix, "include")
+     else:
+diff -r 9d335a54d728 Lib/sysconfig.py
+--- a/Lib/sysconfig.py	Fri Sep 05 11:01:43 2014 +0300
++++ b/Lib/sysconfig.py	Fri Sep 05 22:24:40 2014 +0300
+@@ -466,7 +466,7 @@
+         else:
+             inc_dir = _sys_home or _PROJECT_BASE
+     else:
+-        inc_dir = get_path('platinclude')
++        inc_dir = get_config_var('CONFINCLUDEPY')
+     return os.path.join(inc_dir, 'pyconfig.h')
+ 
+ 
+diff -r 9d335a54d728 Makefile.pre.in
+--- a/Makefile.pre.in	Fri Sep 05 11:01:43 2014 +0300
++++ b/Makefile.pre.in	Fri Sep 05 22:24:40 2014 +0300
+@@ -119,7 +119,7 @@
+ LIBDIR=		@libdir@
+ MANDIR=		@mandir@
+ INCLUDEDIR=	@includedir@
+-CONFINCLUDEDIR=	$(exec_prefix)/include
++CONFINCLUDEDIR=	@includedir@
+ SCRIPTDIR=	$(prefix)/lib
+ ABIFLAGS=	@ABIFLAGS@
+ 

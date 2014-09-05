@@ -1,2 +1,2 @@
 cgi.patch
-confincludedir.patch
+pyconfig-includedir.patch
