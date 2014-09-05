@@ -1,4 +1,4 @@
 license COPYING license=GPLv3
 group groupname=radicale
 user username=radicale group=radicale
-<transform file path=opt/niksula -> set restart_fmri svc:/network/radicale>
+<transform file path=opt/niksula -> set restart_fmri svc:/network/radicale:default>
