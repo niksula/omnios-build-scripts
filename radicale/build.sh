@@ -50,10 +50,17 @@ build() {
     popd >/dev/null
 }
 
+install_manifest() {
+    tgtdir=${DESTDIR}/lib/svc/manifest/network
+    mkdir -p $tgtdir
+    install -m 0444 ${SRCDIR}/radicale.xml ${tgtdir}/
+}
+
 init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
 build
+install_manifest
 make_package
 clean_up
