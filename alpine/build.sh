@@ -40,6 +40,7 @@ CONFIGURE_OPTS="--with-ssl-dir=/etc/ssl
 --without-tcl
 --with-system-pinerc=${PREFIX}/etc/pine.conf
 --with-system-fixed-pinerc=${PREFIX}/etc/pine.conf.fixed
+--with-passfile=.pine-passfile
 "
 
 CFLAGS="$CFLAGS -g"
