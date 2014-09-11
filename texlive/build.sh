@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=texlive
-VER=20140523
+VER=20140525
 VERHUMAN=$VER
 PKG=application/texlive
 SUMMARY="TeX Live - LaTeX distribution"
@@ -50,26 +50,48 @@ CONFIGURE_OPTS="$CONFIGURE_OPTS
 --disable-native-texlive-build
 --disable-static
 --disable-luajittex
---disable-linked-scripts
 --without-x"
 
-run_texlinks() {
-    pushd ${DESTDIR}${PREFIX} >/dev/null
-    PATH=$(pwd)/bin:$PATH logcmd texlinks -f $(pwd)/share/texmf-dist/web2c/fmtutil.cnf $(pwd)/bin || logerr 'texlinks failed'
-    popd >/dev/null
+dl_texmf() {
+    pushd ${TMPDIR} >/dev/null
+    if ! [ -f ${PROG}-${VER}-texmf.tar.xz ]; then
+        logmsg '--- Downloading texmf archive'
+        get_resource ${PROG}/${PROG}-${VER}-texmf.tar.xz
+    fi
+    if ! [ -d ${PROG}-${VER}-texmf ]; then
+        logmsg '--- Extracting texmf archive'
+        logcmd extract_archive ${PROG}-${VER}-texmf.tar.xz || logerr 'failed to extract texmf'
+    fi
 }
 
-BUILDDIR=${PROG}-${VER}-source
+install_texmf() {
+    mkdir -p ${DESTDIR}${PREFIX}/share
+    # manpages get installed from the source package into $PREFIX/share/man
+    # already
+    rm -rf ${TMPDIR}/${PROG}-${VER}-texmf/texmf-dist/doc/man
+    # we don't want the python/ruby stuff
+    logcmd cp -RP ${TMPDIR}/${PROG}-${VER}-texmf/texmf-dist ${DESTDIR}${PREFIX}/share/
+}
+
+config_tex() {
+    dir=${DESTDIR}${PREFIX}
+    PATH=${dir}/bin:$PATH logcmd texlinks -f ${dir}/share/texmf-dist/web2c/fmtutil.cnf ${dir}/bin || logerr 'texlinks failed'
+    PATH=${dir}/bin:$PATH logcmd fmtutil-sys --cnffile ${dir}/share/texmf-dist/web2c/fmtutil.cnf --missing || logerr 'fmtutil-sys failed'
+}
+
 init
+BUILDDIR=${PROG}-${VER}-source
 download_source $PROG $PROG ${VER}-source
 patch_source
+dl_texmf
 BUILDDIR=${BUILDDIR}/build
 logcmd mkdir ${TMPDIR}/$BUILDDIR
 logcmd wget -O ${TMPDIR}/${BUILDDIR}/LICENSE.TL https://www.tug.org/texlive/LICENSE.TL
 CONFIGURE_CMD=../configure
 prep_build
+install_texmf
 build
-run_texlinks
+config_tex
 make_package
 clean_up
 

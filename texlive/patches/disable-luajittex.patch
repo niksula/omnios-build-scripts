@@ -1,0 +1,13 @@
+diff --git a/texk/texlive/tl_scripts/fmtutil.cnf b/texk/texlive/tl_scripts/fmtutil.cnf
+index c565b3a..39b4379 100644
+--- a/texk/texlive/tl_scripts/fmtutil.cnf
++++ b/texk/texlive/tl_scripts/fmtutil.cnf
+@@ -84,7 +84,7 @@ xelollipop xetex - -etex xelollipop.ini
+ # from luatex:
+ luatex luatex language.def,language.dat.lua luatex.ini
+ dviluatex luatex language.def,language.dat.lua dviluatex.ini
+-luajittex luajittex language.def,language.dat.lua luatex.ini
++#! luajittex luajittex language.def,language.dat.lua luatex.ini
+ #
+ # from metafont:
+ mf mf-nowin - -translate-file=cp227.tcx mf.ini
