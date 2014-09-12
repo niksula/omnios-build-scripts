@@ -39,8 +39,7 @@ BUILDARCH=64
 # need autoconf to apply some patches to configure.ac
 BUILD_DEPENDS_IPS='application/rrdtool developer/build/pkg-config developer/build/autoconf system/management/snmp/net-snmp'
 
-# daemon is not useful when run as smf wait service
-CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static --disable-daemon"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static"
 
 PKG_CONFIG=${PREFIX}/bin/pkg-config
 export PKG_CONFIG

@@ -27,12 +27,12 @@
             <method_credential user="radicale" group="radicale"/>
         </method_context>
 
-        <exec_method type="method" name="start" exec="/opt/niksula/bin/radicale" timeout_seconds="60"/>
+        <exec_method type="method" name="start" exec="/opt/niksula/bin/radicale -d" timeout_seconds="60"/>
 
         <exec_method type="method" name="stop" exec=":kill" timeout_seconds="60"/>
 
         <property_group name="startd" type="framework">
-            <propval name="duration" type="astring" value="child"/>
+            <propval name="duration" type="astring" value="contract"/>
             
             
             <propval name="ignore_error" type="astring" value="core,signal"/>
