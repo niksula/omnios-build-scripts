@@ -1,1 +1,2 @@
 if_ether.h.patch
+prefer_ncurses.patch

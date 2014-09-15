@@ -1,0 +1,13 @@
+diff --git a/configure.in b/configure.in
+index 8371ae6..1c8963b 100644
+--- a/configure.in
++++ b/configure.in
+@@ -440,7 +440,7 @@ if test -n "$WITH_READLINE"; then
+     # but it doesn't work well with socat. It can be recognized by the absence
+     # of append_history.
+     
+-    for L in "" "-lcurses" "-lncurses"; do
++    for L in "" "-lncurses" "-lcurses"; do
+       LIBS="$LIBS_ORIG -lreadline $L"
+       AC_TRY_LINK(
+         [ #include <stdio.h>

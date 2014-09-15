@@ -34,13 +34,12 @@ PKG=network/socat
 SUMMARY="Multipurpose relay (SOcket CAT)"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='developer/build/autoconf'
+BUILD_DEPENDS_IPS='developer/build/autoconf library/ncurses'
 
-#CPPFLAGS="$CPPFLAGS -D_XOPEN_SOURCE=600 -std=c99"
-#CFLAGS="$CFLAGS -D_XOPEN_SOURCE=600 -std=c99"
-
-# https://www.illumos.org/issues/4409 - not yet in r151006
-#CPPFLAGS="$CPPFLAGS -D__EXTENSIONS__"
+# ncurses
+CPPFLAGS="$CPPFLAGS -I/usr/include/ncurses"
+LDFLAGS32="$LDFLAGS32 -L/usr/gnu/lib -R/usr/gnu/lib"
+LDFLAGS64="$LDFLAGS64 -L/usr/gnu/lib/$ISAPART64 -R/usr/gnu/lib/$ISAPART64"
 
 run_autoconf() {
     pushd ${TMPDIR}/$BUILDDIR >/dev/null
