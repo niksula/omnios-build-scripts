@@ -1,0 +1,14 @@
+diff --git a/Makefile.in b/Makefile.in
+index 181b10a..fa0e255 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -63,8 +63,7 @@ bindir = $(DESTDIR)@bindir@
+ datarootdir = $(DESTDIR)@datarootdir@
+ libdir = $(DESTDIR)@libdir@
+ libexecdir = $(DESTDIR)@libexecdir@
+-# @mandir@ tends to be $datarootdir which already has $DESTDIR.
+-mandir = @mandir@/man1
++mandir = $(DESTDIR)@mandir@/man1
+ 
+ # Where the ircII binary will be installed.
+ # 'make install' will compile and install the program
