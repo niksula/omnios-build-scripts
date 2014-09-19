@@ -30,7 +30,7 @@
 PROG=aspell
 VER=0.60.6.1
 VERHUMAN=$VER
-PKG=omniti/library/aspell
+PKG=library/aspell
 SUMMARY="GNU Aspell spell-checker"
 DESC="$SUMMARY"
 
