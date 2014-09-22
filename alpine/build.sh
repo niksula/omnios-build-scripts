@@ -35,7 +35,7 @@ SUMMARY="The continuation of the Alpine email client from University of Washingt
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS='library/aspell'
-RUN_DEPENDS_IPS='library/aspell'
+RUN_DEPENDS_IPS='library/aspell@0.60.6.1,5.11-0.151006:20140922T115103Z'
 # put aspell in PATH
 PATH=${PATH}:${PREFIX}/bin
 
