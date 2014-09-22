@@ -34,6 +34,11 @@ PKG=mail/re-alpine
 SUMMARY="The continuation of the Alpine email client from University of Washington"
 DESC="$SUMMARY"
 
+BUILD_DEPENDS_IPS='library/aspell'
+RUN_DEPENDS_IPS='library/aspell'
+# put aspell in PATH
+PATH=${PATH}:${PREFIX}/bin
+
 CONFIGURE_OPTS="--with-ssl-dir=/etc/ssl
 --with-ssl-include-dir=/usr/include/openssl
 --without-ldap
