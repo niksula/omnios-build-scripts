@@ -29,13 +29,12 @@
 
 PROG=aspell
 VER=0.60.6.1
-VERHUMAN=$VER
+DICTPROG=aspell6-en
+DICTVER=7.1-0
+VERHUMAN="$VER, with $DICTVER English dictionary"
 PKG=library/aspell
 SUMMARY="GNU Aspell spell-checker"
 DESC="$SUMMARY"
-
-DICTPROG=aspell6-en
-DICTVER=7.1-0
 
 CONFIGURE_OPTS="--disable-curses"
 
