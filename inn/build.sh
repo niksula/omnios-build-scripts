@@ -45,7 +45,7 @@ PREFIX=/opt/news
 reset_configure_opts
 
 # don't make isa stubs; bindir seems to have subdirs.
-CONFIGURE_OPTS="$CONFIGURE_OPTS --with-perl --with-berkeleydb=/opt/niksula --enable-ipv6 --bindir=${PREFIX}/bin"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --with-berkeleydb=/opt/niksula --enable-ipv6 --bindir=${PREFIX}/bin"
 
 install_manifest() {
     manifestdir=${DESTDIR}/lib/svc/manifest/network/nntp
