@@ -70,7 +70,9 @@ make_install() {
 get_dict() {
     logmsg 'Downloading and extracting dictionary source'
     pushd ${TMPDIR} >/dev/null
-    get_resource ${PROG}/${DICTPROG}-${DICTVER}.tar.bz2 || logerr 'download failed'
+    if ! [ -r ${DICTPROG}-${DICTVER}.tar.bz2 ]; then
+        get_resource ${PROG}/${DICTPROG}-${DICTVER}.tar.bz2 || logerr 'download failed'
+    fi
     logcmd extract_archive ${DICTPROG}-${DICTVER}.tar.bz2 || logerr 'extract failed'
     popd >/dev/null
 }
