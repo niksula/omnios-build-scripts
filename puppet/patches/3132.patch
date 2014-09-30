@@ -1,0 +1,558 @@
+From b0592d2af41ff4898d97694f144969b8689142c8 Mon Sep 17 00:00:00 2001
+From: Lauri Tirkkonen <lotheac@iki.fi>
+Date: Mon, 30 Dec 2013 13:23:22 +0200
+Subject: [PATCH 1/5] (PUP-1270) parse full pkg FMRI
+
+---
+ lib/puppet/provider/package/pkg.rb | 30 +++++++++++-------------------
+ 1 file changed, 11 insertions(+), 19 deletions(-)
+
+diff --git a/lib/puppet/provider/package/pkg.rb b/lib/puppet/provider/package/pkg.rb
+index 4192dca..1209dc2 100644
+--- a/lib/puppet/provider/package/pkg.rb
++++ b/lib/puppet/provider/package/pkg.rb
+@@ -26,7 +26,7 @@
+   defaultfor :osfamily => :solaris, :kernelrelease => '5.11'
+ 
+   def self.instances
+-    pkg(:list, '-H').split("\n").map{|l| new(parse_line(l))}
++    pkg(:list, '-Hv').split("\n").map{|l| new(parse_line(l))}
+   end
+ 
+   # The IFO flag field is just what it names, the first field can have ether
+@@ -90,23 +90,15 @@ def self.pkg_state(state)
+   # formats of output for different pkg versions.
+   def self.parse_line(line)
+     (case line.chomp
+-    # NAME (PUBLISHER)            VERSION           IFO  (new:630e1ffc7a19)
+-    # system/core-os              0.5.11-0.169      i--
+-    when /^(\S+) +(\S+) +(...)$/
+-      {:name => $1, :ensure => $2}.merge ifo_flag($3)
++    # FMRI                                                                         IFO
++    # pkg://omnios/SUNWcs@0.5.11,5.11-0.151008:20131204T022241Z                    ---
++    when %r'^pkg://([^/]+)/([^@]+)@(\S+) +(...)$'
++      {:publisher => $1, :name => $2, :ensure => $3}.merge ifo_flag($4)
+ 
+-    # x11/wm/fvwm (fvwm.org)      2.6.1-3           i--
+-    when /^(\S+) \((.+)\) +(\S+) +(...)$/
+-      {:name => $1, :publisher => $2, :ensure => $3}.merge ifo_flag($4)
+-
+-    # NAME (PUBLISHER)                  VERSION          STATE      UFOXI (dvd:052adf36c3f4)
+-    # SUNWcs                            0.5.11-0.126     installed  -----
+-    when /^(\S+) +(\S+) +(\S+) +(.....)$/
+-      {:name => $1, :ensure => $2}.merge pkg_state($3).merge(ufoxi_flag($4))
+-
+-    # web/firefox/plugin/flash (extra)  10.0.32.18-0.111 installed  -----
+-    when /^(\S+) \((.+)\) +(\S+) +(\S+) +(.....)$/
+-      {:name => $1, :publisher => $2, :ensure => $3}.merge pkg_state($4).merge(ufoxi_flag($5))
++    # FMRI                                                             STATE      UFOXI
++    # pkg://solaris/SUNWcs@0.5.11,5.11-0.151.0.1:20101105T001108Z      installed  u----
++    when %r'^pkg://([^/]+)/([^@]+)@(\S+) +(\S+) +(.....)$'
++      {:publisher => $1, :name => $2, :ensure => $3}.merge pkg_state($4).merge(ufoxi_flag($5))
+ 
+     else
+       raise ArgumentError, 'Unknown line format %s: %s' % [self.name, line]
+@@ -126,7 +118,7 @@ def unhold
+   # http://defect.opensolaris.org/bz/show_bug.cgi?id=19159%
+   # notes that we can't use -Ha for the same even though the manual page reads that way.
+   def latest
+-    lst = pkg(:list, "-Hn", @resource[:name]).split("\n").map{|l|self.class.parse_line(l)}
++    lst = pkg(:list, "-Hvn", @resource[:name]).split("\n").map{|l|self.class.parse_line(l)}
+ 
+     # Now we know there is a newer version. But is that installable? (i.e are there any constraints?)
+     # return the first known we find. The only way that is currently available is to do a dry run of
+@@ -178,7 +170,7 @@ def update
+ 
+   # list a specific package
+   def query
+-    r = exec_cmd(command(:pkg), 'list', '-H', @resource[:name])
++    r = exec_cmd(command(:pkg), 'list', '-Hv', @resource[:name])
+     return {:ensure => :absent, :name => @resource[:name]} if r[:exit] != 0
+     self.class.parse_line(r[:out])
+   end
+
+From 2584f249814516ac12db944b34a859eace5e97d8 Mon Sep 17 00:00:00 2001
+From: Lauri Tirkkonen <lotheac@iki.fi>
+Date: Mon, 30 Dec 2013 14:42:50 +0200
+Subject: [PATCH 2/5] IPS downgrade in-place instead of uninstall-reinstall
+
+---
+ lib/puppet/provider/package/pkg.rb | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/lib/puppet/provider/package/pkg.rb b/lib/puppet/provider/package/pkg.rb
+index 1209dc2..6e91a44 100644
+--- a/lib/puppet/provider/package/pkg.rb
++++ b/lib/puppet/provider/package/pkg.rb
+@@ -139,13 +139,16 @@ def install(nofail = false)
+     unless should.is_a? Symbol
+       name += "@#{should}"
+       is = self.query
+-      unless is[:ensure].to_sym == :absent
+-        self.uninstall if Puppet::Util::Package.versioncmp(should, is[:ensure]) < 0
++      if is[:ensure].to_sym == :absent
++        command = 'install'
++      else
++        command = 'update'
+       end
++      r = exec_cmd(command(:pkg), command, '--accept', name)
+     end
+-    r = exec_cmd(command(:pkg), 'install', '--accept', name)
+     return r if nofail
+-    raise Puppet::Error, "Unable to update #{r[:out]}" if r[:exit] != 0
++    # exit status 4 means that no changes were made, but it's not a failure
++    raise Puppet::Error, "Unable to update #{r[:out]}" unless [0,4].include? r[:exit]
+   end
+ 
+   # uninstall the package. The complication comes from the -r_ecursive flag which is no longer
+
+From f133a98d102a44e51c39ef93a5fe47237e651ca4 Mon Sep 17 00:00:00 2001
+From: Lauri Tirkkonen <lotheac@iki.fi>
+Date: Mon, 30 Dec 2013 15:11:37 +0200
+Subject: [PATCH 3/5] (PUP-1270) update pkg specs accordingly
+
+---
+ .../unit/provider/package/pkg/dummy_solaris10      |  2 +-
+ .../package/pkg/dummy_solaris11.ifo.installed      |  2 +-
+ .../provider/package/pkg/dummy_solaris11.ifo.known |  2 +-
+ .../provider/package/pkg/dummy_solaris11.installed |  2 +-
+ .../provider/package/pkg/dummy_solaris11.known     |  2 +-
+ spec/fixtures/unit/provider/package/pkg/incomplete |  2 +-
+ spec/fixtures/unit/provider/package/pkg/publisher  |  2 -
+ spec/fixtures/unit/provider/package/pkg/simple     |  2 -
+ spec/fixtures/unit/provider/package/pkg/solaris11  |  4 +-
+ .../unit/provider/package/pkg/unknown_status       | 24 +++---
+ spec/unit/provider/package/pkg_spec.rb             | 97 ++++++++++------------
+ 11 files changed, 62 insertions(+), 79 deletions(-)
+ delete mode 100644 spec/fixtures/unit/provider/package/pkg/publisher
+ delete mode 100644 spec/fixtures/unit/provider/package/pkg/simple
+
+diff --git a/spec/fixtures/unit/provider/package/pkg/dummy_solaris10 b/spec/fixtures/unit/provider/package/pkg/dummy_solaris10
+index 12a8998..6c09f22 100644
+--- a/spec/fixtures/unit/provider/package/pkg/dummy_solaris10
++++ b/spec/fixtures/unit/provider/package/pkg/dummy_solaris10
+@@ -1 +1 @@
+-dummy                                     2.5.5-0.111     installed  -----
++pkg://solaris/dummy@2.5.5,5.10-0.111:20131230T130000Z     installed  -----
+diff --git a/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.ifo.installed b/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.ifo.installed
+index 6c88019..c245f46 100644
+--- a/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.ifo.installed
++++ b/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.ifo.installed
+@@ -1 +1 @@
+-dummy                                    1.0.6-0.175.0.0.0.2.537    i--
++pkg://solaris/dummy@1.0.6,5.11-0.175.0.0.0.2.537:20131230T130000Z    i--
+diff --git a/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.ifo.known b/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.ifo.known
+index 48895c1..3f147c6 100644
+--- a/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.ifo.known
++++ b/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.ifo.known
+@@ -1 +1 @@
+-dummy                                    1.0.6-0.175.0.0.0.2.537    ---
++pkg://solaris/dummy@1.0.6,5.11-0.175.0.0.0.2.537:20131230T130000Z    ---
+diff --git a/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.installed b/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.installed
+index 8724a90..679985c 100644
+--- a/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.installed
++++ b/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.installed
+@@ -1 +1 @@
+-dummy                                    1.0.6-0.175.0.0.0.2.537 installed  u----
++pkg://solaris/dummy@1.0.6,5.11-0.175.0.0.0.2.537:20131230T130000Z   installed  u----
+diff --git a/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.known b/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.known
+index 935cdb8..9440430 100644
+--- a/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.known
++++ b/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.known
+@@ -1 +1 @@
+-dummy                                    1.0.6-0.175.0.0.0.2.537 known      u----
++pkg://solaris/dummy@1.0.6,5.11-0.175.0.0.0.2.537:20131230T130000Z   known      u----
+diff --git a/spec/fixtures/unit/provider/package/pkg/incomplete b/spec/fixtures/unit/provider/package/pkg/incomplete
+index 24a93d1..ff0a4a2 100644
+--- a/spec/fixtures/unit/provider/package/pkg/incomplete
++++ b/spec/fixtures/unit/provider/package/pkg/incomplete
+@@ -1 +1 @@
+-dummy                                     2.5.5-0.111     installed  ---- RANDOM_TRASH  
++pkg://solaris/dummy@2.5.5,5.11-0.111:20131230T130000Z     installed  ---- RANDOM_TRASH  
+diff --git a/spec/fixtures/unit/provider/package/pkg/publisher b/spec/fixtures/unit/provider/package/pkg/publisher
+deleted file mode 100644
+index 5595bbf..0000000
+--- a/spec/fixtures/unit/provider/package/pkg/publisher
++++ /dev/null
+@@ -1,2 +0,0 @@
+-SUNWdummy (solaris)                            8.8-0.111       installed  -----
+-service/network/dummy (solaris)                 0.5.11-0.151.0.1 installed  -----
+diff --git a/spec/fixtures/unit/provider/package/pkg/simple b/spec/fixtures/unit/provider/package/pkg/simple
+deleted file mode 100644
+index f63811b..0000000
+--- a/spec/fixtures/unit/provider/package/pkg/simple
++++ /dev/null
+@@ -1,2 +0,0 @@
+-SUNWdummy                                     2.5.5-0.111     installed  -----
+-dummy2                                      9.3.6.1-0.111   installed  -----
+diff --git a/spec/fixtures/unit/provider/package/pkg/solaris11 b/spec/fixtures/unit/provider/package/pkg/solaris11
+index 1f3c948..046c1bb 100644
+--- a/spec/fixtures/unit/provider/package/pkg/solaris11
++++ b/spec/fixtures/unit/provider/package/pkg/solaris11
+@@ -1,2 +1,2 @@
+-dummy/dummy                                      3.0-0.175.0.0.0.2.537      i--
+-dummy/dummy2                                     1.8.1.2-0.175.0.0.0.2.537  i--
++pkg://solaris/dummy/dummy@3.0,5.11-0.175.0.0.0.2.537:20131230T130000Z      i--
++pkg://solaris/dummy/dummy2@1.8.1.2-0.175.0.0.0.2.537:20131230T130000Z  i--
+diff --git a/spec/fixtures/unit/provider/package/pkg/unknown_status b/spec/fixtures/unit/provider/package/pkg/unknown_status
+index 70a645b..33b1701 100644
+--- a/spec/fixtures/unit/provider/package/pkg/unknown_status
++++ b/spec/fixtures/unit/provider/package/pkg/unknown_status
+@@ -1,12 +1,12 @@
+-compress/zip                                      3.0-0.175.0.0.0.2.537      i--
+-archiver/gnu-tar                                  1.26-0.175.0.0.0.2.537     i--
+-compress/bzip2                                    1.0.6-0.175.0.0.0.2.537    i--
+-compress/gzip                                     1.3.5-0.175.0.0.0.2.537    i--
+-compress/p7zip                                    9.20.1-0.175.0.0.0.2.537   i--
+-compress/unzip                                    6.0-0.175.0.0.0.2.537      x--
+-compress/zip                                      3.0-0.175.0.0.0.2.537      i--
+-x11/library/toolkit/libxaw7                       1.0.9-0.175.0.0.0.0.1215   i--
+-x11/library/toolkit/libxt                         1.0.9-0.175.0.0.0.0.1215   i--
+-shell/bash                                        4.1.9-0.175.0.0.0.2.537    i--
+-shell/zsh                                         4.3.12-0.175.0.0.0.2.537   i--
+-security/sudo                                     1.8.1.2-0.175.0.0.0.2.537  i--
++pkg://solaris/compress/zip@3.0,5.11-0.175.0.0.0.2.537:20131230T130000Z                   i--
++pkg://solaris/archiver/gnu-tar@1.26,5.11-0.175.0.0.0.2.537:20131230T130000Z              i--
++pkg://solaris/compress/bzip2@1.0.6,5.11-0.175.0.0.0.2.537:20131230T130000Z               i--
++pkg://solaris/compress/gzip@1.3.5,5.11-0.175.0.0.0.2.537:20131230T130000Z                i--
++pkg://solaris/compress/p7zip@9.20.1,5.11-0.175.0.0.0.2.537:20131230T130000Z              i--
++pkg://solaris/compress/unzip@6.0,5.11-0.175.0.0.0.2.537:20131230T130000Z                 x--
++pkg://solaris/compress/zip@3.0,5.11-0.175.0.0.0.2.537:20131230T130000Z                   i--
++pkg://solaris/x11/library/toolkit/libxaw7@1.0.9,5.11-0.175.0.0.0.0.1215:20131230T130000Z i--
++pkg://solaris/x11/library/toolkit/libxt@1.0.9,5.11-0.175.0.0.0.0.1215:20131230T130000Z   i--
++pkg://solaris/shell/bash@4.1.9,5.11-0.175.0.0.0.2.537:20131230T130000Z                   i--
++pkg://solaris/shell/zsh@4.3.12,5.11-0.175.0.0.0.2.537:20131230T130000Z                   i--
++pkg://solaris/security/sudo@1.8.1.2,5.11-0.175.0.0.0.2.537:20131230T130000Z              i--
+diff --git a/spec/unit/provider/package/pkg_spec.rb b/spec/unit/provider/package/pkg_spec.rb
+index 8ddbbbf..76ca315 100755
+--- a/spec/unit/provider/package/pkg_spec.rb
++++ b/spec/unit/provider/package/pkg_spec.rb
+@@ -54,11 +54,9 @@ def self.it_should_respond_to(*actions)
+         }.to raise_error(ArgumentError, /Unknown line format/)
+       end
+       {
+-        'spkg       0.0.7  i--' => {:name => 'spkg', :ensure => '0.0.7', :status => 'installed', :provider => :pkg},
+-        'spkg (me)  0.0.7  i--' => {:name => 'spkg', :ensure => '0.0.7', :status => 'installed', :provider => :pkg, :publisher => 'me'},
+-        'spkg (me)  0.0.7  if-' => {:name => 'spkg', :ensure => 'held', :status => 'installed', :provider => :pkg, :publisher => 'me'},
+-        'spkg       0.0.7  installed -----' => {:name => 'spkg', :ensure => '0.0.7', :status => 'installed', :provider => :pkg},
+-        'spkg (me)  0.0.7  installed -----' => {:name => 'spkg', :ensure => '0.0.7', :status => 'installed', :provider => :pkg, :publisher => 'me'},
++        'pkg://omnios/SUNWcs@0.5.11,5.11-0.151006:20130506T161045Z    i--' => {:name => 'SUNWcs', :ensure => '0.5.11,5.11-0.151006:20130506T161045Z', :status => 'installed', :provider => :pkg, :publisher => 'omnios'},
++        'pkg://omnios/incorporation/jeos/illumos-gate@11,5.11-0.151006:20130506T183443Z if-' => {:name => 'incorporation/jeos/illumos-gate', :ensure => 'held', :status => 'installed', :provider => :pkg, :publisher => 'omnios'},
++        'pkg://solaris/SUNWcs@0.5.11,5.11-0.151.0.1:20101105T001108Z      installed  -----' => {:name => 'SUNWcs', :ensure => '0.5.11,5.11-0.151.0.1:20101105T001108Z', :status => 'installed', :provider => :pkg, :publisher => 'solaris'},
+        }.each do |k, v|
+         it "[#{k}] should correctly parse" do
+           described_class.parse_line(k).should == v
+@@ -67,60 +65,46 @@ def self.it_should_respond_to(*actions)
+     end
+     context ":latest" do
+       it "should work correctly for ensure latest on solaris 11 (UFOXI) when there are no further packages to install" do
+-        described_class.expects(:pkg).with(:list,'-Hn','dummy').returns File.read(my_fixture('dummy_solaris11.installed'))
+-        provider.latest.should == "1.0.6-0.175.0.0.0.2.537"
++        described_class.expects(:pkg).with(:list,'-Hvn','dummy').returns File.read(my_fixture('dummy_solaris11.installed'))
++        provider.latest.should == '1.0.6,5.11-0.175.0.0.0.2.537:20131230T130000Z'
+       end
+       it "should work correctly for ensure latest on solaris 11(known UFOXI)" do
+         Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'update', '-n', 'dummy'], {:failonfail => false, :combine => true}).returns ''
+         $CHILD_STATUS.stubs(:exitstatus).returns 0
+ 
+-        described_class.expects(:pkg).with(:list,'-Hn','dummy').returns File.read(my_fixture('dummy_solaris11.known'))
+-        provider.latest.should == "1.0.6-0.175.0.0.0.2.537"
++        described_class.expects(:pkg).with(:list,'-Hvn','dummy').returns File.read(my_fixture('dummy_solaris11.known'))
++        provider.latest.should == '1.0.6,5.11-0.175.0.0.0.2.537:20131230T130000Z'
+       end
+       it "should work correctly for ensure latest on solaris 11 (IFO)" do
+-        described_class.expects(:pkg).with(:list,'-Hn','dummy').returns File.read(my_fixture('dummy_solaris11.ifo.installed'))
+-        provider.latest.should == "1.0.6-0.175.0.0.0.2.537"
++        described_class.expects(:pkg).with(:list,'-Hvn','dummy').returns File.read(my_fixture('dummy_solaris11.ifo.installed'))
++        provider.latest.should == '1.0.6,5.11-0.175.0.0.0.2.537:20131230T130000Z'
+       end
+       it "should work correctly for ensure latest on solaris 11(known IFO)" do
+         Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'update', '-n', 'dummy'], {:failonfail => false, :combine => true}).returns ''
+         $CHILD_STATUS.stubs(:exitstatus).returns 0
+ 
+-        described_class.expects(:pkg).with(:list,'-Hn','dummy').returns File.read(my_fixture('dummy_solaris11.ifo.known'))
+-        provider.latest.should == "1.0.6-0.175.0.0.0.2.537"
++        described_class.expects(:pkg).with(:list,'-Hvn','dummy').returns File.read(my_fixture('dummy_solaris11.ifo.known'))
++        provider.latest.should == '1.0.6,5.11-0.175.0.0.0.2.537:20131230T130000Z'
+       end
+     end
+     context ":instances" do
+-      it "should correctly parse lines with preferred publisher" do
+-        described_class.expects(:pkg).with(:list,'-H').returns File.read(my_fixture('simple'))
+-        instances = described_class.instances.map { |p| {:name => p.get(:name), :ensure => p.get(:ensure)} }
+-        instances.size.should == 2
+-        instances[0].should == {:name => 'SUNWdummy', :ensure => "2.5.5-0.111"}
+-        instances[1].should == {:name => 'dummy2', :ensure =>"9.3.6.1-0.111"}
+-      end
+-      it "should correctly parse lines with non preferred publisher" do
+-        described_class.expects(:pkg).with(:list,'-H').returns File.read(my_fixture('publisher'))
+-        instances = described_class.instances.map { |p| {:name => p.get(:name), :ensure => p.get(:ensure)} }
+-        instances.size.should == 2
+-        instances[0].should == {:name => 'SUNWdummy', :ensure => "8.8-0.111"}
+-        instances[1].should == {:name => 'service/network/dummy', :ensure => "0.5.11-0.151.0.1"}
+-      end
+       it "should correctly parse lines on solaris 11" do
+-        described_class.expects(:pkg).with(:list, '-H').returns File.read(my_fixture('solaris11'))
++        described_class.expects(:pkg).with(:list, '-Hv').returns File.read(my_fixture('solaris11'))
+         described_class.expects(:warning).never
+         instances = described_class.instances.map { |p| {:name => p.get(:name), :ensure => p.get(:ensure) }}
+         instances.size.should == 2
+-        instances[0].should == {:name => 'dummy/dummy', :ensure => "3.0-0.175.0.0.0.2.537"}
+-        instances[1].should == {:name => 'dummy/dummy2', :ensure => "1.8.1.2-0.175.0.0.0.2.537"}
++        instances[0].should == {:name => 'dummy/dummy', :ensure => '3.0,5.11-0.175.0.0.0.2.537:20131230T130000Z'}
++        instances[1].should == {:name => 'dummy/dummy2', :ensure => '1.8.1.2-0.175.0.0.0.2.537:20131230T130000Z'}
+       end
+       it "should fail on incorrect lines" do
+         fake_output = File.read(my_fixture('incomplete'))
+-        described_class.expects(:pkg).with(:list,'-H').returns fake_output
++        described_class.expects(:pkg).with(:list,'-Hv').returns fake_output
+         expect {
+           described_class.instances
+         }.to raise_error(ArgumentError, /Unknown line format pkg/)
+       end
+       it "should fail on unknown package status" do
+-        described_class.expects(:pkg).with(:list,'-H').returns File.read(my_fixture('unknown_status'))
++        described_class.expects(:pkg).with(:list,'-Hv').returns File.read(my_fixture('unknown_status'))
+         expect {
+           described_class.instances
+         }.to raise_error(ArgumentError, /Unknown format pkg/)
+@@ -129,17 +113,18 @@ def self.it_should_respond_to(*actions)
+     context ":query" do
+       context "on solaris 10" do
+         it "should find the package" do
+-          Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'list', '-H', 'dummy'], {:failonfail => false, :combine => true}).returns File.read(my_fixture('dummy_solaris10'))
++          Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'list', '-Hv', 'dummy'], {:failonfail => false, :combine => true}).returns File.read(my_fixture('dummy_solaris10'))
+           $CHILD_STATUS.stubs(:exitstatus).returns 0
+           provider.query.should == {
+-            :name     => 'dummy',
+-            :ensure   => "2.5.5-0.111",
+-            :status   => "installed",
+-            :provider => :pkg,
++            :name      => 'dummy',
++            :ensure    => '2.5.5,5.10-0.111:20131230T130000Z',
++            :publisher => 'solaris',
++            :status    => 'installed',
++            :provider  => :pkg,
+           }
+         end
+         it "should return :absent when the package is not found" do
+-          Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'list', '-H', 'dummy'], {:failonfail => false, :combine => true}).returns ''
++          Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'list', '-Hv', 'dummy'], {:failonfail => false, :combine => true}).returns ''
+           $CHILD_STATUS.stubs(:exitstatus).returns 1
+           provider.query.should == {:ensure => :absent, :name => "dummy"}
+         end
+@@ -147,22 +132,23 @@ def self.it_should_respond_to(*actions)
+       context "on solaris 11" do
+         it "should find the package" do
+           $CHILD_STATUS.stubs(:exitstatus).returns 0
+-          Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'list', '-H', 'dummy'], {:failonfail => false, :combine => true}).returns File.read(my_fixture('dummy_solaris11.installed'))
++          Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'list', '-Hv', 'dummy'], {:failonfail => false, :combine => true}).returns File.read(my_fixture('dummy_solaris11.installed'))
+           provider.query.should == {
+-            :name     => 'dummy',
+-            :status   => 'installed',
+-            :ensure   => "1.0.6-0.175.0.0.0.2.537",
+-            :provider => :pkg
++            :name      => 'dummy',
++            :status    => 'installed',
++            :ensure    => '1.0.6,5.11-0.175.0.0.0.2.537:20131230T130000Z',
++            :publisher => 'solaris',
++            :provider  => :pkg,
+           }
+         end
+         it "should return :absent when the package is not found" do
+-          Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'list', '-H', 'dummy'], {:failonfail => false, :combine => true}).returns ''
++          Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'list', '-Hv', 'dummy'], {:failonfail => false, :combine => true}).returns ''
+           $CHILD_STATUS.stubs(:exitstatus).returns 1
+           provider.query.should == {:ensure => :absent, :name => "dummy"}
+         end
+       end
+       it "should return fail when the packageline cannot be parsed" do
+-        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'list', '-H', 'dummy'], {:failonfail => false, :combine => true}).returns(File.read(my_fixture('incomplete')))
++        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'list', '-Hv', 'dummy'], {:failonfail => false, :combine => true}).returns(File.read(my_fixture('incomplete')))
+         $CHILD_STATUS.stubs(:exitstatus).returns 0
+         expect {
+           provider.query
+@@ -172,7 +158,7 @@ def self.it_should_respond_to(*actions)
+ 
+     context ":install" do
+       it "should accept all licenses" do
+-        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'install', '--accept', 'dummy'], {:failonfail => false, :combine => true}).returns ''
++        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'update', '--accept', 'dummy'], {:failonfail => false, :combine => true}).returns ''
+         Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'unfreeze', 'dummy'], {:failonfail => false, :combine => true}).returns ''
+         $CHILD_STATUS.stubs(:exitstatus).returns 0
+         provider.install
+@@ -180,33 +166,34 @@ def self.it_should_respond_to(*actions)
+ 
+       it "should install specific version(1)" do
+         # Should install also check if the version installed is the same version we are asked to install? or should we rely on puppet for that?
+-        resource[:ensure] = '0.0.7'
++        resource[:ensure] = '0.0.7,5.11-0.151006:20131230T130000Z'
+         $CHILD_STATUS.stubs(:exitstatus).returns 0
+         Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'unfreeze', 'dummy'], {:failonfail => false, :combine => true})
+-        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'list', '-H', 'dummy'], {:failonfail => false, :combine => true}).returns 'dummy       0.0.6  installed -----'
+-        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'install', '--accept', 'dummy@0.0.7'], {:failonfail => false, :combine => true}).returns ''
++        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'list', '-Hv', 'dummy'], {:failonfail => false, :combine => true}).returns 'pkg://foo/dummy@0.0.6,5.11-0.151006:20131230T130000Z  installed -----'
++        # since package is already installed we should expect update
++        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'update', '--accept', 'dummy@0.0.7,5.11-0.151006:20131230T130000Z'], {:failonfail => false, :combine => true}).returns ''
+         provider.install
+       end
+       it "should install specific version(2)" do
+         resource[:ensure] = '0.0.8'
+         Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'unfreeze', 'dummy'], {:failonfail => false, :combine => true})
+-        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'list', '-H', 'dummy'], {:failonfail => false, :combine => true}).returns 'dummy       0.0.7  installed -----'
+-        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'install', '--accept', 'dummy@0.0.8'], {:failonfail => false, :combine => true}).returns ''
++        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'list', '-Hv', 'dummy'], {:failonfail => false, :combine => true}).returns 'pkg://foo/dummy@0.0.7,5.11-0.151006:20131230T130000Z  installed -----'
++        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'update', '--accept', 'dummy@0.0.8'], {:failonfail => false, :combine => true}).returns ''
+         $CHILD_STATUS.stubs(:exitstatus).returns 0
+         provider.install
+       end
+       it "should install specific version(3)" do
+         resource[:ensure] = '0.0.7'
+-        provider.expects(:query).with().returns({:ensure => '0.0.8'})
+-        provider.expects(:uninstall).with()
++        provider.expects(:query).with().returns({:ensure => '0.0.8,5.11-0.151106:20131230T130000Z'})
+         $CHILD_STATUS.stubs(:exitstatus).returns 0
+         Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'unfreeze', 'dummy'], {:failonfail => false, :combine => true})
+-        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'install', '--accept', 'dummy@0.0.7'], {:failonfail => false, :combine => true}).returns ''
++        # downgrades use 'update' too
++        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'update', '--accept', 'dummy@0.0.7'], {:failonfail => false, :combine => true}).returns ''
+         provider.install
+       end
+       it "should install any if version is not specified" do
+         resource[:ensure] = :present
+-        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'install', '--accept', 'dummy'], {:failonfail => false, :combine => true}).returns ''
++        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'update', '--accept', 'dummy'], {:failonfail => false, :combine => true}).returns ''
+         Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'unfreeze', 'dummy'], {:failonfail => false, :combine => true})
+         $CHILD_STATUS.stubs(:exitstatus).returns 0
+         provider.install
+
+From 49be9319c399c1ead36a94ae1bbc28fb6bf79085 Mon Sep 17 00:00:00 2001
+From: Lauri Tirkkonen <lotheac@iki.fi>
+Date: Mon, 30 Dec 2013 16:17:17 +0200
+Subject: [PATCH 4/5] always actually exec pkg update/install
+
+---
+ lib/puppet/provider/package/pkg.rb | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+diff --git a/lib/puppet/provider/package/pkg.rb b/lib/puppet/provider/package/pkg.rb
+index 6e91a44..e106d02 100644
+--- a/lib/puppet/provider/package/pkg.rb
++++ b/lib/puppet/provider/package/pkg.rb
+@@ -136,16 +136,15 @@ def install(nofail = false)
+     should = @resource[:ensure]
+     # always unhold if explicitly told to install/update
+     self.unhold
++    command = 'update'
+     unless should.is_a? Symbol
+       name += "@#{should}"
+       is = self.query
+       if is[:ensure].to_sym == :absent
+         command = 'install'
+-      else
+-        command = 'update'
+       end
+-      r = exec_cmd(command(:pkg), command, '--accept', name)
+     end
++    r = exec_cmd(command(:pkg), command, '--accept', name)
+     return r if nofail
+     # exit status 4 means that no changes were made, but it's not a failure
+     raise Puppet::Error, "Unable to update #{r[:out]}" unless [0,4].include? r[:exit]
+
+From 74af18a518c8304c8065cb847dcdcd63a850ac5a Mon Sep 17 00:00:00 2001
+From: Lauri Tirkkonen <lotheac@iki.fi>
+Date: Tue, 30 Sep 2014 15:06:25 +0300
+Subject: [PATCH 5/5] additional insync? logic for pkg provider
+
+---
+ lib/puppet/provider/package/pkg.rb | 54 ++++++++++++++++++++++++++++++++++++--
+ lib/puppet/type/package.rb         |  4 +++
+ 2 files changed, 56 insertions(+), 2 deletions(-)
+
+diff --git a/lib/puppet/provider/package/pkg.rb b/lib/puppet/provider/package/pkg.rb
+index e106d02..6be9fd9 100644
+--- a/lib/puppet/provider/package/pkg.rb
++++ b/lib/puppet/provider/package/pkg.rb
+@@ -114,6 +114,57 @@ def unhold
+     raise Puppet::Error, "Unable to unfreeze #{r[:out]}" unless [0,4].include? r[:exit]
+   end
+ 
++  def insync?(is)
++    # this is called after the generic version matching logic (insync? for the
++    # type), so we only get here if should != is, and both are version numbers.
++    should = @resource[:ensure]
++    # NB: it is apparently possible for repository administrators to publish
++    # packages which do not include build or branch versions, but component
++    # version must always be present, and the timestamp is added by pkgsend
++    # publish.
++    if /^[0-9.]+(,[0-9.]+)?(-[0-9.]+)?:[0-9]+T[0-9]+Z$/ !~ should
++      # We have a less-than-explicit version string, which we must accept for
++      # backward compatibility. We can find the real version this would match
++      # by asking pkg for the all matching versions, and selecting the first
++      # installable one [0]; this can change over time when remote repositories
++      # are updated, but the principle of least astonishment should still hold:
++      # if we allow users to specify less-than-explicit versions, the
++      # functionality should match that of the package manager.
++      #
++      # [0]: we could simply get the newest matching version with 'pkg list
++      # -n', but that isn't always correct, since it might not be installable.
++      # If that were the case we could potentially end up returning false for
++      # insync? here but not actually changing the package version in install
++      # (ie. if the currently installed version is the latest matching version
++      # that is installable, we would falsely conclude here that since the
++      # installed version is not the latest matching version, we're not in
++      # sync).  'pkg list -a' instead of '-n' would solve this, but
++      # unfortunately it doesn't consider downgrades 'available' (eg. with
++      # installed foo@1.0, list -a foo@0.9 would fail).
++      name = @resource[:name]
++      potential_matches = pkg(:list, '-Hvfa', "#{name}@#{should}").split("\n").map{|l|self.class.parse_line(l)}
++      n = potential_matches.length
++      if n > 1
++        warning("Implicit version #{should} has #{n} possible matches")
++      end
++      potential_matches.each{ |p|
++        status = exec_cmd(command(:pkg), 'update', '-n', "#{name}@#{p[:ensure]}")[:exit]
++        case status
++        when 4
++          # if the first installable match would cause no changes, we're in sync
++          return true
++        when 0
++          warning("Selecting version '#{p[:ensure]}' for implicit '#{should}'")
++          @resource[:ensure] = p[:ensure]
++          return false
++        end
++      }
++      raise Puppet::DevError, "No version of #{name} matching #{should} is installable, even though the package is currently installed"
++    end
++
++    false
++  end
++
+   # Return the version of the package. Note that the bug
+   # http://defect.opensolaris.org/bz/show_bug.cgi?id=19159%
+   # notes that we can't use -Ha for the same even though the manual page reads that way.
+@@ -146,8 +197,7 @@ def install(nofail = false)
+     end
+     r = exec_cmd(command(:pkg), command, '--accept', name)
+     return r if nofail
+-    # exit status 4 means that no changes were made, but it's not a failure
+-    raise Puppet::Error, "Unable to update #{r[:out]}" unless [0,4].include? r[:exit]
++    raise Puppet::Error, "Unable to update #{r[:out]}" if r[:exit] != 0
+   end
+ 
+   # uninstall the package. The complication comes from the -r_ecursive flag which is no longer
+diff --git a/lib/puppet/type/package.rb b/lib/puppet/type/package.rb
+index 9a009db..6847fc1 100644
+--- a/lib/puppet/type/package.rb
++++ b/lib/puppet/type/package.rb
+@@ -173,6 +173,10 @@ def insync?(is)
+           # supports providers that can have multiple versions installed
+           when *Array(is)
+             return true
++          else
++            # We have version numbers, and no match. If the provider has
++            # additional logic, run it here.
++            return provider.insync?(is) if provider.respond_to?(:insync?)
+           end
+         }
+ 
