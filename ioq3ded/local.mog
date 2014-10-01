@@ -2,3 +2,4 @@ license COPYING.txt license=GPLv2
 user username=ioquake3 group=ioquake3 home-dir=/var/games/ioquake3 ftpuser=false
 group groupname=ioquake3
 dir path=var/games/ioquake3 owner=ioquake3 group=ioquake3
+<transform file path=opt/niksula/(sbin|lib) -> set restart_fmri svc:/network/ioquake3:default>
