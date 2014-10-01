@@ -36,7 +36,9 @@ PKG=library/aspell
 SUMMARY="GNU Aspell spell-checker"
 DESC="$SUMMARY"
 
-CONFIGURE_OPTS="--disable-curses"
+LDFLAGS64="$LDFLAGS64 -L/usr/gnu/lib/amd64 -R/usr/gnu/lib/amd64" 
+LDFLAGS32="$LDFLAGS32 -L/usr/gnu/lib -R/usr/gnu/lib" 
+CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-curses=ncurses --enable-curses-include=/usr/include/ncurses"
 
 save_function make_install make_install_orig
 make_install() {

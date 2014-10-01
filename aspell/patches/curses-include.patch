@@ -1,0 +1,13 @@
+diff --git a/Makefile.in b/Makefile.in
+index 57eda40..215c580 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -493,7 +493,7 @@ optdir = ${pkgdatadir}
+ AM_CPPFLAGS = -I${srcdir}/gen -I${srcdir}/common \
+ 	-I${srcdir}/interfaces/cc/ \
+ 	-I${srcdir}/modules/speller/default/ \
+-	-DLOCALEDIR="$(localedir)"
++	-DLOCALEDIR="$(localedir)" $(CURSES_INCLUDE)
+ SUFFIXES = .info
+ 
+ ### Before this line add the corresponding <yourfilterlibrary>_SOURCES and
