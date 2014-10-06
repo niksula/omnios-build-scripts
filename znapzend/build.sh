@@ -37,9 +37,8 @@ DESC="$SUMMARY"
 BUILDARCH=64
 BUILD_DEPENDS_IPS='niksula/perl/mojolicious niksula/perl/mojo-ioloop-forkcall'
 PREFIX=${PREFIX}/perl5
-reset_configure_opts
 PATH=${PREFIX}/bin:${PATH}
-CONFIGURE_OPTS="$CONFIGURE_OPTS --bindir=/opt/niksula/bin --sbindir=/opt/niksula/sbin"
+CONFIGURE_OPTS="--prefix=$PREFIX --mandir=/opt/niksula/share/man --bindir=/opt/niksula/bin --sbindir=/opt/niksula/sbin --libdir=$(perl -MConfig -e 'print "$Config{sitelib}"')"
 
 init
 download_source $PROG $PROG $VER
