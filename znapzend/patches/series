@@ -1,0 +1,2 @@
+0001-let-smf-manage-pids-instead-of-using-a-pidfile.patch
+0002-fix-mandir-and-binary-path-in-svc-manifest.patch
