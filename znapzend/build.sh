@@ -39,7 +39,7 @@ BUILD_DEPENDS_IPS='niksula/perl/mojolicious niksula/perl/mojo-ioloop-forkcall'
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 PREFIX=${PREFIX}/perl5
 PATH=${PREFIX}/bin:${PATH}
-CONFIGURE_OPTS="--prefix=$PREFIX --mandir=/opt/niksula/share/man --bindir=/opt/niksula/bin --sbindir=/opt/niksula/sbin --libdir=$(perl -MConfig -e 'print "$Config{sitelib}"')"
+CONFIGURE_OPTS_64="--prefix=$PREFIX --mandir=/opt/niksula/share/man --exec-prefix=/opt/niksula --libdir=$(perl -MConfig -e 'print "$Config{sitelib}"')"
 
 init
 download_source $PROG $PROG $VER
