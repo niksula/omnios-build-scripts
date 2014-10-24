@@ -1,14 +1,29 @@
-From b0592d2af41ff4898d97694f144969b8689142c8 Mon Sep 17 00:00:00 2001
+From 306cdd09653504ee6f3df95d1c9664f501db0c0b Mon Sep 17 00:00:00 2001
 From: Lauri Tirkkonen <lotheac@iki.fi>
 Date: Mon, 30 Dec 2013 13:23:22 +0200
-Subject: [PATCH 1/6] (PUP-1270) parse full pkg FMRI
+Subject: [PATCH] (PUP-1270) parse full pkg FMRI, downgrade packages in-place
 
 ---
- lib/puppet/provider/package/pkg.rb | 30 +++++++++++-------------------
- 1 file changed, 11 insertions(+), 19 deletions(-)
+ lib/puppet/provider/package/pkg.rb                 |  93 ++++++++++++++-----
+ lib/puppet/type/package.rb                         |   4 +
+ .../unit/provider/package/pkg/dummy_solaris10      |   2 +-
+ .../pkg/dummy_solaris11.certificate_warning        |   2 +-
+ .../package/pkg/dummy_solaris11.ifo.installed      |   2 +-
+ .../provider/package/pkg/dummy_solaris11.ifo.known |   2 +-
+ .../provider/package/pkg/dummy_solaris11.installed |   2 +-
+ .../provider/package/pkg/dummy_solaris11.known     |   2 +-
+ spec/fixtures/unit/provider/package/pkg/incomplete |   2 +-
+ spec/fixtures/unit/provider/package/pkg/publisher  |   2 -
+ spec/fixtures/unit/provider/package/pkg/simple     |   2 -
+ spec/fixtures/unit/provider/package/pkg/solaris11  |   4 +-
+ .../unit/provider/package/pkg/unknown_status       |  24 ++---
+ spec/unit/provider/package/pkg_spec.rb             | 101 +++++++++------------
+ 14 files changed, 139 insertions(+), 105 deletions(-)
+ delete mode 100644 spec/fixtures/unit/provider/package/pkg/publisher
+ delete mode 100644 spec/fixtures/unit/provider/package/pkg/simple
 
 diff --git a/lib/puppet/provider/package/pkg.rb b/lib/puppet/provider/package/pkg.rb
-index 4192dca..1209dc2 100644
+index db7c0a0..772b310 100644
 --- a/lib/puppet/provider/package/pkg.rb
 +++ b/lib/puppet/provider/package/pkg.rb
 @@ -26,7 +26,7 @@
@@ -52,16 +67,93 @@ index 4192dca..1209dc2 100644
  
      else
        raise ArgumentError, 'Unknown line format %s: %s' % [self.name, line]
-@@ -126,7 +118,7 @@ def unhold
+@@ -122,11 +114,62 @@ def unhold
+     raise Puppet::Error, "Unable to unfreeze #{r[:out]}" unless [0,4].include? r[:exit]
+   end
+ 
++  def insync?(is)
++    # this is called after the generic version matching logic (insync? for the
++    # type), so we only get here if should != is, and both are version numbers.
++    should = @resource[:ensure]
++    # NB: it is apparently possible for repository administrators to publish
++    # packages which do not include build or branch versions, but component
++    # version must always be present, and the timestamp is added by pkgsend
++    # publish.
++    if /^[0-9.]+(,[0-9.]+)?(-[0-9.]+)?:[0-9]+T[0-9]+Z$/ !~ should
++      # We have a less-than-explicit version string, which we must accept for
++      # backward compatibility. We can find the real version this would match
++      # by asking pkg for the all matching versions, and selecting the first
++      # installable one [0]; this can change over time when remote repositories
++      # are updated, but the principle of least astonishment should still hold:
++      # if we allow users to specify less-than-explicit versions, the
++      # functionality should match that of the package manager.
++      #
++      # [0]: we could simply get the newest matching version with 'pkg list
++      # -n', but that isn't always correct, since it might not be installable.
++      # If that were the case we could potentially end up returning false for
++      # insync? here but not actually changing the package version in install
++      # (ie. if the currently installed version is the latest matching version
++      # that is installable, we would falsely conclude here that since the
++      # installed version is not the latest matching version, we're not in
++      # sync).  'pkg list -a' instead of '-n' would solve this, but
++      # unfortunately it doesn't consider downgrades 'available' (eg. with
++      # installed foo@1.0, list -a foo@0.9 would fail).
++      name = @resource[:name]
++      potential_matches = pkg(:list, '-Hvfa', "#{name}@#{should}").split("\n").map{|l|self.class.parse_line(l)}
++      n = potential_matches.length
++      if n > 1
++        warning("Implicit version #{should} has #{n} possible matches")
++      end
++      potential_matches.each{ |p|
++        status = exec_cmd(command(:pkg), 'update', '-n', "#{name}@#{p[:ensure]}")[:exit]
++        case status
++        when 4
++          # if the first installable match would cause no changes, we're in sync
++          return true
++        when 0
++          warning("Selecting version '#{p[:ensure]}' for implicit '#{should}'")
++          @resource[:ensure] = p[:ensure]
++          return false
++        end
++      }
++      raise Puppet::DevError, "No version of #{name} matching #{should} is installable, even though the package is currently installed"
++    end
++
++    false
++  end
++
+   # Return the version of the package. Note that the bug
    # http://defect.opensolaris.org/bz/show_bug.cgi?id=19159%
    # notes that we can't use -Ha for the same even though the manual page reads that way.
    def latest
--    lst = pkg(:list, "-Hn", @resource[:name]).split("\n").map{|l|self.class.parse_line(l)}
-+    lst = pkg(:list, "-Hvn", @resource[:name]).split("\n").map{|l|self.class.parse_line(l)}
+-    lines = pkg(:list, "-Hn", @resource[:name]).split("\n")
++    lines = pkg(:list, "-Hvn", @resource[:name]).split("\n")
  
-     # Now we know there is a newer version. But is that installable? (i.e are there any constraints?)
-     # return the first known we find. The only way that is currently available is to do a dry run of
-@@ -178,7 +170,7 @@ def update
+     # remove certificate expiration warnings from the output, but report them
+     # Note: we'd like to use select! here to modify the lines array and avoid
+@@ -155,14 +198,16 @@ def install(nofail = false)
+     should = @resource[:ensure]
+     # always unhold if explicitly told to install/update
+     self.unhold
++    is = self.query
++    if is[:ensure].to_sym == :absent
++      command = 'install'
++    else
++      command = 'update'
++    end
+     unless should.is_a? Symbol
+       name += "@#{should}"
+-      is = self.query
+-      unless is[:ensure].to_sym == :absent
+-        self.uninstall if Puppet::Util::Package.versioncmp(should, is[:ensure]) < 0
+-      end
+     end
+-    r = exec_cmd(command(:pkg), 'install', '--accept', name)
++    r = exec_cmd(command(:pkg), command, '--accept', name)
+     return r if nofail
+     raise Puppet::Error, "Unable to update #{r[:out]}" if r[:exit] != 0
+   end
+@@ -189,7 +234,7 @@ def update
  
    # list a specific package
    def query
@@ -70,63 +162,21 @@ index 4192dca..1209dc2 100644
      return {:ensure => :absent, :name => @resource[:name]} if r[:exit] != 0
      self.class.parse_line(r[:out])
    end
-
-From 2584f249814516ac12db944b34a859eace5e97d8 Mon Sep 17 00:00:00 2001
-From: Lauri Tirkkonen <lotheac@iki.fi>
-Date: Mon, 30 Dec 2013 14:42:50 +0200
-Subject: [PATCH 2/6] IPS downgrade in-place instead of uninstall-reinstall
-
----
- lib/puppet/provider/package/pkg.rb | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
-
-diff --git a/lib/puppet/provider/package/pkg.rb b/lib/puppet/provider/package/pkg.rb
-index 1209dc2..6e91a44 100644
---- a/lib/puppet/provider/package/pkg.rb
-+++ b/lib/puppet/provider/package/pkg.rb
-@@ -139,13 +139,16 @@ def install(nofail = false)
-     unless should.is_a? Symbol
-       name += "@#{should}"
-       is = self.query
--      unless is[:ensure].to_sym == :absent
--        self.uninstall if Puppet::Util::Package.versioncmp(should, is[:ensure]) < 0
-+      if is[:ensure].to_sym == :absent
-+        command = 'install'
-+      else
-+        command = 'update'
-       end
-+      r = exec_cmd(command(:pkg), command, '--accept', name)
-     end
--    r = exec_cmd(command(:pkg), 'install', '--accept', name)
-     return r if nofail
--    raise Puppet::Error, "Unable to update #{r[:out]}" if r[:exit] != 0
-+    # exit status 4 means that no changes were made, but it's not a failure
-+    raise Puppet::Error, "Unable to update #{r[:out]}" unless [0,4].include? r[:exit]
-   end
+diff --git a/lib/puppet/type/package.rb b/lib/puppet/type/package.rb
+index cfa6305..66169b1 100644
+--- a/lib/puppet/type/package.rb
++++ b/lib/puppet/type/package.rb
+@@ -175,6 +175,10 @@ def insync?(is)
+           # supports providers that can have multiple versions installed
+           when *Array(is)
+             return true
++          else
++            # We have version numbers, and no match. If the provider has
++            # additional logic, run it here.
++            return provider.insync?(is) if provider.respond_to?(:insync?)
+           end
+         }
  
-   # uninstall the package. The complication comes from the -r_ecursive flag which is no longer
-
-From f133a98d102a44e51c39ef93a5fe47237e651ca4 Mon Sep 17 00:00:00 2001
-From: Lauri Tirkkonen <lotheac@iki.fi>
-Date: Mon, 30 Dec 2013 15:11:37 +0200
-Subject: [PATCH 3/6] (PUP-1270) update pkg specs accordingly
-
----
- .../unit/provider/package/pkg/dummy_solaris10      |  2 +-
- .../package/pkg/dummy_solaris11.ifo.installed      |  2 +-
- .../provider/package/pkg/dummy_solaris11.ifo.known |  2 +-
- .../provider/package/pkg/dummy_solaris11.installed |  2 +-
- .../provider/package/pkg/dummy_solaris11.known     |  2 +-
- spec/fixtures/unit/provider/package/pkg/incomplete |  2 +-
- spec/fixtures/unit/provider/package/pkg/publisher  |  2 -
- spec/fixtures/unit/provider/package/pkg/simple     |  2 -
- spec/fixtures/unit/provider/package/pkg/solaris11  |  4 +-
- .../unit/provider/package/pkg/unknown_status       | 24 +++---
- spec/unit/provider/package/pkg_spec.rb             | 97 ++++++++++------------
- 11 files changed, 62 insertions(+), 79 deletions(-)
- delete mode 100644 spec/fixtures/unit/provider/package/pkg/publisher
- delete mode 100644 spec/fixtures/unit/provider/package/pkg/simple
-
 diff --git a/spec/fixtures/unit/provider/package/pkg/dummy_solaris10 b/spec/fixtures/unit/provider/package/pkg/dummy_solaris10
 index 12a8998..6c09f22 100644
 --- a/spec/fixtures/unit/provider/package/pkg/dummy_solaris10
@@ -134,6 +184,14 @@ index 12a8998..6c09f22 100644
 @@ -1 +1 @@
 -dummy                                     2.5.5-0.111     installed  -----
 +pkg://solaris/dummy@2.5.5,5.10-0.111:20131230T130000Z     installed  -----
+diff --git a/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.certificate_warning b/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.certificate_warning
+index 83849be..76c8afc 100644
+--- a/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.certificate_warning
++++ b/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.certificate_warning
+@@ -1,2 +1,2 @@
+ Certificate '/var/pkg/ssl/871b4ed0ade09926e6adf95f86bf17535f987684' for publisher 'solarisstudio', needed to access 'https://pkg.oracle.com/solarisstudio/release/', will expire in '29' days.
+-dummy                                    1.0.6-0.175.0.0.0.2.537    i--
++pkg://solaris/dummy@1.0.6-0.175.0.0.0.2.537    i--
 diff --git a/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.ifo.installed b/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.ifo.installed
 index 6c88019..c245f46 100644
 --- a/spec/fixtures/unit/provider/package/pkg/dummy_solaris11.ifo.installed
@@ -224,7 +282,7 @@ index 70a645b..33b1701 100644
 +pkg://solaris/shell/zsh@4.3.12,5.11-0.175.0.0.0.2.537:20131230T130000Z                   i--
 +pkg://solaris/security/sudo@1.8.1.2,5.11-0.175.0.0.0.2.537:20131230T130000Z              i--
 diff --git a/spec/unit/provider/package/pkg_spec.rb b/spec/unit/provider/package/pkg_spec.rb
-index 8ddbbbf..76ca315 100755
+index 9442b7f..b18c2e4 100755
 --- a/spec/unit/provider/package/pkg_spec.rb
 +++ b/spec/unit/provider/package/pkg_spec.rb
 @@ -54,11 +54,9 @@ def self.it_should_respond_to(*actions)
@@ -242,7 +300,7 @@ index 8ddbbbf..76ca315 100755
         }.each do |k, v|
          it "[#{k}] should correctly parse" do
            described_class.parse_line(k).should == v
-@@ -67,60 +65,46 @@ def self.it_should_respond_to(*actions)
+@@ -67,64 +65,50 @@ def self.it_should_respond_to(*actions)
      end
      context ":latest" do
        it "should work correctly for ensure latest on solaris 11 (UFOXI) when there are no further packages to install" do
@@ -250,6 +308,11 @@ index 8ddbbbf..76ca315 100755
 -        provider.latest.should == "1.0.6-0.175.0.0.0.2.537"
 +        described_class.expects(:pkg).with(:list,'-Hvn','dummy').returns File.read(my_fixture('dummy_solaris11.installed'))
 +        provider.latest.should == '1.0.6,5.11-0.175.0.0.0.2.537:20131230T130000Z'
+       end
+       it "should work correctly for ensure latest on solaris 11 in the presence of a certificate expiration warning" do
+-        described_class.expects(:pkg).with(:list,'-Hn','dummy').returns File.read(my_fixture('dummy_solaris11.certificate_warning'))
++        described_class.expects(:pkg).with(:list,'-Hvn','dummy').returns File.read(my_fixture('dummy_solaris11.certificate_warning'))
+         provider.latest.should == "1.0.6-0.175.0.0.0.2.537"
        end
        it "should work correctly for ensure latest on solaris 11(known UFOXI)" do
          Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'update', '-n', 'dummy'], {:failonfail => false, :combine => true}).returns ''
@@ -316,7 +379,7 @@ index 8ddbbbf..76ca315 100755
          expect {
            described_class.instances
          }.to raise_error(ArgumentError, /Unknown format pkg/)
-@@ -129,17 +113,18 @@ def self.it_should_respond_to(*actions)
+@@ -133,17 +117,18 @@ def self.it_should_respond_to(*actions)
      context ":query" do
        context "on solaris 10" do
          it "should find the package" do
@@ -341,7 +404,7 @@ index 8ddbbbf..76ca315 100755
            $CHILD_STATUS.stubs(:exitstatus).returns 1
            provider.query.should == {:ensure => :absent, :name => "dummy"}
          end
-@@ -147,22 +132,23 @@ def self.it_should_respond_to(*actions)
+@@ -151,22 +136,23 @@ def self.it_should_respond_to(*actions)
        context "on solaris 11" do
          it "should find the package" do
            $CHILD_STATUS.stubs(:exitstatus).returns 0
@@ -372,16 +435,15 @@ index 8ddbbbf..76ca315 100755
          $CHILD_STATUS.stubs(:exitstatus).returns 0
          expect {
            provider.query
-@@ -172,7 +158,7 @@ def self.it_should_respond_to(*actions)
+@@ -176,6 +162,7 @@ def self.it_should_respond_to(*actions)
  
      context ":install" do
        it "should accept all licenses" do
--        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'install', '--accept', 'dummy'], {:failonfail => false, :combine => true}).returns ''
-+        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'update', '--accept', 'dummy'], {:failonfail => false, :combine => true}).returns ''
++        provider.expects(:query).with().returns({:ensure => :absent})
+         Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'install', '--accept', 'dummy'], {:failonfail => false, :combine => true}).returns ''
          Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'unfreeze', 'dummy'], {:failonfail => false, :combine => true}).returns ''
          $CHILD_STATUS.stubs(:exitstatus).returns 0
-         provider.install
-@@ -180,33 +166,34 @@ def self.it_should_respond_to(*actions)
+@@ -184,35 +171,37 @@ def self.it_should_respond_to(*actions)
  
        it "should install specific version(1)" do
          # Should install also check if the version installed is the same version we are asked to install? or should we rely on puppet for that?
@@ -421,173 +483,11 @@ index 8ddbbbf..76ca315 100755
        it "should install any if version is not specified" do
          resource[:ensure] = :present
 -        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'install', '--accept', 'dummy'], {:failonfail => false, :combine => true}).returns ''
-+        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'update', '--accept', 'dummy'], {:failonfail => false, :combine => true}).returns ''
-         Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'unfreeze', 'dummy'], {:failonfail => false, :combine => true})
+-        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'unfreeze', 'dummy'], {:failonfail => false, :combine => true})
          $CHILD_STATUS.stubs(:exitstatus).returns 0
++        provider.expects(:query).with().returns({:ensure => :absent})
++        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'install', '--accept', 'dummy'], {:failonfail => false, :combine => true}).returns ''
++        Puppet::Util::Execution.expects(:execute).with(['/bin/pkg', 'unfreeze', 'dummy'], {:failonfail => false, :combine => true}).returns ''
          provider.install
-
-From 49be9319c399c1ead36a94ae1bbc28fb6bf79085 Mon Sep 17 00:00:00 2001
-From: Lauri Tirkkonen <lotheac@iki.fi>
-Date: Mon, 30 Dec 2013 16:17:17 +0200
-Subject: [PATCH 4/6] always actually exec pkg update/install
-
----
- lib/puppet/provider/package/pkg.rb | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
-
-diff --git a/lib/puppet/provider/package/pkg.rb b/lib/puppet/provider/package/pkg.rb
-index 6e91a44..e106d02 100644
---- a/lib/puppet/provider/package/pkg.rb
-+++ b/lib/puppet/provider/package/pkg.rb
-@@ -136,16 +136,15 @@ def install(nofail = false)
-     should = @resource[:ensure]
-     # always unhold if explicitly told to install/update
-     self.unhold
-+    command = 'update'
-     unless should.is_a? Symbol
-       name += "@#{should}"
-       is = self.query
-       if is[:ensure].to_sym == :absent
-         command = 'install'
--      else
--        command = 'update'
        end
--      r = exec_cmd(command(:pkg), command, '--accept', name)
-     end
-+    r = exec_cmd(command(:pkg), command, '--accept', name)
-     return r if nofail
-     # exit status 4 means that no changes were made, but it's not a failure
-     raise Puppet::Error, "Unable to update #{r[:out]}" unless [0,4].include? r[:exit]
-
-From 74af18a518c8304c8065cb847dcdcd63a850ac5a Mon Sep 17 00:00:00 2001
-From: Lauri Tirkkonen <lotheac@iki.fi>
-Date: Tue, 30 Sep 2014 15:06:25 +0300
-Subject: [PATCH 5/6] additional insync? logic for pkg provider
-
----
- lib/puppet/provider/package/pkg.rb | 54 ++++++++++++++++++++++++++++++++++++--
- lib/puppet/type/package.rb         |  4 +++
- 2 files changed, 56 insertions(+), 2 deletions(-)
-
-diff --git a/lib/puppet/provider/package/pkg.rb b/lib/puppet/provider/package/pkg.rb
-index e106d02..6be9fd9 100644
---- a/lib/puppet/provider/package/pkg.rb
-+++ b/lib/puppet/provider/package/pkg.rb
-@@ -114,6 +114,57 @@ def unhold
-     raise Puppet::Error, "Unable to unfreeze #{r[:out]}" unless [0,4].include? r[:exit]
-   end
- 
-+  def insync?(is)
-+    # this is called after the generic version matching logic (insync? for the
-+    # type), so we only get here if should != is, and both are version numbers.
-+    should = @resource[:ensure]
-+    # NB: it is apparently possible for repository administrators to publish
-+    # packages which do not include build or branch versions, but component
-+    # version must always be present, and the timestamp is added by pkgsend
-+    # publish.
-+    if /^[0-9.]+(,[0-9.]+)?(-[0-9.]+)?:[0-9]+T[0-9]+Z$/ !~ should
-+      # We have a less-than-explicit version string, which we must accept for
-+      # backward compatibility. We can find the real version this would match
-+      # by asking pkg for the all matching versions, and selecting the first
-+      # installable one [0]; this can change over time when remote repositories
-+      # are updated, but the principle of least astonishment should still hold:
-+      # if we allow users to specify less-than-explicit versions, the
-+      # functionality should match that of the package manager.
-+      #
-+      # [0]: we could simply get the newest matching version with 'pkg list
-+      # -n', but that isn't always correct, since it might not be installable.
-+      # If that were the case we could potentially end up returning false for
-+      # insync? here but not actually changing the package version in install
-+      # (ie. if the currently installed version is the latest matching version
-+      # that is installable, we would falsely conclude here that since the
-+      # installed version is not the latest matching version, we're not in
-+      # sync).  'pkg list -a' instead of '-n' would solve this, but
-+      # unfortunately it doesn't consider downgrades 'available' (eg. with
-+      # installed foo@1.0, list -a foo@0.9 would fail).
-+      name = @resource[:name]
-+      potential_matches = pkg(:list, '-Hvfa', "#{name}@#{should}").split("\n").map{|l|self.class.parse_line(l)}
-+      n = potential_matches.length
-+      if n > 1
-+        warning("Implicit version #{should} has #{n} possible matches")
-+      end
-+      potential_matches.each{ |p|
-+        status = exec_cmd(command(:pkg), 'update', '-n', "#{name}@#{p[:ensure]}")[:exit]
-+        case status
-+        when 4
-+          # if the first installable match would cause no changes, we're in sync
-+          return true
-+        when 0
-+          warning("Selecting version '#{p[:ensure]}' for implicit '#{should}'")
-+          @resource[:ensure] = p[:ensure]
-+          return false
-+        end
-+      }
-+      raise Puppet::DevError, "No version of #{name} matching #{should} is installable, even though the package is currently installed"
-+    end
-+
-+    false
-+  end
-+
-   # Return the version of the package. Note that the bug
-   # http://defect.opensolaris.org/bz/show_bug.cgi?id=19159%
-   # notes that we can't use -Ha for the same even though the manual page reads that way.
-@@ -146,8 +197,7 @@ def install(nofail = false)
-     end
-     r = exec_cmd(command(:pkg), command, '--accept', name)
-     return r if nofail
--    # exit status 4 means that no changes were made, but it's not a failure
--    raise Puppet::Error, "Unable to update #{r[:out]}" unless [0,4].include? r[:exit]
-+    raise Puppet::Error, "Unable to update #{r[:out]}" if r[:exit] != 0
-   end
- 
-   # uninstall the package. The complication comes from the -r_ecursive flag which is no longer
-diff --git a/lib/puppet/type/package.rb b/lib/puppet/type/package.rb
-index 9a009db..6847fc1 100644
---- a/lib/puppet/type/package.rb
-+++ b/lib/puppet/type/package.rb
-@@ -173,6 +173,10 @@ def insync?(is)
-           # supports providers that can have multiple versions installed
-           when *Array(is)
-             return true
-+          else
-+            # We have version numbers, and no match. If the provider has
-+            # additional logic, run it here.
-+            return provider.insync?(is) if provider.respond_to?(:insync?)
-           end
-         }
- 
-
-From a5f77b5d281385280b89c951e77898da31d43272 Mon Sep 17 00:00:00 2001
-From: Lauri Tirkkonen <lotheac@iki.fi>
-Date: Wed, 22 Oct 2014 15:21:11 +0300
-Subject: [PATCH 6/6] (PUP-1270) fix installing latest/present if currently
- absent
-
----
- lib/puppet/provider/package/pkg.rb | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
-
-diff --git a/lib/puppet/provider/package/pkg.rb b/lib/puppet/provider/package/pkg.rb
-index 6be9fd9..5f942f7 100644
---- a/lib/puppet/provider/package/pkg.rb
-+++ b/lib/puppet/provider/package/pkg.rb
-@@ -187,13 +187,14 @@ def install(nofail = false)
-     should = @resource[:ensure]
-     # always unhold if explicitly told to install/update
-     self.unhold
--    command = 'update'
-+    is = self.query
-+    if is[:ensure].to_sym == :absent
-+      command = 'install'
-+    else
-+      command = 'update'
-+    end
-     unless should.is_a? Symbol
-       name += "@#{should}"
--      is = self.query
--      if is[:ensure].to_sym == :absent
--        command = 'install'
--      end
-     end
-     r = exec_cmd(command(:pkg), command, '--accept', name)
-     return r if nofail
+       it "should install if no version was previously installed, and a specific version was requested" do
