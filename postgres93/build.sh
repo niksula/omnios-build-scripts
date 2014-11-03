@@ -28,18 +28,14 @@
 . ../../lib/functions.sh
 
 PROG=postgresql
-VER=9.3.2
+VER=9.3.5
 VERHUMAN=$VER
-PKG=omniti/database/postgresql-${VER//./}
+PKG=database/postgresql
 SUMMARY="$PROG - Open Source Database System"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS="system/library/gcc-4-runtime"
-DEPENDS_IPS="omniti/database/postgresql/common system/library/gcc-4-runtime"
-
-DOWNLOADDIR=postgres
 BUILDARCH=64
-PREFIX=/opt/pgsql${VER//./}
+PREFIX=/opt/pgsql
 reset_configure_opts
 
 CFLAGS="-O3"
@@ -55,7 +51,7 @@ CONFIGURE_OPTS="--enable-thread-safety
 CONFIGURE_OPTS_64="--enable-dtrace DTRACEFLAGS=\"-64\""
 
 init
-download_source $DOWNLOADDIR $PROG $VER
+download_source $PROG $PROG $VER
 patch_source
 prep_build
 build
