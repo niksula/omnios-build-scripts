@@ -64,11 +64,18 @@ build() {
     build_man
 }
 
+install_manifest() {
+    tgtdir=${DESTDIR}/lib/svc/manifest/database
+    mkdir -p ${tgtdir}
+    install -m 0444 ${SRCDIR}/postgresql.xml ${tgtdir}/ || logerr 'manifest install failed'
+}
+
 init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
 build
+install_manifest
 make_isa_stub
 make_package
 clean_up
