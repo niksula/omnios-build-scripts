@@ -50,6 +50,20 @@ CONFIGURE_OPTS="--enable-thread-safety
 # We don't want the default settings for CONFIGURE_OPTS_64
 CONFIGURE_OPTS_64="--enable-dtrace DTRACEFLAGS=\"-64\""
 
+build_man() {
+    pushd ${TMPDIR}/${BUILDDIR}/doc/src/sgml > /dev/null
+    logmsg '--- make man'
+    logcmd $MAKE $MAKE_JOBS man || logerr '--- make man failed'
+    logcmd $MAKE $MAKE_JOBS DESTDIR=${DESTDIR} install || logerr '--- installing manpages failed'
+    popd >/dev/null
+}
+
+save_function build build_orig
+build() {
+    build_orig
+    build_man
+}
+
 init
 download_source $PROG $PROG $VER
 patch_source
