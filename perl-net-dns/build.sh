@@ -30,7 +30,7 @@
 AUTHORID=NLNETLABS
 PROG=Net-DNS
 MODNAME=Net::DNS
-VER=0.72
+VER=0.81
 VERHUMAN=$VER
 PKG=niksula/perl/$(echo $PROG | tr '[A-Z]' '[a-z]')  # Module name, lowercased
 SUMMARY="Perl interface to the Domain Name System"
@@ -53,7 +53,7 @@ RUN_DEPENDS_IPS="niksula/perl/digest-hmac"
 # We require a Perl version to use for this build and there is no default
 case $DEPVER in
     5.18.1)
-        RUN_DEPENDS_IPS="$RUN_DEPENDS_IPS niksula/runtime/perl"
+        RUN_DEPENDS_IPS="$RUN_DEPENDS_IPS niksula/runtime/perl =niksula/runtime/perl@5.18.1"
         ;;
     "")
         logerr "You must specify a version with -d DEPVER. Valid versions: $PERLVERLIST"
