@@ -29,9 +29,8 @@
 . ../../lib/functions.sh
 
 PROG=perl
-VER=5.18.1
+VER=5.20.1
 VERHUMAN=$VER
-MAJOR_MINOR=${VER:0:4}
 PKG=niksula/runtime/perl
 SUMMARY="$PROG - Perl $VER Programming Language"
 DESC="$SUMMARY"
@@ -39,18 +38,22 @@ DESC="$SUMMARY"
 PREFIX=/opt/niksula/perl5
 SHELL=/usr/bin/bash
 
+# cpan/Time-HiRes/xdefine doesn't get removed by (dist)clean, but Makefile from
+# there does, so we can't build from the same sources twice.
+REMOVE_PREVIOUS=1
+
 BUILD_DEPENDS_IPS="text/gnu-sed"
 
 build32() {
     pushd $TMPDIR/$BUILDDIR > /dev/null
     logmsg "Building 32-bit"
     logmsg "--- make (dist)clean"
-    logcmd make distclean || \
+    logcmd $MAKE distclean || \
         logmsg "--- *** WARNING *** make (dist)clean Failed"
     logmsg "--- configure (32-bit)"
     logcmd $SHELL Configure -Dusethreads -Duseshrplib -Dusemultiplicity -Duselargefiles \
         -Dusedtrace -Duse64bitint -Dmyhostname="localhost" \
-        -Dcc=gcc -Dld=/usr/ccs/bin/ld -Dccflags="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_TS_ERRNO" \
+        -Dcc=gcc -Dccflags="-D_LARGEFILE_SOURCE -D_FILE_OFFSET_BITS=64 -D_TS_ERRNO" \
         -Doptimize="-O3" \
         -Dvendorprefix=${PREFIX} -Dprefix=${PREFIX} \
         -Dbin=${PREFIX}/bin/$ISAPART \
@@ -61,13 +64,12 @@ build32() {
         -Dvendorscript=${PREFIX}/bin \
         -des || \
     logerr "--- Configure failed"
-    gsed -i 's/-fstack-protector//g;' config.sh
     logmsg "--- make"
-    logcmd gmake $MAKE_JOBS || \
-    logcmd gmake || \
+    logcmd $MAKE $MAKE_JOBS || \
+    logcmd $MAKE || \
         logerr "--- Make failed"
     logmsg "--- make install"
-    logcmd gmake install DESTDIR=${DESTDIR} || \
+    logcmd $MAKE install DESTDIR=${DESTDIR} || \
         logerr "--- Make install failed"
     popd > /dev/null
 }
@@ -76,14 +78,13 @@ build64() {
     pushd $TMPDIR/$BUILDDIR > /dev/null
     logmsg "Building 64-bit"
     logmsg "--- make (dist)clean"
-    logcmd make distclean || \
+    logcmd $MAKE distclean || \
         logmsg "--- *** WARNING *** make (dist)clean Failed"
     logmsg "--- configure (64-bit)"
     logcmd $SHELL Configure -Dusethreads -Duseshrplib -Dusemultiplicity -Duselargefiles \
         -Dusedtrace -Duse64bitint -Dmyhostname="localhost" \
-        -Dcc=gcc -Dld=/usr/ccs/bin/ld -Dccflags="-D_LARGEFILE64_SOURCE -m64 -D_TS_ERRNO" \
-        -Dlddlflags="-G -64" \
-        -Dldflags="" \
+        -Dcc=gcc -Dccflags="-D_LARGEFILE64_SOURCE -m64 -D_TS_ERRNO" \
+        -Dldflags="-m64" \
         -Doptimize="-O3" \
         -Dvendorprefix=${PREFIX} -Dprefix=${PREFIX} \
         -Dbin=${PREFIX}/bin/$ISAPART64 \
@@ -94,14 +95,12 @@ build64() {
         -Dvendorscript=${PREFIX}/bin \
         -des || \
     logerr "--- Configure failed"
-    gsed -i 's/-fstack-protector//g;' config.sh
-    gsed -i -e '/^lddlflags/{s/-G -m64//;}' config.sh
     logmsg "--- make"
-    logcmd gmake $MAKE_JOBS || \
-    logcmd gmake || \
+    logcmd $MAKE $MAKE_JOBS || \
+    logcmd $MAKE || \
         logerr "--- Make failed"
     logmsg "--- make install"
-    logcmd gmake install DESTDIR=${DESTDIR} || \
+    logcmd $MAKE install DESTDIR=${DESTDIR} || \
         logerr "--- Make install failed"
     pushd $DESTDIR/$PREFIX/bin > /dev/null
     gsed -i 's:'$PREFIX'/bin/amd64:'$PREFIX'/bin:g' \
