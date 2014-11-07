@@ -20,7 +20,7 @@
             </method_environment>
         </method_context>
 
-        <exec_method type="method" name="start" exec="/opt/niksula/sbin/ioq3ded +exec server.cfg +set fs_game %{fs_game} &" timeout_seconds="60"/>
+        <exec_method type="method" name="start" exec="/opt/niksula/sbin/ioq3ded +exec server.cfg +set fs_game %{fs_game} &amp;" timeout_seconds="60"/>
 
         <exec_method type="method" name="stop" exec=":kill" timeout_seconds="60"/>
 
