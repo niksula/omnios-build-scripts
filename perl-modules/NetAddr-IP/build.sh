@@ -14,6 +14,12 @@ BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
+# Makefile.PL apparently sets MAKE = make explicitly. We could workaround by
+# giving MAKE=gmake argument to make, but actually just opting for serial build
+# will do (because the failure comes from the difference in space accepted
+# between -j and number in dmake/gmake)
+NO_PARALLEL_MAKE=1
+
 init
 download_source authors/id/M/MI/MIKER NetAddr-IP 4.075
 patch_source
