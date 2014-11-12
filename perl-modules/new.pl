@@ -56,7 +56,7 @@ sub module_is_core {
     # the same package as the perl runtime we are using. 'privlib' and
     # 'archlibexp' _should_ be only used by that, unless someone installs a
     # module onto the build machine using INSTALLDIRS=core. If we need to
-    # account for that then we should call pkg(1M).
+    # account for that then we should call pkg(1).
     my $privlib = $Config{privlib};
     my $archlib = $Config{archlibexp};
     return (-e "${privlib}/${mod}" || -e "${archlib}/${mod}");
