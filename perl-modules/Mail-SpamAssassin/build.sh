@@ -17,14 +17,22 @@ pkg:/niksula/perl5/NetAddr-IP
 pkg:/niksula/perl5/Mail-DKIM
 pkg:/niksula/perl5/Net-DNS
 pkg:/niksula/perl5/Digest-SHA1"
+# add some optional modules
+BUILD_DEPENDS_IPS="$BUILD_DEPENDS_IPS
+pkg:/niksula/perl5/DB_File
+pkg:/niksula/perl5/Encode-Detect"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 # if we pure_install, we won't get rules files and default configuration
 make_pure_install() {
     make_install
 }
-# install bins to user path
-PERL_MAKEFILE_OPTS="$PERL_MAKEFILE_OPTS installvendorbin=/opt/niksula/bin"
+PERL_MAKEFILE_OPTS="$PERL_MAKEFILE_OPTS
+INSTALLVENDORSCRIPT=/opt/niksula/bin
+INSTALLVENDORMAN1DIR=/opt/niksula/share/man/man1
+SYSCONFDIR=/opt/niksula/etc
+LOCALSTATEDIR=/opt/niksula/var"
+
 # same problem with make as in NetAddr-IP/build.sh
 NO_PARALLEL_MAKE=1
 
