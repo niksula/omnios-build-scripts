@@ -1,0 +1,4 @@
+DB_FILE_INCLUDE=/opt/niksula/include/$ISAPART64
+DB_FILE_LIB=/opt/niksula/lib/$ISAPART64
+
+export DB_FILE_INCLUDE DB_FILE_LIB

@@ -1,0 +1,4 @@
+DB_FILE_INCLUDE=/opt/niksula/include
+DB_FILE_LIB=/opt/niksula/lib
+
+export DB_FILE_INCLUDE DB_FILE_LIB
