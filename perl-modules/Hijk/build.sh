@@ -17,7 +17,7 @@ pkg:/niksula/perl5/Plack"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/A/AV/AVAR Hijk 0.17
+download_source authors/id/A/AV/AVAR $PROG $VER
 patch_source
 prep_build
 buildperl

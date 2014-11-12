@@ -16,7 +16,7 @@ pkg:/niksula/perl5/Test-Fatal"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/H/HA/HAARG Role-Tiny 1.003004
+download_source authors/id/H/HA/HAARG $PROG $VER
 patch_source
 prep_build
 buildperl

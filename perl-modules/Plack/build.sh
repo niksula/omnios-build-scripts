@@ -29,7 +29,7 @@ pkg:/niksula/perl5/Hash-MultiValue"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/M/MI/MIYAGAWA Plack 1.0033
+download_source authors/id/M/MI/MIYAGAWA $PROG $VER
 patch_source
 prep_build
 buildperl

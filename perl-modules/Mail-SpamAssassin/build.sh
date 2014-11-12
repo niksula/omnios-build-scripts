@@ -29,7 +29,7 @@ PERL_MAKEFILE_OPTS="$PERL_MAKEFILE_OPTS installvendorbin=/opt/niksula/bin"
 NO_PARALLEL_MAKE=1
 
 init
-download_source authors/id/K/KM/KMCGRAIL/SpamAssassin Mail-SpamAssassin 3.4.0
+download_source authors/id/K/KM/KMCGRAIL/SpamAssassin $PROG $VER
 patch_source
 prep_build
 buildperl

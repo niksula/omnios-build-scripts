@@ -16,7 +16,7 @@ pkg:/niksula/perl5/URI"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/G/GA/GAAS WWW-RobotRules 6.02
+download_source authors/id/G/GA/GAAS $PROG $VER
 patch_source
 prep_build
 buildperl

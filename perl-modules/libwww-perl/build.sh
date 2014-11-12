@@ -27,7 +27,7 @@ pkg:/niksula/perl5/HTTP-Message"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/M/MS/MSCHILLI libwww-perl 6.08
+download_source authors/id/M/MS/MSCHILLI $PROG $VER
 patch_source
 prep_build
 buildperl

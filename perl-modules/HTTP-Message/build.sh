@@ -20,7 +20,7 @@ pkg:/niksula/perl5/IO-HTML"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/G/GA/GAAS HTTP-Message 6.06
+download_source authors/id/G/GA/GAAS $PROG $VER
 patch_source
 prep_build
 buildperl

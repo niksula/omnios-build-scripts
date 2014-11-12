@@ -16,7 +16,7 @@ pkg:/niksula/perl5/Crypt-OpenSSL-Random"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/P/PE/PERLER Crypt-OpenSSL-RSA 0.28
+download_source authors/id/P/PE/PERLER $PROG $VER
 patch_source
 prep_build
 buildperl

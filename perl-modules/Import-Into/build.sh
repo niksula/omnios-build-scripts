@@ -16,7 +16,7 @@ pkg:/niksula/perl5/Module-Runtime"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/E/ET/ETHER Import-Into 1.002004
+download_source authors/id/E/ET/ETHER $PROG $VER
 patch_source
 prep_build
 buildperl

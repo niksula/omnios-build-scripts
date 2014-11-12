@@ -15,7 +15,7 @@ pkg:/niksula/runtime/perl@$PERLVER_MINOR"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/D/DR/DROLSKY Devel-StackTrace 2.00
+download_source authors/id/D/DR/DROLSKY $PROG $VER
 patch_source
 prep_build
 buildperl

@@ -15,7 +15,7 @@ pkg:/niksula/runtime/perl@$PERLVER_MINOR"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/P/PE/PETDANCE HTML-Tagset 3.20
+download_source authors/id/P/PE/PETDANCE $PROG $VER
 patch_source
 prep_build
 buildperl

@@ -16,7 +16,7 @@ pkg:/niksula/perl5/TimeDate"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/M/MA/MARKOV MailTools 2.13
+download_source authors/id/M/MA/MARKOV $PROG $VER
 patch_source
 prep_build
 buildperl

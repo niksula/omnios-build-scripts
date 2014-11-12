@@ -15,7 +15,7 @@ pkg:/niksula/runtime/perl@$PERLVER_MINOR"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/R/RC/RCAPUTO IO-Pipely 0.005
+download_source authors/id/R/RC/RCAPUTO $PROG $VER
 patch_source
 prep_build
 buildperl

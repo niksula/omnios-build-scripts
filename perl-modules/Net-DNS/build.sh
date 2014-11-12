@@ -16,7 +16,7 @@ pkg:/niksula/perl5/Digest-HMAC"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/N/NL/NLNETLABS Net-DNS 0.81
+download_source authors/id/N/NL/NLNETLABS $PROG $VER
 patch_source
 prep_build
 buildperl

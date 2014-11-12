@@ -15,7 +15,7 @@ pkg:/niksula/runtime/perl@$PERLVER_MINOR"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/H/HA/HAARG strictures 1.005005
+download_source authors/id/H/HA/HAARG $PROG $VER
 patch_source
 prep_build
 buildperl

@@ -16,7 +16,7 @@ pkg:/niksula/perl5/Devel-StackTrace"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/M/MI/MIYAGAWA Devel-StackTrace-AsHTML 0.14
+download_source authors/id/M/MI/MIYAGAWA $PROG $VER
 patch_source
 prep_build
 buildperl

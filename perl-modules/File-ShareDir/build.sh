@@ -17,7 +17,7 @@ pkg:/niksula/perl5/File-ShareDir-Install"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/R/RE/REHSACK File-ShareDir 1.102
+download_source authors/id/R/RE/REHSACK $PROG $VER
 patch_source
 prep_build
 buildperl

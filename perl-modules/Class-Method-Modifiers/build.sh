@@ -17,7 +17,7 @@ pkg:/niksula/perl5/Test-Fatal"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/E/ET/ETHER Class-Method-Modifiers 2.11
+download_source authors/id/E/ET/ETHER $PROG $VER
 patch_source
 prep_build
 buildperl

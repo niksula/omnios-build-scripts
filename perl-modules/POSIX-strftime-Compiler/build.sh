@@ -15,7 +15,7 @@ pkg:/niksula/runtime/perl@$PERLVER_MINOR"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/K/KA/KAZEBURO POSIX-strftime-Compiler 0.40
+download_source authors/id/K/KA/KAZEBURO $PROG $VER
 patch_source
 prep_build
 buildperl

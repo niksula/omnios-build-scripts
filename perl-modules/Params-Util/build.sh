@@ -15,7 +15,7 @@ pkg:/niksula/runtime/perl@$PERLVER_MINOR"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/A/AD/ADAMK Params-Util 1.07
+download_source authors/id/A/AD/ADAMK $PROG $VER
 patch_source
 prep_build
 buildperl

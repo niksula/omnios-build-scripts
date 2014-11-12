@@ -15,7 +15,7 @@ pkg:/niksula/runtime/perl@$PERLVER_MINOR"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/D/DD/DDICK Test-MockTime 0.13
+download_source authors/id/D/DD/DDICK $PROG $VER
 patch_source
 prep_build
 buildperl

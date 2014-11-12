@@ -18,7 +18,7 @@ pkg:/niksula/perl5/Sub-Exporter-Progressive"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/E/ET/ETHER B-Hooks-EndOfScope 0.13
+download_source authors/id/E/ET/ETHER $PROG $VER
 patch_source
 prep_build
 buildperl

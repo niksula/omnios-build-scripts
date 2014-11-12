@@ -16,7 +16,7 @@ pkg:/niksula/perl5/HTTP-Date"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/G/GA/GAAS File-Listing 6.04
+download_source authors/id/G/GA/GAAS $PROG $VER
 patch_source
 prep_build
 buildperl

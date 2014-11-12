@@ -17,7 +17,7 @@ pkg:/niksula/perl5/IO-Pipely"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/J/JB/JBERGER Mojo-IOLoop-ForkCall 0.15
+download_source authors/id/J/JB/JBERGER $PROG $VER
 patch_source
 prep_build
 buildperl

@@ -22,7 +22,7 @@ pkg:/niksula/perl5/Class-Method-Modifiers"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/H/HA/HAARG Moo 1.006001
+download_source authors/id/H/HA/HAARG $PROG $VER
 patch_source
 prep_build
 buildperl

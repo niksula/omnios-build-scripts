@@ -15,7 +15,7 @@ pkg:/niksula/runtime/perl@$PERLVER_MINOR"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/F/FR/FREW Sub-Exporter-Progressive 0.001011
+download_source authors/id/F/FR/FREW $PROG $VER
 patch_source
 prep_build
 buildperl

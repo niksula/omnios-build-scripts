@@ -21,7 +21,7 @@ RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 NO_PARALLEL_MAKE=1
 
 init
-download_source authors/id/M/MI/MIKER NetAddr-IP 4.075
+download_source authors/id/M/MI/MIKER $PROG $VER
 patch_source
 prep_build
 buildperl

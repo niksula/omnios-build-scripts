@@ -17,7 +17,7 @@ pkg:/niksula/perl5/Module-Runtime"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/D/DO/DOY Dist-CheckConflicts 0.11
+download_source authors/id/D/DO/DOY $PROG $VER
 patch_source
 prep_build
 buildperl

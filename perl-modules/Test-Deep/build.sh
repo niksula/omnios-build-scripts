@@ -17,7 +17,7 @@ pkg:/niksula/perl5/Test-NoWarnings"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/R/RJ/RJBS Test-Deep 0.113
+download_source authors/id/R/RJ/RJBS $PROG $VER
 patch_source
 prep_build
 buildperl

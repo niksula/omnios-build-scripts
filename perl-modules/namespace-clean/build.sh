@@ -17,7 +17,7 @@ pkg:/niksula/perl5/Package-Stash"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/R/RI/RIBASUSHI namespace-clean 0.25
+download_source authors/id/R/RI/RIBASUSHI $PROG $VER
 patch_source
 prep_build
 buildperl

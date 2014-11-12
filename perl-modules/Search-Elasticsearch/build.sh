@@ -32,7 +32,7 @@ pkg:/niksula/perl5/Log-Any"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/D/DR/DRTECH Search-Elasticsearch 1.15
+download_source authors/id/D/DR/DRTECH $PROG $VER
 patch_source
 prep_build
 buildperl

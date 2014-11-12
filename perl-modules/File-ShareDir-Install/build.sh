@@ -15,7 +15,7 @@ pkg:/niksula/runtime/perl@$PERLVER_MINOR"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/G/GW/GWYN File-ShareDir-Install 0.09
+download_source authors/id/G/GW/GWYN $PROG $VER
 patch_source
 prep_build
 buildperl

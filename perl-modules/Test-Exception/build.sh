@@ -16,7 +16,7 @@ pkg:/niksula/perl5/Sub-Uplevel"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/E/EX/EXODIST Test-Exception 0.35
+download_source authors/id/E/EX/EXODIST $PROG $VER
 patch_source
 prep_build
 buildperl

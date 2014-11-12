@@ -17,7 +17,7 @@ pkg:/niksula/perl5/HTTP-Message"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/G/GA/GAAS HTTP-Cookies 6.01
+download_source authors/id/G/GA/GAAS $PROG $VER
 patch_source
 prep_build
 buildperl

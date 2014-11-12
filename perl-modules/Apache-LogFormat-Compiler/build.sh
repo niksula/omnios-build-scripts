@@ -21,7 +21,7 @@ pkg:/niksula/perl5/HTTP-Message"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/K/KA/KAZEBURO Apache-LogFormat-Compiler 0.32
+download_source authors/id/K/KA/KAZEBURO $PROG $VER
 patch_source
 prep_build
 buildperl
