@@ -4,7 +4,6 @@
 # names in build order. Requires internet connectivity due to the fact that
 # MetaCPAN::Client uses the MetaCPAN web API.
 # Caveats:
-#  - It will overwrite existing build scripts. Careful use of git recommended.
 #  - Only most recent available versions are considered.
 #  - We don't actually model the dependencies as a graph at the moment, but
 #  instead just traverse the requirements depth-first and place them into an
@@ -158,9 +157,13 @@ make_package
 clean_up
 EOF
     File::Path::make_path($name);
-    open(my $f, ">${name}/build.sh");
-    print ($f $script);
-    chmod(0755, $f);
-    close($f);
+    if (! -f "${name}/build.sh") {
+        open(my $f, ">${name}/build.sh");
+        print ($f $script);
+        chmod(0755, $f);
+        close($f);
+    } else {
+        print STDERR "${name}/build.sh already exists, not overwriting\n";
+    }
     print "$name\n";
 }
