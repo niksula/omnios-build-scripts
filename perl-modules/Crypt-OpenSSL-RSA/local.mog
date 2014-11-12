@@ -1,0 +1,1 @@
+depend type=optional fmri=pkg://niksula.hut.fi/niksula/perl/crypt-openssl-rsa@0.28,5.11-0.151006:20141112T085126Z

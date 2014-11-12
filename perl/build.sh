@@ -109,7 +109,6 @@ build64() {
     popd > /dev/null
 }
 
-
 init
 download_source $PROG $PROG $VER
 patch_source
