@@ -12,7 +12,8 @@ DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/perl5/Test-Without-Module"
+pkg:/niksula/perl5/Test-Without-Module
+pkg:/niksula/perl5/JSON-XS"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
