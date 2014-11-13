@@ -34,7 +34,6 @@ PKG=database/postgresql
 SUMMARY="$PROG - Open Source Database System"
 DESC="$SUMMARY"
 
-BUILDARCH=64
 PREFIX=/opt/pgsql
 reset_configure_opts
 
@@ -47,8 +46,8 @@ CONFIGURE_OPTS="--enable-thread-safety
     --prefix=$PREFIX
     --with-readline"
 
-# We don't want the default settings for CONFIGURE_OPTS_64
-CONFIGURE_OPTS_64="--enable-dtrace DTRACEFLAGS=\"-64\""
+CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 --enable-dtrace"
+CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 --enable-dtrace DTRACEFLAGS=\"-64\""
 
 build_man() {
     pushd ${TMPDIR}/${BUILDDIR}/doc/src/sgml > /dev/null
