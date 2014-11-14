@@ -127,7 +127,6 @@ init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
-install_perl_deps
 build
 make_isa_stub
 install_manifest
