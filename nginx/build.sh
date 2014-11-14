@@ -46,6 +46,18 @@ CONFIGURE_OPTS_64="--prefix=$PREFIX
 --http-uwsgi-temp-path=tmp/uwsgi
 --http-scgi-temp-path=tmp/scgi"
 
+nginx_modules="ngx_http_auth_pam_module-1.3"
+
+add_modules() {
+    local orig_builddir="$BUILDDIR"
+    for mod in $nginx_modules; do
+        BUILDDIR=$mod
+        download_source $PROG $mod ""
+        CONFIGURE_OPTS="$CONFIGURE_OPTS --add-module=../$mod"
+    done
+    BUILDDIR="$orig_builddir"
+}
+
 install_manifest() {
     smfdir=${DESTDIR}/lib/svc/manifest/http
     mkdir -p ${smfdir}
@@ -55,6 +67,7 @@ install_manifest() {
 init
 download_source $PROG $PROG $VER
 patch_source
+add_modules
 prep_build
 build
 make_isa_stub
