@@ -2,7 +2,7 @@ license COPYING license=GPLv2
 group groupname=rt
 user group=rt username=rt home-dir=/opt/rt4
 <transform file path=opt/rt4/etc/[^/]*$ -> set group rt>
-<transform file path=opt/rt4/etc/[^/]*$ -> set mode 0440>
+<transform file path=opt/rt4/etc/[^/]*$ -> set mode 0640>
 <transform file path=opt/rt4/etc/[^/]*$ -> set preserve renamenew>
 <transform file dir path=opt/rt4/var -> set owner rt>
 <transform file dir path=opt/rt4/var -> set group rt>
