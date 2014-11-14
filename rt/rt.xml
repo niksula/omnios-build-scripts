@@ -12,7 +12,7 @@
             <method_credential user="rt" group="rt"/>
         </method_context>
 
-        <exec_method type="method" name="start" exec="/opt/rt4/sbin/rt-server.fcgi --socket /tmp/bar" timeout_seconds="60"/>
+        <exec_method type="method" name="start" exec="/opt/rt4/sbin/rt-server.fcgi -D -S /opt/rt4/var/run/fcgi.sock" timeout_seconds="60"/>
 
         <exec_method type="method" name="stop" exec=":kill" timeout_seconds="60"/>
 

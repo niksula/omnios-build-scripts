@@ -7,3 +7,4 @@ user group=rt username=rt home-dir=/opt/rt4
 <transform file dir path=opt/rt4/var -> set owner rt>
 <transform file dir path=opt/rt4/var -> set group rt>
 <transform file path=opt/rt4 -> set refresh_fmri svc:/application/rt:default>
+dir path=opt/rt4/var/run owner=rt group=rt mode=0750
