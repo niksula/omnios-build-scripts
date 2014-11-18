@@ -40,6 +40,7 @@ CONFIGURE_OPTS_64="--prefix=$PREFIX
 --with-ipv6
 --with-http_ssl_module
 --with-ld-opt=-m64
+--with-debug
 --http-client-body-temp-path=tmp/client_body
 --http-proxy-temp-path=tmp/proxy
 --http-fastcgi-temp-path=tmp/fastcgi
