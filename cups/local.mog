@@ -25,3 +25,5 @@ user group=lp username=cupsd home-dir=/opt/niksula/var/spool/cups
 # allow configuring printer ppds and automatic ssl cert generation
 <transform dir path=opt/niksula/etc/cups/ppd$ -> set owner cupsd>
 <transform dir path=opt/niksula/etc/cups/ssl$ -> set owner cupsd>
+# restart cups service
+<transform file path=opt/niksula/(bin|lib|etc) -> set restart_fmri svc:/print/cups:default>

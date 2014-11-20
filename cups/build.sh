@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=cups
-VER=1.7.1
+VER=2.0.1
 VERHUMAN=$VER
 PKG=print/cups
 SUMMARY="Common Unix Printing System"
@@ -46,8 +46,12 @@ install_manifest() {
     cp ${SRCDIR}/cups.xml $smfdir
 }
 
+BUILD_DEPENDS_IPS='library/gnutls'
+PKGCONFIG=${PREFIX}/bin/pkg-config
+export PKGCONFIG
+
 # disable DNS-SD/mDNS because incompatible libraries
-CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-dnssd --with-cups-user=lp"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-gnutls --disable-dnssd --disable-avahi --with-cups-user=lp"
 
 # fix runtime R_AMD64_PC32 relocation errors by using -shared for libs
 save_function configure64 configure64_orig
