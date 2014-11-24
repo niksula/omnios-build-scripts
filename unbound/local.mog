@@ -1,0 +1,5 @@
+license LICENSE license=BSD
+group groupname=unbound
+user username=unbound group=unbound
+<transform file path=opt/unbound/etc/ -> set preserve renamenew>
+<transform file path=opt/unbound/(sbin|lib)/ -> set restart_fmri svc:/network/dns/unbound:default>
