@@ -39,12 +39,25 @@ BUILD_DEPENDS_IPS='library/cairo library/freetype library/fontconfig library/har
 PKG_CONFIG=${PREFIX}/bin/pkg-config
 export PKG_CONFIG
 
+update_cache() {
+    # This is probably meant to be done post-install, but we can get away with
+    # doing it here
+    logmsg '--- pango-querymodules'
+    (
+    set -e
+    PANGO_LIBDIR="${DESTDIR}${PREFIX}/lib" ${DESTDIR}${PREFIX}/bin/$ISAPART/pango-querymodules --update-cache
+    PANGO_LIBDIR="${DESTDIR}${PREFIX}/lib/$ISAPART64" ${DESTDIR}${PREFIX}/bin/$ISAPART64/pango-querymodules --update-cache
+    gsed -i "s,${DESTDIR},," ${DESTDIR}${PREFIX}/lib/pango/1.8.0/modules.cache ${DESTDIR}${PREFIX}/lib/$ISAPART64/pango/1.8.0/modules.cache
+    ) || logerr '--- pango cache update failed'
+}
+
 init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
 build
 make_isa_stub
+update_cache
 make_package
 clean_up
 
