@@ -1,0 +1,27 @@
+diff --git a/sbin/rt-fulltext-indexer b/sbin/rt-fulltext-indexer
+index 3f6cea8..3218592 100755
+--- a/sbin/rt-fulltext-indexer
++++ b/sbin/rt-fulltext-indexer
+@@ -117,7 +117,7 @@ if ( $OPT{'help'} ) {
+ }
+ 
+ use Fcntl ':flock';
+-if ( !flock main::DATA, LOCK_EX | LOCK_NB ) {
++if ( !flock '/opt/rt4/var/run/fulltext-indexer.lock', LOCK_EX | LOCK_NB ) {
+     if ( $OPT{quiet} ) {
+         RT::Logger->info("$0 is already running; aborting silently, as requested");
+         exit;
+diff --git a/sbin/rt-fulltext-indexer.in b/sbin/rt-fulltext-indexer.in
+index ec8ff47..bb917da 100644
+--- a/sbin/rt-fulltext-indexer.in
++++ b/sbin/rt-fulltext-indexer.in
+@@ -117,7 +117,8 @@ if ( $OPT{'help'} ) {
+ }
+ 
+ use Fcntl ':flock';
+-if ( !flock main::DATA, LOCK_EX | LOCK_NB ) {
++open(my $lock, '>', '@RT_VAR_PATH_R@/run/fulltext-indexer.lock');
++if ( !flock $lock, LOCK_EX | LOCK_NB ) {
+     if ( $OPT{quiet} ) {
+         RT::Logger->info("$0 is already running; aborting silently, as requested");
+         exit;
