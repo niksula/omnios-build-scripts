@@ -37,9 +37,10 @@ DESC="$SUMMARY"
 BUILDARCH=64
 
 # need autoconf to apply some patches to configure.ac
-BUILD_DEPENDS_IPS='application/rrdtool developer/build/pkg-config developer/build/autoconf system/management/snmp/net-snmp'
+BUILD_DEPENDS_IPS='application/rrdtool developer/build/pkg-config developer/build/autoconf system/management/snmp/net-snmp niksula/runtime/perl@5.20'
+RUN_DEPENDS_IPS='=niksula/runtime/perl@5.20 niksula/runtime/perl@5.20'
 
-CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static --with-libperl=/opt/niksula/perl5/bin/perl --with-perl-bindings=INSTALLDIRS=vendor"
 
 PKG_CONFIG=${PREFIX}/bin/pkg-config
 export PKG_CONFIG
@@ -52,11 +53,17 @@ install_manifest() {
     install -m 0444 ${SRCDIR}/collectd.xml ${smfdir}/
 }
 
+run_autoconf() {
+    pushd $TMPDIR/$BUILDDIR >/dev/null
+    logcmd autoconf || logerr 'autoconf failed'
+    popd >/dev/null
+}
+
 init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
-logcmd autoconf
+run_autoconf
 build
 make_isa_stub
 install_manifest

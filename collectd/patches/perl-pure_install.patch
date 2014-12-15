@@ -1,0 +1,13 @@
+diff --git a/bindings/Makefile.in b/bindings/Makefile.in
+index b57e3ae..5d35b4e 100644
+--- a/bindings/Makefile.in
++++ b/bindings/Makefile.in
+@@ -732,7 +732,7 @@ uninstall-am: uninstall-local
+ all-local: @PERL_BINDINGS@
+ 
+ install-exec-local:
+-	[ ! -f buildperl/Makefile ] || ( cd buildperl && $(MAKE) install )
++	[ ! -f buildperl/Makefile ] || ( cd buildperl && $(MAKE) pure_install )
+ 
+ # Perl 'make uninstall' does not work as well as wanted.
+ # So we do the work here.
