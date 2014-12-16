@@ -1,0 +1,23 @@
+diff --git a/Makefile.in b/Makefile.in
+index 97378e5..8bf7b73 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -1,3 +1,4 @@
+-targetdir = $(DESTDIR)@prefix@@sbindir@
+-man8dir = $(DESTDIR)@prefix@@mandir@/man8
++CC = @CC@
++targetdir = $(DESTDIR)@sbindir@
++man8dir = $(DESTDIR)@mandir@/man8
+ datarootdir =
+@@ -17,7 +18,9 @@ ifneq ("@systemdsystemunitdir@", "")
+ endif
+ 
+-LDLIBS = -lfcgi @systemd_LIBS@
+-CFLAGS = @AM_CFLAGS@
++LDLIBS = -lfcgi @systemd_LIBS@ -lnsl -lsocket
++CFLAGS = @CFLAGS@
++CPPFLAGS = @CPPFLAGS@
++LDFLAGS = @LDFLAGS@
+ 
+ fcgiwrap: fcgiwrap.c
+ 
