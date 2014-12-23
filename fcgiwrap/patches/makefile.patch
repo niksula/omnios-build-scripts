@@ -4,10 +4,9 @@ index 97378e5..8bf7b73 100644
 +++ b/Makefile.in
 @@ -1,3 +1,4 @@
 -targetdir = $(DESTDIR)@prefix@@sbindir@
--man8dir = $(DESTDIR)@prefix@@mandir@/man8
 +CC = @CC@
 +targetdir = $(DESTDIR)@sbindir@
-+man8dir = $(DESTDIR)@mandir@/man8
+ man8dir = $(DESTDIR)@prefix@@mandir@/man8
  datarootdir =
 @@ -17,7 +18,9 @@ ifneq ("@systemdsystemunitdir@", "")
  endif
