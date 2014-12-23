@@ -1,0 +1,18 @@
+diff --git a/src/Makefile.in b/src/Makefile.in
+index aa442fc..e874de5 100644
+--- a/Makefile.in
++++ b/Makefile.in
+@@ -31,11 +31,11 @@ docdir = @prefix@/doc
+ 
+ #this is the standard CFLAGS options, this is what most people should use
+ 
+-CFLAGS += $(DEFINES) @BIG5@
++CFLAGS += $(DEFINES) @BIG5@ @CFLAGS@
+ 
+ LDFLAGS = @LDFLAGS@
+ 
+-INCS = @MYINCLUDE@
++INCS = @MYINCLUDE@ @CPPFLAGS@
+ 
+ LIBS = @LIBS@
+ 
