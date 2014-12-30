@@ -34,11 +34,22 @@ PKG=service/network/imap/dovecot
 SUMMARY="dovecot secure IMAP server"
 DESC="$SUMMARY"
 
+install_manifest() {
+    tgtdir=${DESTDIR}/lib/svc/manifest/network/imap
+    mkdir -p ${tgtdir}
+    install -m 0444 ${SRCDIR}/dovecot.xml ${tgtdir}/ || logerr 'manifest install failed'
+}
+
+BUILDARCH=64
+# by default we get libexec/amd64/dovecot, but we're not making isa stubs there
+CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 --libexecdir=${PREFIX}/libexec"
+
 init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
 build
+install_manifest
 make_isa_stub
 make_package
 clean_up

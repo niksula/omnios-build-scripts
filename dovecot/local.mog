@@ -1,3 +1,7 @@
 license COPYING license=multiple
 license COPYING.LGPL license=LGPLv2.1
 license COPYING.MIT license=MIT
+group groupname=dovenull
+group groupname=dovecot
+user username=dovenull group=dovenull
+user username=dovecot group=dovecot
