@@ -22,10 +22,6 @@
             <propval name="duration" type="astring" value="contract"/>
             <propval name="ignore_error" type="astring" value="core,signal"/>
         </property_group>
-
-        <property_group name="application" type="application">
-            <propval name="config_file" type="astring" value="/etc/postfix/main.cf"/>
-        </property_group>
         
         <stability value="Evolving"/>
 
