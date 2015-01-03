@@ -1,1 +1,3 @@
 fix_sigusr1.patch
+dirent.d_type.patch
+copy_escape_html.patch

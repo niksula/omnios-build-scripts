@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=rtorrent
-VER=0.9.2
+VER=0.9.4
 VERHUMAN=$VER
 PKG=application/rtorrent
 SUMMARY="BitTorrent client on top of libtorrent with ncurses interface"

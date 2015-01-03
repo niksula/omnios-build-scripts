@@ -1,0 +1,18 @@
+The 'd_type' referenced here is already set to the st_mode bits from stat(2) in
+utils/directory.cc.
+diff --git a/src/input/path_input.cc b/src/input/path_input.cc
+index fa8afda..caf1e17 100644
+--- a/src/input/path_input.cc
++++ b/src/input/path_input.cc
+@@ -75,7 +75,11 @@ PathInput::pressed(int key) {
+ 
+ struct _transform_filename {
+   void operator () (utils::directory_entry& entry) {
++#ifdef __sun__
++    if (entry.d_type & S_IFDIR)
++#else
+     if (entry.d_type == DT_DIR)
++#endif
+       entry.d_name += '/';
+   }
+ };

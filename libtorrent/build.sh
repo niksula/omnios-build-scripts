@@ -33,7 +33,7 @@ CXX=/opt/gcc-4.6.3/bin/g++
 BUILD_DEPENDS_IPS='developer/gcc46'
 
 PROG=libtorrent
-VER=0.13.2
+VER=0.13.4
 VERHUMAN=$VER
 PKG=library/libtorrent
 SUMMARY="a BitTorrent library"
