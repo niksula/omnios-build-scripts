@@ -1,0 +1,4 @@
+license LICENSE license=other
+license COPYING license=GPL2
+# python script with hardcoded install paths; we don't need it
+<transform file path=opt/niksula/bin/fio2gnuplot -> drop>
