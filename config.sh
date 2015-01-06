@@ -137,7 +137,7 @@ CXX=g++
 
 # CFLAGS applies to both builds, 32/64 only gets applied to the respective
 # build
-CFLAGS=""
+CFLAGS="-g"
 CFLAGS32=""
 CFLAGS64="-m64"
 
