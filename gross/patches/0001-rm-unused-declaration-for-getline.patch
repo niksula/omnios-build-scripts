@@ -1,0 +1,24 @@
+From d1b4cbb2b691aa1ec321067c9a68446f58721acc Mon Sep 17 00:00:00 2001
+From: Lauri Tirkkonen <lotheac@iki.fi>
+Date: Mon, 12 Jan 2015 15:44:06 +0200
+Subject: [PATCH] rm unused declaration for getline
+
+---
+ include/utils.h | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/include/utils.h b/include/utils.h
+index 4f78717..89e812b 100644
+--- a/include/utils.h
++++ b/include/utils.h
+@@ -39,7 +39,6 @@ int clock_gettime(clockid_t clk_id, struct timespec *tp);
+ #endif /* ! USE_GETTIMEOFDAY */
+ 
+ int readline(int fd, void *vptr, size_t maxlen);
+-int getline(int fd, char *line, size_t maxlen);
+ ssize_t readn(int fd, void *vptr, size_t n);
+ ssize_t writen(int fd, const void *vptr, size_t n);
+ ssize_t writeline(int fd, const char *line);
+-- 
+1.9.1
+

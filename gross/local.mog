@@ -1,0 +1,4 @@
+license COPYING license=BSD
+group groupname=grossd
+user username=grossd group=grossd
+dir path=opt/niksula/var/gross owner=grossd group=grossd mode=0750

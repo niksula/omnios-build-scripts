@@ -1,0 +1,42 @@
+From ede4ec638861b293933057cde9dc0b388bbb0b33 Mon Sep 17 00:00:00 2001
+From: Lauri Tirkkonen <lotheac@iki.fi>
+Date: Mon, 12 Jan 2015 16:10:17 +0200
+Subject: [PATCH 2/2] remove extraneous 'etc/' from manpages
+
+---
+ man/grossd.8.in      | 2 +-
+ man/grossd.conf.5.in | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/man/grossd.8.in b/man/grossd.8.in
+index a3d2197..09d1468 100644
+--- a/man/grossd.8.in
++++ b/man/grossd.8.in
+@@ -57,7 +57,7 @@ Run \fBgrossd\fP on foreground without daemonizing the process.
+ \fBgrossd\fP will output to terminal instead of using syslog.
+ .IP "\fB\-f\fP \fIconfig\fP" 4
+ Specifies the name of the configuration file.  The default is
+-\fI@sysconfdir@/etc/grossd.conf\fP
++\fI@sysconfdir@/grossd.conf\fP
+ .IP "\fB\-h\fP" 4
+ Output short usage information and exit.
+ .IP "\fB\-n\fP" 4
+diff --git a/man/grossd.conf.5.in b/man/grossd.conf.5.in
+index ace2206..4553666 100644
+--- a/man/grossd.conf.5.in
++++ b/man/grossd.conf.5.in
+@@ -4,9 +4,9 @@
+ .SH "NAME"
+ \fBgrossd.conf\fP \- Greylisting of Suspicious Sources daemon configuration file
+ .SH "SYNOPSIS"
+-\fI@sysconfdir@/etc/grossd.conf\fP
++\fI@sysconfdir@/grossd.conf\fP
+ .SH "DESCRIPTION"
+-\fIgrossd\fP\|(8) reads configuration data from \fI@sysconfdir@/etc/grossd.conf\fP
++\fIgrossd\fP\|(8) reads configuration data from \fI@sysconfdir@/grossd.conf\fP
+ (or the file specified with \fB\-f\fP on the command line). 
+ An example configuration file is installed by default.  You have to
+ set some configuration options in order to get \fIgrossd\fP\|(8) running in 
+-- 
+1.9.1
+
