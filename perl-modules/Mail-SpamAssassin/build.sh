@@ -40,11 +40,18 @@ NO_PARALLEL_MAKE=1
 # gpg needs to be in PATH during build
 PATH=$PATH:/opt/niksula/bin
 
+install_manifest() {
+    tgtdir=${DESTDIR}/lib/svc/manifest/mail
+    mkdir -p ${tgtdir}
+    install -m 0444 ${SRCDIR}/spamd.xml ${tgtdir}/spamassassin-spamd.xml || logerr 'manifest install failed'
+}
+
 init
 download_source authors/id/K/KM/KMCGRAIL/SpamAssassin $PROG $VER
 patch_source
 prep_build
 buildperl
+install_manifest
 make_isa_stub
 make_package
 clean_up
