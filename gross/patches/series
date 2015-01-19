@@ -1,2 +1,4 @@
 0001-rm-unused-declaration-for-getline.patch
 0002-remove-extraneous-etc-from-manpages.patch
+0003-document-actual-default-for-stat_type.patch
+0004-fix-setting-log_level.patch

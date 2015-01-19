@@ -1,0 +1,26 @@
+From 775b665cd771a96251cde622856f53b361c287fb Mon Sep 17 00:00:00 2001
+From: Lauri Tirkkonen <lotheac@iki.fi>
+Date: Fri, 16 Jan 2015 12:04:36 +0200
+Subject: [PATCH 4/4] fix setting log_level
+
+---
+ src/gross.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/src/gross.c b/src/gross.c
+index 97a8311..dae24c5 100644
+--- a/src/gross.c
++++ b/src/gross.c
+@@ -429,8 +429,7 @@ configure_grossd(configlist_t *config)
+ 		if (strcmp(cp->name, "log_method") == 0) {
+ 			if (strcmp(cp->value, "syslog") == 0)
+ 				ctx->config.flags |= FLG_SYSLOG;
+-		} else if (strcmp(cp->name, "log_level") == 0 && ctx->config.loglevel == 0) {
+-			/* only set loglevel if it's still unset */
++		} else if (strcmp(cp->name, "log_level") == 0) {
+ 			if (strcmp(cp->value, "debug") == 0)
+ 				ctx->config.loglevel = GLOG_DEBUG;
+ 			else if (strcmp(cp->value, "info") == 0)
+-- 
+1.9.1
+

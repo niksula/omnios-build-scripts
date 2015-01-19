@@ -1,0 +1,25 @@
+From 288cefcdb2a8906f00689115312bcb6d6226de9d Mon Sep 17 00:00:00 2001
+From: Lauri Tirkkonen <lotheac@iki.fi>
+Date: Fri, 16 Jan 2015 11:53:55 +0200
+Subject: [PATCH 3/4] document actual default for stat_type
+
+---
+ man/grossd.conf.5.in | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/man/grossd.conf.5.in b/man/grossd.conf.5.in
+index 4553666..b8f04d0 100644
+--- a/man/grossd.conf.5.in
++++ b/man/grossd.conf.5.in
+@@ -152,7 +152,7 @@ log processing delay statistics.
+ .PD
+ .PP
+ .RS 4
+-Default is `none'.  Setting both `none' and `full'
++Default is `delay', `status'.  Setting both `none' and `full'
+ is undefined.
+ .RE
+ .IP "\fBstat_interval\fP" 4
+-- 
+1.9.1
+
