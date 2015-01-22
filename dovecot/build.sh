@@ -42,7 +42,7 @@ install_manifest() {
 
 BUILDARCH=64
 # by default we get libexec/amd64/dovecot, but we're not making isa stubs there
-CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 --libexecdir=${PREFIX}/libexec"
+CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 --libexecdir=${PREFIX}/libexec --disable-static"
 
 init
 download_source $PROG $PROG $VER

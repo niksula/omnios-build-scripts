@@ -5,3 +5,5 @@ group groupname=dovenull
 group groupname=dovecot
 user username=dovenull group=dovenull
 user username=dovecot group=dovecot
+<transform file path=opt/niksula/lib/amd64/dovecot -> set restart_fmri svc:/network/imap/dovecot:default>
+<transform file path=opt/niksula/sbin -> set restart_fmri svc:/network/imap/dovecot:default>
