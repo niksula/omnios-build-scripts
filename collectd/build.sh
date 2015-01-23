@@ -53,6 +53,15 @@ install_manifest() {
     install -m 0444 ${SRCDIR}/collectd.xml ${smfdir}/
 }
 
+install_contrib() {
+    pushd ${TMPDIR}/${BUILDDIR}/contrib >/dev/null
+    spamassassin_plugindir=${DESTDIR}/opt/niksula/perl5/lib/vendor_perl/5.20.1/Mail/SpamAssassin/Plugin
+    mkdir -p "${spamassassin_plugindir}"
+    # remove hashbang - this isn't an executable
+    sed 1d SpamAssassin/Collectd.pm > "${spamassassin_plugindir}/Collectd.pm" || logerr 'failed to install spamassassin plugin'
+    popd >/dev/null
+}
+
 run_autoconf() {
     pushd $TMPDIR/$BUILDDIR >/dev/null
     logcmd autoconf || logerr 'autoconf failed'
@@ -66,6 +75,7 @@ prep_build
 run_autoconf
 build
 make_isa_stub
+install_contrib
 install_manifest
 make_package
 clean_up
