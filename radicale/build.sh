@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=Radicale
-VER=0.9
+VER=0.10
 VERHUMAN=$VER
 PKG=application/radicale
 SUMMARY="CalDAV and CardDAV Server"
