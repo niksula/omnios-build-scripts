@@ -1,0 +1,1101 @@
+From b514ee941053c5c57f87e9240afff9d9581f9194 Mon Sep 17 00:00:00 2001
+From: Jan Andres <jandres@gmx.net>
+Date: Sat, 24 Jan 2015 10:23:02 +0100
+Subject: [PATCH 1/8] Implementation of kstat_set_t.
+
+This is a set of kstat items which can be dynamically added
+and removed using the supplied functions.
+---
+ src/common.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
+ src/common.h | 17 +++++++++++++++++
+ 2 files changed, 66 insertions(+)
+
+diff --git a/src/common.c b/src/common.c
+index 8a40792..9911212 100644
+--- a/src/common.c
++++ b/src/common.c
+@@ -724,6 +724,55 @@ long long get_kstat_value (kstat_t *ksp, char *name)
+ 
+ 	return (retval);
+ }
++
++
++int kstat_set_init (kstat_set_t *set)
++{
++	memset (set, 0, sizeof (*set));
++	set->alloc = 32;
++	set->items = malloc (set->alloc * sizeof (*set->items));
++	if (set->items == NULL)
++	{
++		ERROR ("kstat_set_init: out of memory");
++		return -1;
++	}
++	return 0;
++}
++
++
++int kstat_set_add (kstat_set_t *set, kstat_t *kstat)
++{
++	if (set->len == set->alloc)
++	{
++		unsigned new_alloc = set->alloc << 1;
++		void *new_items = realloc (set->items, new_alloc * sizeof (*set->items));
++		if (new_items == NULL)
++		{
++			ERROR ("kstat_set_add: out of memory");
++			return (-1);
++		}
++		set->items = new_items;
++		set->alloc = new_alloc;
++	}
++
++	set->items[set->len].kstat = kstat;
++	set->items[set->len].id = kstat->ks_kid;
++	set->len++;
++
++	return (0);
++}
++
++
++void kstat_set_remove (kstat_set_t *set, kid_t id)
++{
++	unsigned i;
++	for (i = 0; i < set->len; i++)
++		if (set->items[i].id == id)
++		{
++			set->len--;
++			set->items[i] = set->items[set->len];
++		}
++}
+ #endif /* HAVE_LIBKSTAT */
+ 
+ #ifndef HAVE_HTONLL
+diff --git a/src/common.h b/src/common.h
+index 317be8d..3ec59e2 100644
+--- a/src/common.h
++++ b/src/common.h
+@@ -255,6 +255,23 @@ int check_create_dir (const char *file_orig);
+ #ifdef HAVE_LIBKSTAT
+ int get_kstat (kstat_t **ksp_ptr, char *module, int instance, char *name);
+ long long get_kstat_value (kstat_t *ksp, char *name);
++
++struct kstat_set_s {
++	unsigned len, alloc;
++	struct {
++		kstat_t *kstat;
++		kid_t id;
++		/* id is duplicated here as when a kstat gets removed, the
++		 * pointer will already be invalid and we can no more access
++		 * ks_id from the kstat pointer. */
++	} *items;
++};
++
++typedef struct kstat_set_s kstat_set_t;
++
++int kstat_set_init (kstat_set_t *set);
++int kstat_set_add (kstat_set_t *set, kstat_t *kstat);
++void kstat_set_remove (kstat_set_t *set, kid_t id);
+ #endif
+ 
+ #ifndef HAVE_HTONLL
+
+From f39318e527eb2d8920e87c5bdf182a016c27a8c6 Mon Sep 17 00:00:00 2001
+From: Jan Andres <jandres@gmx.net>
+Date: Sat, 24 Jan 2015 11:19:44 +0100
+Subject: [PATCH 2/8] Add a callback function for kstat changes.
+
+Plugins can register a callback to be notified when certain
+classes of kstats are added or removed by a kstat chain update.
+---
+ src/plugin.c | 108 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/plugin.h |  58 ++++++++++++++++++++++++++++++++
+ 2 files changed, 166 insertions(+)
+
+diff --git a/src/plugin.c b/src/plugin.c
+index b60c04b..fdd6677 100644
+--- a/src/plugin.c
++++ b/src/plugin.c
+@@ -70,6 +70,15 @@ struct read_func_s
+ };
+ typedef struct read_func_s read_func_t;
+ 
++#if HAVE_LIBKSTAT
++struct kstat_func_s
++{
++	callback_func_t kf_super;
++	const kstat_filter_t *kf_filter;
++};
++typedef struct kstat_func_s kstat_func_t;
++#endif /* HAVE_LIBKSTAT */
++
+ struct write_queue_s;
+ typedef struct write_queue_s write_queue_t;
+ struct write_queue_s
+@@ -91,6 +100,9 @@ static llist_t *list_missing;
+ static llist_t *list_shutdown;
+ static llist_t *list_log;
+ static llist_t *list_notification;
++#if HAVE_LIBKSTAT
++static llist_t *list_kstat;
++#endif
+ 
+ static fc_chain_t *pre_cache_chain = NULL;
+ static fc_chain_t *post_cache_chain = NULL;
+@@ -1289,6 +1301,55 @@ int plugin_register_notification (const char *name,
+ 				(void *) callback, ud));
+ } /* int plugin_register_log */
+ 
++#if HAVE_LIBKSTAT
++int plugin_register_kstat (const char *name,
++		plugin_kstat_cb callback, user_data_t *user_data,
++		const kstat_filter_t *filter)
++{
++	kstat_func_t *kf;
++
++	kf = malloc (sizeof (*kf));
++	if (kf == NULL) {
++		ERROR ("plugin_register_kstat: out of memory");
++		return (ENOMEM);
++	}
++
++	memset (kf, 0, sizeof (*kf));
++	kf->kf_super.cf_callback = callback;
++	kf->kf_super.cf_ctx = plugin_get_ctx ();
++	kf->kf_super.cf_udata = *user_data;
++	kf->kf_filter = filter;
++
++	return register_callback (&list_kstat, name, (callback_func_t *) kf);
++}
++
++
++static void kstat_set_cb (kstat_action_t action, const kstat_info_t *info,
++		user_data_t *user_data)
++{
++	kstat_set_t *set = user_data->data;
++	switch (action) {
++		case KSTAT_ADDED:
++			kstat_set_add (set, info->kstat);
++			break;
++		case KSTAT_REMOVED:
++			kstat_set_remove (set, info->id);
++			break;
++	}
++}
++
++
++int plugin_register_kstat_set (const char *name,
++		kstat_set_t *set,
++		const kstat_filter_t *filter)
++{
++	user_data_t user_data = {
++		.data = set,
++	};
++	return plugin_register_kstat (name, kstat_set_cb, &user_data, filter);
++}
++#endif /* HAVE_LIBKSTAT */
++
+ int plugin_unregister_config (const char *name)
+ {
+ 	cf_unregister (name);
+@@ -1453,6 +1514,13 @@ int plugin_unregister_notification (const char *name)
+ 	return (plugin_unregister (list_notification, name));
+ }
+ 
++#if HAVE_LIBKSTAT
++int plugin_unregister_kstat (const char *name)
++{
++	return (plugin_unregister (list_kstat, name));
++}
++#endif
++
+ void plugin_init_all (void)
+ {
+ 	char const *chain_name;
+@@ -1784,6 +1852,10 @@ void plugin_shutdown_all (void)
+ 	destroy_all_callbacks (&list_shutdown);
+ 	destroy_all_callbacks (&list_log);
+ 
++#if HAVE_LIBKSTAT
++	destroy_all_callbacks (&list_kstat);
++#endif
++
+ 	plugin_free_loaded ();
+ 	plugin_free_data_sets ();
+ } /* void plugin_shutdown_all */
+@@ -2129,6 +2201,42 @@ int plugin_dispatch_notification (const notification_t *notif)
+ 	return (0);
+ } /* int plugin_dispatch_notification */
+ 
++#if HAVE_LIBKSTAT
++static int kstat_filter_match (const kstat_info_t *info,
++		const kstat_filter_t *filter)
++{
++	if (filter->module != NULL && strcmp (filter->module, info->module) != 0)
++		return (-1);
++	if (filter->instance != -1 && filter->instance != info->instance)
++		return (-1);
++	if (filter->name != NULL && strcmp (filter->name, info->name) != 0)
++		return (-1);
++	if (filter->class != NULL && strcmp (filter->class, info->class) != 0)
++		return (-1);
++	if (filter->type != -1 && filter->type != info->type)
++		return (-1);
++	if (filter->filter_func != NULL && filter->filter_func (info) != 0)
++		return (-1);
++	return (0);
++}
++
++void plugin_dispatch_kstat (kstat_action_t action, const kstat_info_t *info)
++{
++	llentry_t *le;
++
++	if (list_kstat == NULL)
++		return;
++
++	for (le = llist_head (list_kstat); le != NULL; le = le->next)
++	{
++		kstat_func_t *const kf = le->value;
++		const plugin_kstat_cb callback = kf->kf_super.cf_callback;
++		if (kstat_filter_match (info, kf->kf_filter) == 0)
++			callback (action, info, &kf->kf_super.cf_udata);
++	}
++}
++#endif /* HAVE_LIBKSTAT */
++
+ void plugin_log (int level, const char *format, ...)
+ {
+ 	char msg[1024];
+diff --git a/src/plugin.h b/src/plugin.h
+index 8f0c6d8..7bd0504 100644
+--- a/src/plugin.h
++++ b/src/plugin.h
+@@ -188,6 +188,29 @@ typedef void (*plugin_log_cb) (int severity, const char *message,
+ typedef int (*plugin_shutdown_cb) (void);
+ typedef int (*plugin_notification_cb) (const notification_t *,
+ 		user_data_t *);
++#if HAVE_LIBKSTAT
++enum kstat_action_e {
++	KSTAT_ADDED,
++	KSTAT_REMOVED
++};
++typedef enum kstat_action_e kstat_action_t;
++
++/* This structure copies some of the information in
++ * a kstat_t, to ensure we still have it available
++ * when a kstat has been removed from the chain. */
++struct kstat_info_s {
++	kstat_t *kstat; /* will be NULL on removal */
++	kid_t id;
++	char module[KSTAT_STRLEN];
++	int instance;
++	char name[KSTAT_STRLEN];
++	char class[KSTAT_STRLEN];
++	int type;
++};
++typedef struct kstat_info_s kstat_info_t;
++
++typedef void (*plugin_kstat_cb) (kstat_action_t, const kstat_info_t *, user_data_t *);
++#endif
+ 
+ /*
+  * NAME
+@@ -298,6 +321,34 @@ int plugin_register_log (const char *name,
+ 		plugin_log_cb callback, user_data_t *user_data);
+ int plugin_register_notification (const char *name,
+ 		plugin_notification_cb callback, user_data_t *user_data);
++#if HAVE_LIBKSTAT
++struct kstat_filter_s {
++	const char *module;
++	int instance;
++	const char *name;
++	const char *class;
++	int type;
++	/* If non-NULL, this function is called if everything else
++	 * matches. It can implement additional checks. It shall
++	 * return zero in case of a match, non-zero otherwise. */
++	int (*filter_func) (const kstat_info_t *);
++};
++typedef struct kstat_filter_s kstat_filter_t;
++
++#define KSTAT_FILTER_INIT \
++	{ \
++		.instance = -1, \
++		.type = -1 \
++	}
++
++int plugin_register_kstat (const char *name,
++		plugin_kstat_cb callback, user_data_t *user_data,
++		const kstat_filter_t *filter);
++struct kstat_set_s;
++int plugin_register_kstat_set (const char *name,
++		struct kstat_set_s *set,
++		const kstat_filter_t *filter);
++#endif
+ 
+ int plugin_unregister_config (const char *name);
+ int plugin_unregister_complex_config (const char *name);
+@@ -311,6 +362,9 @@ int plugin_unregister_shutdown (const char *name);
+ int plugin_unregister_data_set (const char *name);
+ int plugin_unregister_log (const char *name);
+ int plugin_unregister_notification (const char *name);
++#if HAVE_LIBKSTAT
++int plugin_unregister_kstat (const char *name);
++#endif
+ 
+ 
+ /*
+@@ -332,6 +386,10 @@ int plugin_dispatch_missing (const value_list_t *vl);
+ 
+ int plugin_dispatch_notification (const notification_t *notif);
+ 
++#if HAVE_LIBKSTAT
++void plugin_dispatch_kstat (kstat_action_t action, const kstat_info_t *info);
++#endif
++
+ void plugin_log (int level, const char *format, ...)
+ 	__attribute__ ((format(printf,2,3)));
+ 
+
+From 0e7fffe1babc1f7d64f1194ac501430ca2877c72 Mon Sep 17 00:00:00 2001
+From: Jan Andres <jandres@gmx.net>
+Date: Fri, 23 Jan 2015 19:21:41 +0100
+Subject: [PATCH 3/8] Incremental detection of changes in kstat chain.
+
+Use a hash table to detect which kstats have been added/removed
+by a chain update and invoke the appropriate plugin callbacks.
+---
+ src/collectd.c | 199 ++++++++++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 191 insertions(+), 8 deletions(-)
+
+diff --git a/src/collectd.c b/src/collectd.c
+index d259753..5f781c2 100644
+--- a/src/collectd.c
++++ b/src/collectd.c
+@@ -44,6 +44,171 @@ cdtime_t interval_g;
+ int  timeout_g;
+ #if HAVE_LIBKSTAT
+ kstat_ctl_t *kc;
++
++
++/* FNV-1a hash algorithm (32-bit) */
++typedef uint32_t hash_t;
++static const hash_t hash_init = 2166136261UL;
++static const hash_t hash_mult = 16777619UL;
++
++/* for 64-bit hash use:
++typedef uint64_t hash_t;
++static const hash_t hash_init = 14695981039346656037ULL;
++static const hash_t hash_mult = 1099511628211ULL;
++*/
++
++static inline hash_t
++hash_update (hash_t h, unsigned char input)
++{
++	return (h ^ input) * hash_mult;
++}
++
++static inline hash_t
++hash_update_str (hash_t h, const char *str)
++{
++	for (; *str != 0; str++)
++		h = hash_update (h, (unsigned char) *str);
++	return h;
++}
++
++static inline hash_t
++hash_update_mem (hash_t h, const void *data, unsigned len)
++{
++	const unsigned char *c = data;
++	unsigned i;
++	for (i = 0; i < len; i++)
++		h = hash_update (h, c[i]);
++	return h;
++}
++
++
++struct kstat_entry {
++	struct kstat_entry *next;
++	unsigned generation;
++	kstat_info_t info;
++};
++
++
++struct kstat_table {
++	unsigned generation;
++	unsigned buckets;
++	unsigned entries;
++	struct kstat_entry **bucket;
++};
++
++
++static void
++kst_init (struct kstat_table *table, kstat_t *chain)
++{
++	unsigned size = 0;
++	kstat_t *k;
++	/* Count the kstat entries and use this to size the hash table. */
++	for (k = chain; k != NULL; k = k->ks_next)
++		size++;
++	if (size < 32)
++		size = 32;
++
++	table->generation = 0;
++	table->buckets = size;
++	table->entries = 0;
++	table->bucket = malloc (table->buckets * sizeof (*table->bucket));
++	if (table->bucket == NULL)
++	{
++		ERROR ("Failed to initialize kstat hash table: out of memory.");
++		return;
++	}
++	memset (table->bucket, 0, table->buckets * sizeof (*table->bucket));
++}
++
++
++static void
++kst_update (struct kstat_table *table, kstat_t *chain)
++{
++	unsigned bucket;
++
++	if (table->bucket == NULL)
++	{
++		ERROR ("kstat hash table is not initialized.");
++		return;
++	}
++
++	table->generation++;
++
++	/* Insert any newly-appeared kstats into the hash table, and mark those
++	 * that already exist by updating their generation field. */
++	for (; chain != NULL; chain = chain->ks_next)
++	{
++		hash_t h = hash_update_mem (hash_init, &chain->ks_kid, sizeof (chain->ks_kid));
++		bucket = h % table->buckets;
++
++		struct kstat_entry *ksi = table->bucket[bucket];
++		while (ksi != NULL && ksi->info.id != chain->ks_kid)
++			ksi = ksi->next;
++
++		if (ksi == NULL) {
++			/* new kstat */
++			ksi = malloc (sizeof (*ksi));
++			if (ksi == NULL)
++			{
++				ERROR ("Cannot insert entry to kstat hash table: out of memory.");
++				continue;
++			}
++
++			table->entries++;
++
++			ksi->next = table->bucket[bucket];
++			table->bucket[bucket] = ksi;
++
++			ksi->info.kstat = chain;
++			ksi->info.id = chain->ks_kid;
++			sstrncpy (ksi->info.module, chain->ks_module,
++					sizeof (ksi->info.module));
++			ksi->info.instance = chain->ks_instance;
++			sstrncpy (ksi->info.name, chain->ks_name,
++					sizeof (ksi->info.name));
++			sstrncpy (ksi->info.class, chain->ks_class,
++					sizeof (ksi->info.class));
++			ksi->info.type = chain->ks_type;
++
++			DEBUG ("new kstat item %s:%d:%s:%s", chain->ks_module,
++					chain->ks_instance, chain->ks_name, chain->ks_class);
++
++			plugin_dispatch_kstat (KSTAT_ADDED, &ksi->info);
++		}
++
++		ksi->generation = table->generation;
++	}
++
++	/* Now, find any entries in the table which haven't had their
++	 * generation field updated in the previous step. Those
++	 * correspond to kstats that have disappeared from the chain. */
++	for (bucket = 0; bucket < table->buckets; bucket++)
++	{
++		struct kstat_entry **ksi = &table->bucket[bucket];
++		while (*ksi != NULL) {
++			if ((*ksi)->generation == table->generation)
++			{
++				ksi = &(*ksi)->next;
++			}
++			else
++			{
++				/* removed kstat */
++				DEBUG ("removed kstat item %s:%d:%s:%s", (*ksi)->info.module,
++						(*ksi)->info.instance, (*ksi)->info.name, (*ksi)->info.class);
++
++				(*ksi)->info.kstat = NULL;
++				plugin_dispatch_kstat (KSTAT_REMOVED, &(*ksi)->info);
++
++				table->entries--;
++				struct kstat_entry *next = (*ksi)->next;
++				free (*ksi);
++				*ksi = next;
++			}
++		}
++	}
++}
++
++struct kstat_table kstat_table;
+ #endif /* HAVE_LIBKSTAT */
+ 
+ static int loop = 0;
+@@ -225,12 +390,14 @@ static int change_basedir (const char *orig_dir)
+ } /* static int change_basedir (char *dir) */
+ 
+ #if HAVE_LIBKSTAT
+-static void update_kstat (void)
++static void update_kstat (int update_table)
+ {
+ 	if (kc == NULL)
+ 	{
+ 		if ((kc = kstat_open ()) == NULL)
+ 			ERROR ("Unable to open kstat control structure");
++		else
++			kst_init (&kstat_table, kc->kc_chain);
+ 	}
+ 	else
+ 	{
+@@ -239,15 +406,21 @@ static void update_kstat (void)
+ 		if (kid > 0)
+ 		{
+ 			INFO ("kstat chain has been updated");
+-			plugin_init_all ();
+ 		}
+-		else if (kid < 0)
+-			ERROR ("kstat chain update failed");
++		else
++		{
++			update_table = 0;
++			if (kid < 0)
++				ERROR ("kstat chain update failed");
++		}
+ 		/* else: everything works as expected */
+ 	}
+ 
++	if (update_table && kc != NULL)
++		kst_update (&kstat_table, kc->kc_chain);
++
+ 	return;
+-} /* static void update_kstat (void) */
++} /* static void update_kstat (int) */
+ #endif /* HAVE_LIBKSTAT */
+ 
+ /* TODO
+@@ -284,9 +457,12 @@ static int do_init (void)
+ {
+ #if HAVE_LIBKSTAT
+ 	kc = NULL;
+-	update_kstat ();
++	/* Ensure kstat is open for plugins that query it from
++	 * within their init callback, but don't build the
++	 * hash table just yet -- this must be done after
++	 * module_init_all(). */
++	update_kstat (0);
+ #endif
+-
+ #if HAVE_LIBSTATGRAB
+ 	if (sg_init ())
+ 	{
+@@ -303,6 +479,13 @@ static int do_init (void)
+ 
+ 	plugin_init_all ();
+ 
++#if HAVE_LIBKSTAT
++	/* Perform initial hash table update, so plugins with a kstat
++	 * callback get their values. */
++	if (kc != NULL)
++		kst_update (&kstat_table, kc->kc_chain);
++#endif
++
+ 	return (0);
+ } /* int do_init () */
+ 
+@@ -320,7 +503,7 @@ static int do_loop (void)
+ 		cdtime_t now;
+ 
+ #if HAVE_LIBKSTAT
+-		update_kstat ();
++		update_kstat (1);
+ #endif
+ 
+ 		/* Issue all plugins */
+
+From 0d969e63d002a44e5dd2d0cde634e05c65212fbd Mon Sep 17 00:00:00 2001
+From: Jan Andres <jandres@gmx.net>
+Date: Sat, 24 Jan 2015 11:47:51 +0100
+Subject: [PATCH 4/8] Convert interface plugin to new kstat infrastructure.
+
+---
+ src/interface.c | 74 +++++++++++++++++++++++++++++----------------------------
+ 1 file changed, 38 insertions(+), 36 deletions(-)
+
+diff --git a/src/interface.c b/src/interface.c
+index c618af9..1fc5a1a 100644
+--- a/src/interface.c
++++ b/src/interface.c
+@@ -94,10 +94,8 @@ static int config_keys_num = 2;
+ static ignorelist_t *ignorelist = NULL;
+ 
+ #ifdef HAVE_LIBKSTAT
+-#define MAX_NUMIF 256
+ extern kstat_ctl_t *kc;
+-static kstat_t *ksp[MAX_NUMIF];
+-static int numif = 0;
++static kstat_set_t kstats;
+ #endif /* HAVE_LIBKSTAT */
+ 
+ static int interface_config (const char *key, const char *value)
+@@ -125,30 +123,32 @@ static int interface_config (const char *key, const char *value)
+ }
+ 
+ #if HAVE_LIBKSTAT
+-static int interface_init (void)
++static int kstat_filter (const kstat_info_t *info)
+ {
+-	kstat_t *ksp_chain;
+ 	derive_t val;
+ 
+-	numif = 0;
++	if (info->kstat == NULL)
++		/* removed kstat - cannot check, return match */
++		return (0);
+ 
+-	if (kc == NULL)
++	if (kstat_read (kc, info->kstat, NULL) == -1)
++		return (-1);
++	if ((val = get_kstat_value (info->kstat, "obytes")) == -1LL)
+ 		return (-1);
+ 
+-	for (numif = 0, ksp_chain = kc->kc_chain;
+-			(numif < MAX_NUMIF) && (ksp_chain != NULL);
+-			ksp_chain = ksp_chain->ks_next)
+-	{
+-		if (strncmp (ksp_chain->ks_class, "net", 3))
+-			continue;
+-		if (ksp_chain->ks_type != KSTAT_TYPE_NAMED)
+-			continue;
+-		if (kstat_read (kc, ksp_chain, NULL) == -1)
+-			continue;
+-		if ((val = get_kstat_value (ksp_chain, "obytes")) == -1LL)
+-			continue;
+-		ksp[numif++] = ksp_chain;
+-	}
++	return (0);
++}
++
++
++static int interface_init (void)
++{
++	if (kstat_set_init (&kstats) != 0)
++		return (-1);
++
++	static kstat_filter_t filter = KSTAT_FILTER_INIT;
++	filter.class = "net";
++	filter.filter_func = kstat_filter;
++	plugin_register_kstat_set ("interface", &kstats, &filter);
+ 
+ 	return (0);
+ } /* int interface_init */
+@@ -292,38 +292,40 @@ static int interface_read (void)
+ 	if (kc == NULL)
+ 		return (-1);
+ 
+-	for (i = 0; i < numif; i++)
++	for (i = 0; i < kstats.len; i++)
+ 	{
+-		if (kstat_read (kc, ksp[i], NULL) == -1)
++		kstat_t *ks = kstats.items[i].kstat;
++
++		if (kstat_read (kc, ks, NULL) == -1)
+ 			continue;
+ 
+ 		/* try to get 64bit counters */
+-		rx = get_kstat_value (ksp[i], "rbytes64");
+-		tx = get_kstat_value (ksp[i], "obytes64");
++		rx = get_kstat_value (ks, "rbytes64");
++		tx = get_kstat_value (ks, "obytes64");
+ 		/* or fallback to 32bit */
+ 		if (rx == -1LL)
+-			rx = get_kstat_value (ksp[i], "rbytes");
++			rx = get_kstat_value (ks, "rbytes");
+ 		if (tx == -1LL)
+-			tx = get_kstat_value (ksp[i], "obytes");
++			tx = get_kstat_value (ks, "obytes");
+ 		if ((rx != -1LL) || (tx != -1LL))
+-			if_submit (ksp[i]->ks_name, "if_octets", rx, tx);
++			if_submit (ks->ks_name, "if_octets", rx, tx);
+ 
+ 		/* try to get 64bit counters */
+-		rx = get_kstat_value (ksp[i], "ipackets64");
+-		tx = get_kstat_value (ksp[i], "opackets64");
++		rx = get_kstat_value (ks, "ipackets64");
++		tx = get_kstat_value (ks, "opackets64");
+ 		/* or fallback to 32bit */
+ 		if (rx == -1LL)
+-			rx = get_kstat_value (ksp[i], "ipackets");
++			rx = get_kstat_value (ks, "ipackets");
+ 		if (tx == -1LL)
+-			tx = get_kstat_value (ksp[i], "opackets");
++			tx = get_kstat_value (ks, "opackets");
+ 		if ((rx != -1LL) || (tx != -1LL))
+-			if_submit (ksp[i]->ks_name, "if_packets", rx, tx);
++			if_submit (ks->ks_name, "if_packets", rx, tx);
+ 
+ 		/* no 64bit error counters yet */
+-		rx = get_kstat_value (ksp[i], "ierrors");
+-		tx = get_kstat_value (ksp[i], "oerrors");
++		rx = get_kstat_value (ks, "ierrors");
++		tx = get_kstat_value (ks, "oerrors");
+ 		if ((rx != -1LL) || (tx != -1LL))
+-			if_submit (ksp[i]->ks_name, "if_errors", rx, tx);
++			if_submit (ks->ks_name, "if_errors", rx, tx);
+ 	}
+ /* #endif HAVE_LIBKSTAT */
+ 
+
+From d3a9307253a656d807415450e890d75fc54c8618 Mon Sep 17 00:00:00 2001
+From: Jan Andres <jandres@gmx.net>
+Date: Sat, 24 Jan 2015 12:00:29 +0100
+Subject: [PATCH 5/8] Convert cpu plugin to new kstat infrastructure.
+
+---
+ src/cpu.c | 34 ++++++++++++----------------------
+ 1 file changed, 12 insertions(+), 22 deletions(-)
+
+diff --git a/src/cpu.c b/src/cpu.c
+index 6753397..6c23606 100644
+--- a/src/cpu.c
++++ b/src/cpu.c
+@@ -111,11 +111,8 @@ static mach_msg_type_number_t cpu_list_len;
+ /* #endif KERNEL_LINUX */
+ 
+ #elif defined(HAVE_LIBKSTAT)
+-/* colleague tells me that Sun doesn't sell systems with more than 100 or so CPUs.. */
+-# define MAX_NUMCPU 256
+ extern kstat_ctl_t *kc;
+-static kstat_t *ksp[MAX_NUMCPU];
+-static int numcpu;
++static kstat_set_t kstats;
+ /* #endif HAVE_LIBKSTAT */
+ 
+ #elif CAN_USE_SYSCTL
+@@ -159,19 +156,11 @@ static int init (void)
+ /* #endif PROCESSOR_CPU_LOAD_INFO */
+ 
+ #elif defined(HAVE_LIBKSTAT)
+-	kstat_t *ksp_chain;
+-
+-	numcpu = 0;
+-
+-	if (kc == NULL)
++	if (kstat_set_init (&kstats) != 0)
+ 		return (-1);
+-
+-	/* Solaris doesn't count linear.. *sigh* */
+-	for (numcpu = 0, ksp_chain = kc->kc_chain;
+-			(numcpu < MAX_NUMCPU) && (ksp_chain != NULL);
+-			ksp_chain = ksp_chain->ks_next)
+-		if (strncmp (ksp_chain->ks_module, "cpu_stat", 8) == 0)
+-			ksp[numcpu++] = ksp_chain;
++	static kstat_filter_t filter = KSTAT_FILTER_INIT;
++	filter.module = "cpu_stat";
++	plugin_register_kstat_set ("cpu", &kstats, &filter);
+ /* #endif HAVE_LIBKSTAT */
+ 
+ #elif CAN_USE_SYSCTL
+@@ -357,9 +346,10 @@ static int cpu_read (void)
+ 	if (kc == NULL)
+ 		return (-1);
+ 
+-	for (cpu = 0; cpu < numcpu; cpu++)
++	for (cpu = 0; cpu < kstats.len; cpu++)
+ 	{
+-		if (kstat_read (kc, ksp[cpu], &cs) == -1)
++		kstat_t *ks = kstats.items[cpu].kstat;
++		if (kstat_read (kc, ks, &cs) == -1)
+ 			continue; /* error message? */
+ 
+ 		idle = (derive_t) cs.cpu_sysinfo.cpu[CPU_IDLE];
+@@ -367,10 +357,10 @@ static int cpu_read (void)
+ 		syst = (derive_t) cs.cpu_sysinfo.cpu[CPU_KERNEL];
+ 		wait = (derive_t) cs.cpu_sysinfo.cpu[CPU_WAIT];
+ 
+-		submit (ksp[cpu]->ks_instance, "user", user);
+-		submit (ksp[cpu]->ks_instance, "system", syst);
+-		submit (ksp[cpu]->ks_instance, "idle", idle);
+-		submit (ksp[cpu]->ks_instance, "wait", wait);
++		submit (ks->ks_instance, "user", user);
++		submit (ks->ks_instance, "system", syst);
++		submit (ks->ks_instance, "idle", idle);
++		submit (ks->ks_instance, "wait", wait);
+ 	}
+ /* #endif defined(HAVE_LIBKSTAT) */
+ 
+
+From 195deffe333204d82da062b293e56a2b7e57e807 Mon Sep 17 00:00:00 2001
+From: Jan Andres <jandres@gmx.net>
+Date: Sat, 24 Jan 2015 12:10:19 +0100
+Subject: [PATCH 6/8] Convert disk plugin to new kstat infrastructure.
+
+---
+ src/disk.c | 49 +++++++++++++++++++++----------------------------
+ 1 file changed, 21 insertions(+), 28 deletions(-)
+
+diff --git a/src/disk.c b/src/disk.c
+index 36d0a0c..b8e6904 100644
+--- a/src/disk.c
++++ b/src/disk.c
+@@ -109,10 +109,8 @@ static diskstats_t *disklist;
+ /* #endif KERNEL_LINUX */
+ 
+ #elif HAVE_LIBKSTAT
+-#define MAX_NUMDISK 1024
+ extern kstat_ctl_t *kc;
+-static kstat_t *ksp[MAX_NUMDISK];
+-static int numdisk = 0;
++static kstat_set_t kstats;
+ /* #endif HAVE_LIBKSTAT */
+ 
+ #elif defined(HAVE_LIBSTATGRAB)
+@@ -200,24 +198,18 @@ static int disk_init (void)
+ /* #endif KERNEL_LINUX */
+ 
+ #elif HAVE_LIBKSTAT
+-	kstat_t *ksp_chain;
+-
+-	numdisk = 0;
+-
+-	if (kc == NULL)
++	if (kstat_set_init (&kstats) != 0)
+ 		return (-1);
+ 
+-	for (numdisk = 0, ksp_chain = kc->kc_chain;
+-			(numdisk < MAX_NUMDISK) && (ksp_chain != NULL);
+-			ksp_chain = ksp_chain->ks_next)
+-	{
+-		if (strncmp (ksp_chain->ks_class, "disk", 4)
+-				&& strncmp (ksp_chain->ks_class, "partition", 9))
+-			continue;
+-		if (ksp_chain->ks_type != KSTAT_TYPE_IO)
+-			continue;
+-		ksp[numdisk++] = ksp_chain;
+-	}
++	static kstat_filter_t filter_disk = KSTAT_FILTER_INIT;
++	filter_disk.class = "disk";
++	filter_disk.type = KSTAT_TYPE_IO;
++	plugin_register_kstat_set ("disk", &kstats, &filter_disk);
++
++	static kstat_filter_t filter_part = KSTAT_FILTER_INIT;
++	filter_part.class = "partition";
++	filter_part.type = KSTAT_TYPE_IO;
++	plugin_register_kstat_set ("disk-partition", &kstats, &filter_part);
+ #endif /* HAVE_LIBKSTAT */
+ 
+ 	return (0);
+@@ -705,26 +697,27 @@ static int disk_read (void)
+ 	if (kc == NULL)
+ 		return (-1);
+ 
+-	for (i = 0; i < numdisk; i++)
++	for (i = 0; i < kstats.len; i++)
+ 	{
+-		if (kstat_read (kc, ksp[i], &kio) == -1)
++		kstat_t *ks = kstats.items[i].kstat;
++		if (kstat_read (kc, ks, &kio) == -1)
+ 			continue;
+ 
+-		if (strncmp (ksp[i]->ks_class, "disk", 4) == 0)
++		if (strncmp (ks->ks_class, "disk", 4) == 0)
+ 		{
+-			disk_submit (ksp[i]->ks_name, "disk_octets",
++			disk_submit (ks->ks_name, "disk_octets",
+ 					kio.KIO_ROCTETS, kio.KIO_WOCTETS);
+-			disk_submit (ksp[i]->ks_name, "disk_ops",
++			disk_submit (ks->ks_name, "disk_ops",
+ 					kio.KIO_ROPS, kio.KIO_WOPS);
+ 			/* FIXME: Convert this to microseconds if necessary */
+-			disk_submit (ksp[i]->ks_name, "disk_time",
++			disk_submit (ks->ks_name, "disk_time",
+ 					kio.KIO_RTIME, kio.KIO_WTIME);
+ 		}
+-		else if (strncmp (ksp[i]->ks_class, "partition", 9) == 0)
++		else if (strncmp (ks->ks_class, "partition", 9) == 0)
+ 		{
+-			disk_submit (ksp[i]->ks_name, "disk_octets",
++			disk_submit (ks->ks_name, "disk_octets",
+ 					kio.KIO_ROCTETS, kio.KIO_WOCTETS);
+-			disk_submit (ksp[i]->ks_name, "disk_ops",
++			disk_submit (ks->ks_name, "disk_ops",
+ 					kio.KIO_ROPS, kio.KIO_WOPS);
+ 		}
+ 	}
+
+From 497f4b39984a9c41530ec9ce6512839fb7617a60 Mon Sep 17 00:00:00 2001
+From: Jan Andres <jandres@gmx.net>
+Date: Sat, 24 Jan 2015 12:26:28 +0100
+Subject: [PATCH 7/8] Convert processes plugin to new kstat infrastructure.
+
+---
+ src/processes.c | 36 ++++++++++++++++++++++--------------
+ 1 file changed, 22 insertions(+), 14 deletions(-)
+
+diff --git a/src/processes.c b/src/processes.c
+index c8e7b82..3339501 100644
+--- a/src/processes.c
++++ b/src/processes.c
+@@ -132,6 +132,10 @@
+ #  define ARG_MAX 4096
+ #endif
+ 
++#if HAVE_LIBKSTAT
++static kstat_set_t kstats;
++#endif
++
+ typedef struct procstat_entry_s
+ {
+ 	unsigned long id;
+@@ -627,6 +631,16 @@ static int ps_init (void)
+ 	pagesize = getpagesize();
+ #endif /* HAVE_PROCINFO_H */
+ 
++#if HAVE_LIBKSTAT
++	if (kstat_set_init (&kstats) != 0)
++		return (-1);
++	static kstat_filter_t filter = KSTAT_FILTER_INIT;
++	filter.module = "cpu";
++	filter.name = "sys";
++	filter.class = "misc";
++	plugin_register_kstat_set ("ps", &kstats, &filter);
++#endif
++
+ 	return (0);
+ } /* int ps_init */
+ 
+@@ -1340,28 +1354,22 @@ static int ps_read_process(int pid, procstat_t *ps, char *state)
+ static int read_fork_rate()
+ {
+ 	extern kstat_ctl_t *kc;
+-	kstat_t *ksp_chain = NULL;
++	int i;
+ 	derive_t result = 0;
+ 
+ 	if (kc == NULL)
+ 		return (-1);
+ 
+-	for (ksp_chain = kc->kc_chain;
+-			ksp_chain != NULL;
+-			ksp_chain = ksp_chain->ks_next)
++	for (i = 0; i < kstats.len; i++)
+ 	{
+-		if ((strcmp (ksp_chain->ks_module, "cpu") == 0)
+-				&& (strcmp (ksp_chain->ks_name, "sys") == 0)
+-				&& (strcmp (ksp_chain->ks_class, "misc") == 0))
+-		{
+-			long long tmp;
++		long long tmp;
++		kstat_t *ks = kstats.items[i].kstat;
+ 
+-			kstat_read (kc, ksp_chain, NULL);
++		kstat_read (kc, ks, NULL);
+ 
+-			tmp = get_kstat_value(ksp_chain, "nthreads");
+-			if (tmp != -1LL)
+-				result += tmp;
+-		}
++		tmp = get_kstat_value(ks, "nthreads");
++		if (tmp != -1LL)
++			result += tmp;
+ 	}
+ 
+ 	ps_submit_fork_rate (result);
+
+From a6fbdbc1961963f0ba8183d502f23e09715aa655 Mon Sep 17 00:00:00 2001
+From: Jan Andres <jandres@gmx.net>
+Date: Sat, 24 Jan 2015 12:29:23 +0100
+Subject: [PATCH 8/8] Convert tape plugin to new kstat infrastructure.
+
+---
+ src/tape.c | 51 ++++++++++++++++-----------------------------------
+ 1 file changed, 16 insertions(+), 35 deletions(-)
+
+diff --git a/src/tape.c b/src/tape.c
+index a8e7dc4..698aa53 100644
+--- a/src/tape.c
++++ b/src/tape.c
+@@ -28,31 +28,16 @@
+ # error "No applicable input method."
+ #endif
+ 
+-#define MAX_NUMTAPE 256
+ extern kstat_ctl_t *kc;
+-static kstat_t *ksp[MAX_NUMTAPE];
+-static int numtape = 0;
++static kstat_set_t kstats;
+ 
+ static int tape_init (void)
+ {
+-	kstat_t *ksp_chain;
+-
+-	numtape = 0;
+-
+-	if (kc == NULL)
++	if (kstat_set_init (&kstats) != 0)
+ 		return (-1);
+-
+-	for (numtape = 0, ksp_chain = kc->kc_chain;
+-			(numtape < MAX_NUMTAPE) && (ksp_chain != NULL);
+-			ksp_chain = ksp_chain->ks_next)
+-	{
+-		if (strncmp (ksp_chain->ks_class, "tape", 4) )
+-			continue;
+-		if (ksp_chain->ks_type != KSTAT_TYPE_IO)
+-			continue;
+-		ksp[numtape++] = ksp_chain;
+-	}
+-
++	static kstat_filter_t filter = KSTAT_FILTER_INIT;
++	filter.class = "tape";
++	plugin_register_kstat_set ("tape", &kstats, &filter);
+ 	return (0);
+ } /* int tape_init */
+ 
+@@ -103,24 +88,20 @@ static int tape_read (void)
+ 	if (kc == NULL)
+ 		return (-1);
+ 
+-	if (numtape <= 0)
+-		return (-1);
+-
+-	for (i = 0; i < numtape; i++)
++	for (i = 0; i < kstats.len; i++)
+ 	{
+-		if (kstat_read (kc, ksp[i], &kio) == -1)
++		kstat_t *ks = kstats.items[i].kstat;
++
++		if (kstat_read (kc, ks, &kio) == -1)
+ 			continue;
+ 
+-		if (strncmp (ksp[i]->ks_class, "tape", 4) == 0)
+-		{
+-			tape_submit (ksp[i]->ks_name, "tape_octets",
+-					kio.KIO_ROCTETS, kio.KIO_WOCTETS);
+-			tape_submit (ksp[i]->ks_name, "tape_ops",
+-					kio.KIO_ROPS, kio.KIO_WOPS);
+-			/* FIXME: Convert this to microseconds if necessary */
+-			tape_submit (ksp[i]->ks_name, "tape_time",
+-					kio.KIO_RTIME, kio.KIO_WTIME);
+-		}
++		tape_submit (ks->ks_name, "tape_octets",
++				kio.KIO_ROCTETS, kio.KIO_WOCTETS);
++		tape_submit (ks->ks_name, "tape_ops",
++				kio.KIO_ROPS, kio.KIO_WOPS);
++		/* FIXME: Convert this to microseconds if necessary */
++		tape_submit (ks->ks_name, "tape_time",
++				kio.KIO_RTIME, kio.KIO_WTIME);
+ 	}
+ 
+ 	return (0);
