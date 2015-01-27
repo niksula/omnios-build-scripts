@@ -3,3 +3,4 @@ pkg-config.patch -p0
 0001-AC_USE_SYSTEM_EXTENSIONS.patch
 perl-pure_install.patch
 911.patch
+hardcode_spamassassin_plugin_socket_path.patch

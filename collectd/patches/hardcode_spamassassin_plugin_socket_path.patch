@@ -1,0 +1,37 @@
+spamd considers the value in the config hash tainted and thus it doesn't work
+with setuid, so just hardcode it as a hack.
+
+diff --git a/contrib/SpamAssassin/Collectd.pm b/contrib/SpamAssassin/Collectd.pm
+index 1edcfc6..5dd7bfa 100644
+--- a/contrib/SpamAssassin/Collectd.pm
++++ b/contrib/SpamAssassin/Collectd.pm
+@@ -114,12 +114,6 @@ sub set_config {
+ 	    $Mail::SpamAssassin::Conf::CONF_TYPE_NUMERIC,
+ 	});
+ 
+-    push (@cmds, {
+-	    setting => 'collectd_socket', 
+-	    default => '/var/run/collectd-email',
+-	    type => $Mail::SpamAssassin::Conf::CONF_TYPE_STRING,
+-    });
+-
+ 	push (@cmds, {
+ 			setting => 'collectd_timeout',
+ 			default => 2,
+@@ -153,14 +147,14 @@ sub check_end {
+ 		#connection
+ 		for (my $i = 0; $i < $self->{main}->{conf}->{collectd_retries} ; ++$i) {
+ 			last if $sock = new IO::Socket::UNIX
+-				($self->{main}->{conf}->{collectd_socket});
++				('/opt/niksula/var/lib/collectd/email.sock');
+ 			#sleep a random value between 0 and 50 microsecs to try for a new
+ 			#thread
+ 			usleep(int(rand(50))); 
+ 		}
+ 
+ 		die("could not connect to " .
+-				$self->{main}->{conf}->{collectd_socket} . ": $! - collectd plugin disabled") unless $sock; 
++				'/opt/niksula/var/lib/collectd/email.sock' . ": $! - collectd plugin disabled") unless $sock; 
+ 
+ 		$sock->autoflush(1);
+ 
