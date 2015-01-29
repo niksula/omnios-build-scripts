@@ -5,3 +5,5 @@ user username=collectd group=collectd home-dir=/opt/niksula/var/lib/collectd
 <transform dir path=opt/niksula/var/lib/collectd -> set group collectd>
 <transform file path=opt/niksula/etc/collectd.conf -> set group collectd>
 <transform file path=opt/niksula/etc/collectd.conf -> set mode 0640>
+<transform file path=opt/niksula/sbin -> set restart_fmri svc:/application/collectd:default>
+<transform file path=opt/niksula/lib -> set restart_fmri svc:/application/collectd:default>
