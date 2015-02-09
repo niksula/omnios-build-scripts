@@ -13,3 +13,5 @@ group groupname=postdrop
 <transform file path=opt/niksula/sbin/postdrop -> set group postdrop>
 <transform file path=opt/niksula/sbin/postqueue -> set mode 2755>
 <transform file path=opt/niksula/sbin/postqueue -> set group postdrop>
+<transform file path=opt/niksula/sbin -> set restart_fmri svc:/network/smtp/postfix:default>
+<transform file path=opt/niksula/libexec -> set restart_fmri svc:/network/smtp/postfix:default>

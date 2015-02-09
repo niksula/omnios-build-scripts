@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=postfix
-VER=2.11.3
+VER=3.0.0
 VERHUMAN=$VER
 PKG=service/network/smtp/postfix
 SUMMARY="Postfix MTA"
@@ -37,19 +37,20 @@ DESC="Wietse Venema's mail server that started life at IBM research as an altern
 CCARGS='-DUSE_TLS -DHAS_LDAP -DUSE_LDAP_SASL -DNO_NIS -DDEF_MANPAGE_DIR=\"'$PREFIX/share/man'\" -DDEF_COMMAND_DIR=\"'${PREFIX}/sbin'\" -DDEF_MAILQ_PATH=\"'${PREFIX}/bin/mailq'\" -DDEF_NEWALIAS_PATH=\"'${PREFIX}/bin/newaliases'\" -DDEF_CONFIG_DIR=\"'${PREFIX}/etc/postfix'\" '"$CFLAGS"
 CCARGS32='-DDEF_DAEMON_DIR=\"'${PREFIX}/libexec/postfix'\"'
 CCARGS64='-DDEF_DAEMON_DIR=\"'${PREFIX}/libexec/$ISAPART64/postfix'\"'
-AUXLIBS='-lssl -lcrypto -lldap'
+AUXLIBS='-lssl -lcrypto'
+AUXLIBS_LDAP='-lldap'
 
 NOSCRIPTSTUB=1
 
 configure32() {
     logmsg '--- make makefiles'
-    logcmd $MAKE makefiles CCARGS="$CCARGS $CCARGS32 $CFLAGS32" AUXLIBS="$AUXLIBS"
+    logcmd $MAKE makefiles CCARGS="$CCARGS $CCARGS32 $CFLAGS32" AUXLIBS="$AUXLIBS" AUXLIBS_LDAP="$AUXLIBS_LDAP"
     cur_isa=${ISAPART}
 }
 
 configure64() {
     logmsg '--- make makefiles'
-    logcmd $MAKE makefiles CCARGS="$CCARGS $CCARGS64 $CFLAGS64" AUXLIBS="$AUXLIBS"
+    logcmd $MAKE makefiles CCARGS="$CCARGS $CCARGS64 $CFLAGS64" AUXLIBS="$AUXLIBS" AUXLIBS_LDAP="$AUXLIBS_LDAP"
     cur_isa=${ISAPART64}
 }
 
