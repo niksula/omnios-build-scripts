@@ -29,9 +29,8 @@
 
 PROG=aspell
 VER=0.60.6.1
-DICTPROG=aspell6-en
-DICTVER=7.1-0
-VERHUMAN="$VER, with $DICTVER English dictionary"
+DICTIONARIES="aspell6-en-7.1-0 aspell6-fi-0.7-0"
+VERHUMAN="$VER, including $DICTIONARIES"
 PKG=library/aspell
 SUMMARY="GNU Aspell spell-checker"
 DESC="$SUMMARY"
@@ -43,40 +42,44 @@ CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-curses=ncurses --enable-curses-include=
 save_function make_install make_install_orig
 make_install() {
     make_install_orig
-    logmsg 'Building dictionary files'
-    pushd $TMPDIR/${DICTPROG}-${DICTVER} >/dev/null
-    orig_path=$PATH
-    # this has a "configure" but it doesn't work the usual way, and we need
-    # aspell to build the dictionary. isa stubs don't exist at this time
-    logmsg "cwd is $(pwd)"
-    if [ "$ISALIST" = "$ISAPART" ]; then
-        logcmd gmake distclean
-        logcmd gmake clean
-        PATH=${orig_path}:${DESTDIR}${PREFIX}/bin/$ISAPART
-        CONFIGURE_OPTS= CONFIGURE_OPTS_32= configure32 || logerr 'configure failed'
-        make_prog32 || logerr 'make failed'
-        logcmd gmake install DESTDIR=$DESTDIR || logerr 'make install failed'
-    else
-        logcmd gmake distclean
-        logcmd gmake clean
-        PATH=${PATH}:${DESTDIR}${PREFIX}/bin/$ISAPART64
-        CONFIGURE_OPTS= CONFIGURE_OPTS_64= configure64 || logerr 'configure failed'
-        make_prog64 || logerr 'make failed'
-        logcmd gmake install DESTDIR=$DESTDIR || logerr 'make install failed'
-    fi
-    PATH=$orig_path
-    unset orig_path
-    popd >/dev/null
+    for dict in $DICTIONARIES; do
+        logmsg "Building dictionary $dict files"
+        pushd $TMPDIR/${dict} >/dev/null
+        orig_path=$PATH
+        # this has a "configure" but it doesn't work the usual way, and we need
+        # aspell to build the dictionary. isa stubs don't exist at this time
+        logmsg "cwd is $(pwd)"
+        if [ "$ISALIST" = "$ISAPART" ]; then
+            logcmd gmake distclean
+            logcmd gmake clean
+            PATH=${orig_path}:${DESTDIR}${PREFIX}/bin/$ISAPART
+            CONFIGURE_OPTS= CONFIGURE_OPTS_32= configure32 || logerr 'configure failed'
+            make_prog32 || logerr 'make failed'
+            logcmd gmake install DESTDIR=$DESTDIR || logerr 'make install failed'
+        else
+            logcmd gmake distclean
+            logcmd gmake clean
+            PATH=${PATH}:${DESTDIR}${PREFIX}/bin/$ISAPART64
+            CONFIGURE_OPTS= CONFIGURE_OPTS_64= configure64 || logerr 'configure failed'
+            make_prog64 || logerr 'make failed'
+            logcmd gmake install DESTDIR=$DESTDIR || logerr 'make install failed'
+        fi
+        PATH=$orig_path
+        unset orig_path
+        popd >/dev/null
+    done
 }
 
 get_dict() {
-    logmsg 'Downloading and extracting dictionary source'
-    pushd ${TMPDIR} >/dev/null
-    if ! [ -r ${DICTPROG}-${DICTVER}.tar.bz2 ]; then
-        get_resource ${PROG}/${DICTPROG}-${DICTVER}.tar.bz2 || logerr 'download failed'
-    fi
-    logcmd extract_archive ${DICTPROG}-${DICTVER}.tar.bz2 || logerr 'extract failed'
-    popd >/dev/null
+    for dict in $DICTIONARIES; do
+        logmsg "Downloading and extracting dictionary $dict source"
+        pushd ${TMPDIR} >/dev/null
+        if ! [ -r ${dict}.tar.bz2 ]; then
+            get_resource ${PROG}/${dict}.tar.bz2 || logerr 'download failed'
+        fi
+        logcmd extract_archive ${dict}.tar.bz2 || logerr 'extract failed'
+        popd >/dev/null
+    done
 }
 
 init
