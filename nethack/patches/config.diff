@@ -1,6 +1,21 @@
---- a/include/config.h	Fri Jul 12 22:53:11 2013
-+++ b/include/config.h	Fri Jul 12 22:54:18 2013
-@@ -348,10 +348,14 @@
+diff --git a/include/config.h b/include/config.h
+index 873f96a..a25e92d 100644
+--- a/include/config.h
++++ b/include/config.h
+@@ -143,10 +143,10 @@
+ 
+ #ifndef WIZARD		/* allow for compile-time or Makefile changes */
+ # ifndef KR1ED
+-#  define WIZARD  "wizard" /* the person allowed to use the -D option */
++#  define WIZARD  "ltirkkon" /* the person allowed to use the -D option */
+ # else
+ #  define WIZARD
+-#  define WIZARD_NAME "wizard"
++#  define WIZARD_NAME "ltirkkon"
+ # endif
+ #endif
+ 
+@@ -348,10 +348,14 @@ typedef unsigned char	uchar;
   * bugs left here.
   */
  

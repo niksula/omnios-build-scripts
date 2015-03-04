@@ -1,0 +1,86 @@
+diff --git a/dat/yendor.des b/dat/yendor.des
+index 8583457..607d258 100644
+--- a/dat/yendor.des
++++ b/dat/yendor.des
+@@ -48,7 +48,7 @@ MONSTER:'@',"Wizard of Yendor",(16,05),asleep
+ MONSTER:'d',"hell hound",(15,05)
+ MONSTER:'V',"vampire lord",(17,05)
+ # The local treasure
+-OBJECT:'+',"Book of the Dead",(16,05)
++OBJECT:'+',"Master's Thesis",(16,05)
+ # Surrounding terror
+ MONSTER:';',"kraken",(14,02)
+ MONSTER:';',"giant eel",(17,02)
+diff --git a/src/invent.c b/src/invent.c
+index b9a3683..6e46a48 100644
+--- a/src/invent.c
++++ b/src/invent.c
+@@ -260,7 +260,7 @@ struct obj *obj;
+ 		if (u.uhave.bell) impossible("already have silver bell?");
+ 		u.uhave.bell = 1;
+ 	} else if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
+-		if (u.uhave.book) impossible("already have the book?");
++		if (u.uhave.book) impossible("already have the thesis?");
+ 		u.uhave.book = 1;
+ 	} else if (obj->oartifact) {
+ 		if (is_quest_artifact(obj)) {
+@@ -506,7 +506,7 @@ struct obj *obj;
+ 		if (!u.uhave.bell) impossible("don't have silver bell?");
+ 		u.uhave.bell = 0;
+ 	} else if (obj->otyp == SPE_BOOK_OF_THE_DEAD) {
+-		if (!u.uhave.book) impossible("don't have the book?");
++		if (!u.uhave.book) impossible("don't have the thesis?");
+ 		u.uhave.book = 0;
+ 	} else if (obj->oartifact) {
+ 		if (is_quest_artifact(obj)) {
+diff --git a/src/objects.c b/src/objects.c
+index 1b18a3d..6f85919 100644
+--- a/src/objects.c
++++ b/src/objects.c
+@@ -839,7 +839,7 @@ SPELL("freeze sphere",   "hardcover",   P_MATTER_SPELL, 20,  2, 1, 1, NODIR, CLR
+ /* blank spellbook must come last because it retains its description */
+ SPELL("blank paper",     "plain",       P_NONE, 18,  0, 0, 0, 0,         HI_PAPER),
+ /* a special, one of a kind, spellbook */
+-OBJECT(OBJ("Book of the Dead", "papyrus"), BITS(0,0,1,0,1,0,1,1,0,0,0,P_NONE,PAPER), 0,
++OBJECT(OBJ("Master's Thesis", "papyrus"), BITS(0,0,1,0,1,0,1,1,0,0,0,P_NONE,PAPER), 0,
+ 	SPBOOK_CLASS, 0, 0,20, 10000, 0, 0, 0, 7, 20, HI_PAPER),
+ #undef SPELL
+ 
+diff --git a/src/spell.c b/src/spell.c
+index 4659cfa..131e0c7 100644
+--- a/src/spell.c
++++ b/src/spell.c
+@@ -207,7 +207,7 @@ struct obj *book2;
+     struct monst *mtmp, *mtmp2;
+     coord mm;
+ 
+-    You("turn the pages of the Book of the Dead...");
++    You("turn the pages of the Master's Thesis...");
+     makeknown(SPE_BOOK_OF_THE_DEAD);
+     /* KMH -- Need ->known to avoid "_a_ Book of the Dead" */
+     book2->known = 1;
+diff --git a/src/write.c b/src/write.c
+index 669c7f1..629ff9a 100644
+--- a/src/write.c
++++ b/src/write.c
+@@ -145,7 +145,7 @@ found:
+ 		pline("It's obscene!");
+ 		return 1;
+ 	} else if (i == SPE_BOOK_OF_THE_DEAD) {
+-		pline("No mere dungeon adventurer could write that.");
++		pline("No mere phuksi could write that.");
+ 		return 1;
+ 	} else if (by_descr && paper->oclass == SPBOOK_CLASS &&
+ 		    !objects[i].oc_name_known) {
+diff --git a/util/makedefs.c b/util/makedefs.c
+index 23dace2..b5432f6 100644
+--- a/util/makedefs.c
++++ b/util/makedefs.c
+@@ -1710,6 +1710,7 @@ do_objs()
+ 	Fprintf(ofp,"/*\tSCCS Id: @(#)onames.h\t3.4\t2002/02/03 */\n\n");
+ 	Fprintf(ofp,Dont_Edit_Code);
+ 	Fprintf(ofp,"#ifndef ONAMES_H\n#define ONAMES_H\n\n");
++	Fprintf(ofp,"#define SPE_BOOK_OF_THE_DEAD SPE_MASTER_S_THESIS\n\n");
+ 
+ 	for(i = 0; !i || objects[i].oc_class != ILLOBJ_CLASS; i++) {
+ 		SpinCursor(3);

@@ -42,7 +42,7 @@ configure64() {
 
 make_prog64() {
     logmsg '--- make'
-    logcmd $MAKE CC="$CC" CFLAGS="$CFLAGS $CFLAGS64 -I../include" LFLAGS="$LDFLAGS $LDFLAGS64" $MAKE_JOBS all 
+    logcmd $MAKE CC="$CC" CFLAGS="$CFLAGS $CFLAGS64 -I../include" LFLAGS="$LDFLAGS $LDFLAGS64" $MAKE_JOBS all || logerr '--- make failed'
 }
 
 make_install64() {
