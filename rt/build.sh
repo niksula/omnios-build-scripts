@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=rt
-VER=4.2.9
+VER=4.2.10
 VERHUMAN=$VER
 PKG=application/rt
 SUMMARY="RT: Request Tracker"
@@ -114,7 +114,7 @@ pkg:/niksula/perl5/UNIVERSAL-require
 pkg:/niksula/perl5/URI
 pkg:/niksula/perl5/XML-RSS'
 # modules shipped with perl, which we need a newer version of
-BUILD_DEPENDS_IPS="$BUILD_DEPENDS_IPS pkg:/niksula/perl5/CGI@4"
+BUILD_DEPENDS_IPS="$BUILD_DEPENDS_IPS pkg:/niksula/perl5/CGI@4 pkg:/niksula/perl5/Encode@2.70"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 install_manifest() {
