@@ -70,6 +70,7 @@ pkg:/niksula/perl5/FCGI-ProcManager
 pkg:/niksula/perl5/File-ShareDir
 pkg:/niksula/perl5/File-Which
 pkg:/niksula/perl5/GnuPG-Interface
+pkg:/niksula/perl5/HTML-FormatExternal
 pkg:/niksula/perl5/HTML-FormatText-WithLinks
 pkg:/niksula/perl5/HTML-FormatText-WithLinks-AndTables
 pkg:/niksula/perl5/HTML-Mason
