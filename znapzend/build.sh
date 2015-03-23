@@ -40,12 +40,14 @@ pkg:/niksula/perl5/Mojo-IOLoop-ForkCall'
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 PREFIX=${PREFIX}/perl5
 PATH=${PREFIX}/bin:${PATH}
-CONFIGURE_OPTS_64="--prefix=$PREFIX --mandir=/opt/niksula/share/man --exec-prefix=/opt/niksula --libdir=$(perl -MConfig -e 'print "$Config{sitelib}"') --enable-svcinstall=/lib/svc/manifest/oep"
+CONFIGURE_OPTS_64="--prefix=$PREFIX --enable-pkgonly --mandir=/opt/niksula/share/man --exec-prefix=/opt/niksula --libdir=$(perl -MConfig -e 'print "$Config{sitelib}"') --enable-svcinstall=/lib/svc/manifest/oep"
 
 init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
+# configure.ac assumes GNU sed/tr; possibly fixed after 0.14.0 in master
+PATH=/usr/gnu/bin:$PATH run_autoconf
 build
 make_package
 clean_up

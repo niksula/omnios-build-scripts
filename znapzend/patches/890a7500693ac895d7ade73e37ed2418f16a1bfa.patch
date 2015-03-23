@@ -1,0 +1,27 @@
+From 890a7500693ac895d7ade73e37ed2418f16a1bfa Mon Sep 17 00:00:00 2001
+From: Tobias Oetiker <tobi@oetiker.ch>
+Date: Sun, 18 Jan 2015 14:26:05 +0100
+Subject: [PATCH] we need spaces around the equal signs
+
+---
+ configure.ac | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 86abfef..7953df9 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -24,11 +24,11 @@ if test x$exec_prefix = xNONE; then
+     exec_prefix=$actual_prefix
+ fi
+ 
+-if test x$datarootdir=x'${prefix}/share'; then
++if test x$datarootdir = x'${prefix}/share'; then
+     datarootdir=$actual_prefix/share
+ fi
+ 
+-if test x$mandir=x'${datarootdir}/man'; then
++if test x$mandir = x'${datarootdir}/man'; then
+     mandir=$datarootdir/man
+ fi
+             
