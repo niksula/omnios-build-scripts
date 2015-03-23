@@ -28,14 +28,15 @@
 . ../../lib/functions.sh
 
 PROG=znapzend
-VER=0.13.0
+VER=0.14.0
 VERHUMAN=$VER
 PKG=service/storage/znapzend
 SUMMARY="zfs backup with mbuffer and ssh support"
 DESC="$SUMMARY"
 
 BUILDARCH=64
-BUILD_DEPENDS_IPS='niksula/perl/mojolicious niksula/perl/mojo-ioloop-forkcall'
+BUILD_DEPENDS_IPS='pkg:/niksula/perl5/Mojolicious
+pkg:/niksula/perl5/Mojo-IOLoop-ForkCall'
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 PREFIX=${PREFIX}/perl5
 PATH=${PREFIX}/bin:${PATH}
