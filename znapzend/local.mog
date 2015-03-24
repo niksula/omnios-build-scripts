@@ -1,3 +1,5 @@
 license LICENSE license=GPLv3
 group groupname=znapzend
-user username=znapzend group=znapzend
+user username=znapzend group=znapzend home-dir=/opt/niksula/var/znapzend
+dir group=bin mode=0755 owner=root path=opt/niksula/var
+dir group=znapzend mode=0755 owner=znapzend path=opt/niksula/var/znapzend
