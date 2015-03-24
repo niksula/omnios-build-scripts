@@ -1,1 +1,3 @@
 license LICENSE license=GPLv3
+group groupname=znapzend
+user username=znapzend group=znapzend

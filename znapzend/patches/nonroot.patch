@@ -1,0 +1,11 @@
+--- a/init/znapzend.xml.in	Tue Dec 16 01:03:25 2014
++++ b/init/znapzend.xml.in	Tue Mar 24 14:21:02 2015
+@@ -22,7 +22,7 @@
+ 
+         <method_context>
+                 <method_credential
+-                        user='root'/>
++                        user='znapzend' group='znapzend' />
+         </method_context>
+ 
+         <exec_method 
