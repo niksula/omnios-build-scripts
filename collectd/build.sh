@@ -37,8 +37,8 @@ DESC="$SUMMARY"
 BUILDARCH=64
 
 # need autoconf to apply some patches to configure.ac
-BUILD_DEPENDS_IPS='application/rrdtool developer/build/pkg-config developer/build/autoconf system/management/snmp/net-snmp niksula/runtime/perl@5.20'
-RUN_DEPENDS_IPS='=niksula/runtime/perl@5.20 niksula/runtime/perl@5.20'
+BUILD_DEPENDS_IPS='application/rrdtool developer/build/pkg-config developer/build/autoconf system/management/snmp/net-snmp niksula/runtime/perl@5.20.2'
+RUN_DEPENDS_IPS='=niksula/runtime/perl@5.20.2 niksula/runtime/perl@5.20.2'
 
 CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static --with-libperl=/opt/niksula/perl5/bin/perl --with-perl-bindings=INSTALLDIRS=vendor"
 

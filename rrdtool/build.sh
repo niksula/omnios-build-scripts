@@ -35,7 +35,7 @@ SUMMARY="data logging and graphing system for time series data"
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS='library/cairo library/pango niksula/runtime/perl pkg://niksula.hut.fi/developer/build/pkg-config'
-RUN_DEPENDS_IPS='niksula/runtime/perl@5.20 =niksula/runtime/perl@5.20'
+RUN_DEPENDS_IPS='niksula/runtime/perl@5.20.2 =niksula/runtime/perl@5.20.2'
 
 PKGCONFIG=${PREFIX}/bin/pkg-config
 export PKGCONFIG
