@@ -35,7 +35,7 @@ SUMMARY="terminal based IRC client"
 DESC="Irssi is a terminal based IRC client for UNIX systems."
 
 BUILD_DEPENDS_IPS='developer/build/pkg-config niksula/runtime/perl'
-RUN_DEPENDS_IPS='niksula/runtime/perl@5.20 =niksula/runtime/perl@5.20'
+RUN_DEPENDS_IPS='niksula/runtime/perl@5.20.2 =niksula/runtime/perl@5.20.2'
 CONFIGURE_OPTS="$CONFIGURE_OPTS --with-perl=yes perlpath=${PREFIX}/perl5/bin/perl --with-perl-lib=vendor"
 
 # configure script has some broken checks which use plain 'perl', so let's put
