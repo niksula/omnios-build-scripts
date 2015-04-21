@@ -12,6 +12,7 @@
 
         <dependency name="network" grouping="require_all" restart_on="error" type="service">
             <service_fmri value="svc:/milestone/network:default"/>
+            <service_fmri value="svc:/milestone/name-services:default"/>
         </dependency>
 
         <dependency name="filesystem" grouping="require_all" restart_on="error" type="service">
