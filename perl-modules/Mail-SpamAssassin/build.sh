@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Mail-SpamAssassin
-VER=3.4.0
+VER=3.4.1
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Mail-SpamAssassin
 SUMMARY='SpamAssassin is an extensible email filter which is used to identify spam'
@@ -24,7 +24,8 @@ pkg:/niksula/perl5/IO-Socket-INET6
 security/gnupg"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
-# if we pure_install, we won't get rules files and default configuration
+# if we pure_install, we won't get rules files and default configuration. drop
+# perllocal.pod in local.mog instead
 make_pure_install() {
     make_install
 }
