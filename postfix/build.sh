@@ -34,7 +34,7 @@ PKG=service/network/smtp/postfix
 SUMMARY="Postfix MTA"
 DESC="Wietse Venema's mail server that started life at IBM research as an alternative to the widely-used Sendmail program. "
 
-CCARGS='-DUSE_TLS -DHAS_LDAP -DUSE_LDAP_SASL -DNO_NIS -DDEF_MANPAGE_DIR=\"'$PREFIX/share/man'\" -DDEF_COMMAND_DIR=\"'${PREFIX}/sbin'\" -DDEF_MAILQ_PATH=\"'${PREFIX}/bin/mailq'\" -DDEF_NEWALIAS_PATH=\"'${PREFIX}/bin/newaliases'\" -DDEF_CONFIG_DIR=\"'${PREFIX}/etc/postfix'\" '"$CFLAGS"
+CCARGS='-DUSE_TLS -DHAS_LDAP -DUSE_SASL_AUTH -DDEF_SERVER_SASL_TYPE=\"dovecot\" -DNO_NIS -DDEF_MANPAGE_DIR=\"'$PREFIX/share/man'\" -DDEF_COMMAND_DIR=\"'${PREFIX}/sbin'\" -DDEF_MAILQ_PATH=\"'${PREFIX}/bin/mailq'\" -DDEF_NEWALIAS_PATH=\"'${PREFIX}/bin/newaliases'\" -DDEF_CONFIG_DIR=\"'${PREFIX}/etc/postfix'\" '"$CFLAGS"
 CCARGS32='-DDEF_DAEMON_DIR=\"'${PREFIX}/libexec/postfix'\"'
 CCARGS64='-DDEF_DAEMON_DIR=\"'${PREFIX}/libexec/$ISAPART64/postfix'\"'
 AUXLIBS='-lssl -lcrypto'
