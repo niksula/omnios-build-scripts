@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=rt
-VER=4.2.10
+VER=4.2.11
 VERHUMAN=$VER
 PKG=application/rt
 SUMMARY="RT: Request Tracker"
