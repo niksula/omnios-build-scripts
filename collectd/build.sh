@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=collectd
-VER=5.4.1
+VER=5.5.0
 VERHUMAN=$VER
 PKG=application/collectd
 SUMMARY="system statistics collection daemon"
@@ -40,12 +40,14 @@ BUILDARCH=64
 BUILD_DEPENDS_IPS='application/rrdtool developer/build/pkg-config developer/build/autoconf system/management/snmp/net-snmp niksula/runtime/perl@5.20.2'
 RUN_DEPENDS_IPS='=niksula/runtime/perl@5.20.2 niksula/runtime/perl@5.20.2'
 
-CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static --with-libperl=/opt/niksula/perl5/bin/perl --with-perl-bindings=INSTALLDIRS=vendor"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static --with-libperl=/opt/niksula/perl5/bin/perl --with-perl-bindings=INSTALLDIRS=vendor --with-python=no"
 
 PKG_CONFIG=${PREFIX}/bin/pkg-config
 export PKG_CONFIG
 
 TAR=gtar
+NO_PARALLEL_MAKE=1
+CFLAGS="$CFLAGS -std=c99"
 
 install_manifest() {
     smfdir=${DESTDIR}/lib/svc/manifest/application
@@ -64,7 +66,7 @@ install_contrib() {
 
 run_autoconf() {
     pushd $TMPDIR/$BUILDDIR >/dev/null
-    logcmd autoconf || logerr 'autoconf failed'
+    ACLOCAL_PATH=${PREFIX}/share/aclocal logcmd autoreconf || logerr 'autoconf failed'
     popd >/dev/null
 }
 

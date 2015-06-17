@@ -1,20 +1,20 @@
-From b514ee941053c5c57f87e9240afff9d9581f9194 Mon Sep 17 00:00:00 2001
+From d34cb8718f2cfcba2e846d6a4fad2b16f30a5a22 Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Sat, 24 Jan 2015 10:23:02 +0100
-Subject: [PATCH 1/8] Implementation of kstat_set_t.
+Subject: [PATCH 1/9] Implementation of kstat_set_t.
 
 This is a set of kstat items which can be dynamically added
 and removed using the supplied functions.
 ---
- src/common.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
- src/common.h | 17 +++++++++++++++++
+ src/daemon/common.c | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
+ src/daemon/common.h | 17 +++++++++++++++++
  2 files changed, 66 insertions(+)
 
-diff --git a/src/common.c b/src/common.c
-index 8a40792..9911212 100644
---- a/src/common.c
-+++ b/src/common.c
-@@ -724,6 +724,55 @@ long long get_kstat_value (kstat_t *ksp, char *name)
+diff --git a/src/daemon/common.c b/src/daemon/common.c
+index e2b618f..a83fd49 100644
+--- a/src/daemon/common.c
++++ b/src/daemon/common.c
+@@ -790,6 +790,55 @@ long long get_kstat_value (kstat_t *ksp, char *name)
  
  	return (retval);
  }
@@ -70,11 +70,11 @@ index 8a40792..9911212 100644
  #endif /* HAVE_LIBKSTAT */
  
  #ifndef HAVE_HTONLL
-diff --git a/src/common.h b/src/common.h
-index 317be8d..3ec59e2 100644
---- a/src/common.h
-+++ b/src/common.h
-@@ -255,6 +255,23 @@ int check_create_dir (const char *file_orig);
+diff --git a/src/daemon/common.h b/src/daemon/common.h
+index da21cad..cd88688 100644
+--- a/src/daemon/common.h
++++ b/src/daemon/common.h
+@@ -290,6 +290,23 @@ int check_create_dir (const char *file_orig);
  #ifdef HAVE_LIBKSTAT
  int get_kstat (kstat_t **ksp_ptr, char *module, int instance, char *name);
  long long get_kstat_value (kstat_t *ksp, char *name);
@@ -99,23 +99,23 @@ index 317be8d..3ec59e2 100644
  
  #ifndef HAVE_HTONLL
 
-From f39318e527eb2d8920e87c5bdf182a016c27a8c6 Mon Sep 17 00:00:00 2001
+From 1fffb7287950edf32c4c2ece4004be066369468b Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Sat, 24 Jan 2015 11:19:44 +0100
-Subject: [PATCH 2/8] Add a callback function for kstat changes.
+Subject: [PATCH 2/9] Add a callback function for kstat changes.
 
 Plugins can register a callback to be notified when certain
 classes of kstats are added or removed by a kstat chain update.
 ---
- src/plugin.c | 108 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
- src/plugin.h |  58 ++++++++++++++++++++++++++++++++
+ src/daemon/plugin.c | 108 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/daemon/plugin.h |  58 ++++++++++++++++++++++++++++
  2 files changed, 166 insertions(+)
 
-diff --git a/src/plugin.c b/src/plugin.c
-index b60c04b..fdd6677 100644
---- a/src/plugin.c
-+++ b/src/plugin.c
-@@ -70,6 +70,15 @@ struct read_func_s
+diff --git a/src/daemon/plugin.c b/src/daemon/plugin.c
+index 3a95f36..8a77a81 100644
+--- a/src/daemon/plugin.c
++++ b/src/daemon/plugin.c
+@@ -71,6 +71,15 @@ struct read_func_s
  };
  typedef struct read_func_s read_func_t;
  
@@ -131,7 +131,7 @@ index b60c04b..fdd6677 100644
  struct write_queue_s;
  typedef struct write_queue_s write_queue_t;
  struct write_queue_s
-@@ -91,6 +100,9 @@ static llist_t *list_missing;
+@@ -92,6 +101,9 @@ static llist_t *list_missing;
  static llist_t *list_shutdown;
  static llist_t *list_log;
  static llist_t *list_notification;
@@ -141,7 +141,7 @@ index b60c04b..fdd6677 100644
  
  static fc_chain_t *pre_cache_chain = NULL;
  static fc_chain_t *post_cache_chain = NULL;
-@@ -1289,6 +1301,55 @@ int plugin_register_notification (const char *name,
+@@ -1343,6 +1355,55 @@ int plugin_register_notification (const char *name,
  				(void *) callback, ud));
  } /* int plugin_register_log */
  
@@ -197,7 +197,7 @@ index b60c04b..fdd6677 100644
  int plugin_unregister_config (const char *name)
  {
  	cf_unregister (name);
-@@ -1453,6 +1514,13 @@ int plugin_unregister_notification (const char *name)
+@@ -1507,6 +1568,13 @@ int plugin_unregister_notification (const char *name)
  	return (plugin_unregister (list_notification, name));
  }
  
@@ -211,7 +211,7 @@ index b60c04b..fdd6677 100644
  void plugin_init_all (void)
  {
  	char const *chain_name;
-@@ -1784,6 +1852,10 @@ void plugin_shutdown_all (void)
+@@ -1848,6 +1916,10 @@ void plugin_shutdown_all (void)
  	destroy_all_callbacks (&list_shutdown);
  	destroy_all_callbacks (&list_log);
  
@@ -222,7 +222,7 @@ index b60c04b..fdd6677 100644
  	plugin_free_loaded ();
  	plugin_free_data_sets ();
  } /* void plugin_shutdown_all */
-@@ -2129,6 +2201,42 @@ int plugin_dispatch_notification (const notification_t *notif)
+@@ -2281,6 +2353,42 @@ int plugin_dispatch_notification (const notification_t *notif)
  	return (0);
  } /* int plugin_dispatch_notification */
  
@@ -265,11 +265,11 @@ index b60c04b..fdd6677 100644
  void plugin_log (int level, const char *format, ...)
  {
  	char msg[1024];
-diff --git a/src/plugin.h b/src/plugin.h
-index 8f0c6d8..7bd0504 100644
---- a/src/plugin.h
-+++ b/src/plugin.h
-@@ -188,6 +188,29 @@ typedef void (*plugin_log_cb) (int severity, const char *message,
+diff --git a/src/daemon/plugin.h b/src/daemon/plugin.h
+index 86a2d66..2778872 100644
+--- a/src/daemon/plugin.h
++++ b/src/daemon/plugin.h
+@@ -198,6 +198,29 @@ typedef void (*plugin_log_cb) (int severity, const char *message,
  typedef int (*plugin_shutdown_cb) (void);
  typedef int (*plugin_notification_cb) (const notification_t *,
  		user_data_t *);
@@ -299,7 +299,7 @@ index 8f0c6d8..7bd0504 100644
  
  /*
   * NAME
-@@ -298,6 +321,34 @@ int plugin_register_log (const char *name,
+@@ -308,6 +331,34 @@ int plugin_register_log (const char *name,
  		plugin_log_cb callback, user_data_t *user_data);
  int plugin_register_notification (const char *name,
  		plugin_notification_cb callback, user_data_t *user_data);
@@ -334,7 +334,7 @@ index 8f0c6d8..7bd0504 100644
  
  int plugin_unregister_config (const char *name);
  int plugin_unregister_complex_config (const char *name);
-@@ -311,6 +362,9 @@ int plugin_unregister_shutdown (const char *name);
+@@ -321,6 +372,9 @@ int plugin_unregister_shutdown (const char *name);
  int plugin_unregister_data_set (const char *name);
  int plugin_unregister_log (const char *name);
  int plugin_unregister_notification (const char *name);
@@ -344,7 +344,7 @@ index 8f0c6d8..7bd0504 100644
  
  
  /*
-@@ -332,6 +386,10 @@ int plugin_dispatch_missing (const value_list_t *vl);
+@@ -379,6 +433,10 @@ int plugin_dispatch_missing (const value_list_t *vl);
  
  int plugin_dispatch_notification (const notification_t *notif);
  
@@ -356,22 +356,22 @@ index 8f0c6d8..7bd0504 100644
  	__attribute__ ((format(printf,2,3)));
  
 
-From 0e7fffe1babc1f7d64f1194ac501430ca2877c72 Mon Sep 17 00:00:00 2001
+From 4c2132da0b64722cf417f5d01ebf8a49cba4cea1 Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Fri, 23 Jan 2015 19:21:41 +0100
-Subject: [PATCH 3/8] Incremental detection of changes in kstat chain.
+Subject: [PATCH 3/9] Incremental detection of changes in kstat chain.
 
 Use a hash table to detect which kstats have been added/removed
 by a chain update and invoke the appropriate plugin callbacks.
 ---
- src/collectd.c | 199 ++++++++++++++++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 191 insertions(+), 8 deletions(-)
+ src/daemon/collectd.c | 201 ++++++++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 193 insertions(+), 8 deletions(-)
 
-diff --git a/src/collectd.c b/src/collectd.c
-index d259753..5f781c2 100644
---- a/src/collectd.c
-+++ b/src/collectd.c
-@@ -44,6 +44,171 @@ cdtime_t interval_g;
+diff --git a/src/daemon/collectd.c b/src/daemon/collectd.c
+index 1b9c374..ecde9c9 100644
+--- a/src/daemon/collectd.c
++++ b/src/daemon/collectd.c
+@@ -59,6 +59,173 @@ int  pidfile_from_cli = 0;
  int  timeout_g;
  #if HAVE_LIBKSTAT
  kstat_ctl_t *kc;
@@ -527,6 +527,8 @@ index d259753..5f781c2 100644
 +				DEBUG ("removed kstat item %s:%d:%s:%s", (*ksi)->info.module,
 +						(*ksi)->info.instance, (*ksi)->info.name, (*ksi)->info.class);
 +
++				/* The pointer is already invalid, set it to NULL to
++				 * ensure plugins don't mess with it. */
 +				(*ksi)->info.kstat = NULL;
 +				plugin_dispatch_kstat (KSTAT_REMOVED, &(*ksi)->info);
 +
@@ -543,7 +545,7 @@ index d259753..5f781c2 100644
  #endif /* HAVE_LIBKSTAT */
  
  static int loop = 0;
-@@ -225,12 +390,14 @@ static int change_basedir (const char *orig_dir)
+@@ -240,12 +407,14 @@ static int change_basedir (const char *orig_dir)
  } /* static int change_basedir (char *dir) */
  
  #if HAVE_LIBKSTAT
@@ -559,7 +561,7 @@ index d259753..5f781c2 100644
  	}
  	else
  	{
-@@ -239,15 +406,21 @@ static void update_kstat (void)
+@@ -254,15 +423,21 @@ static void update_kstat (void)
  		if (kid > 0)
  		{
  			INFO ("kstat chain has been updated");
@@ -585,8 +587,8 @@ index d259753..5f781c2 100644
  #endif /* HAVE_LIBKSTAT */
  
  /* TODO
-@@ -284,9 +457,12 @@ static int do_init (void)
- {
+@@ -304,9 +479,12 @@ static int do_init (void)
+ 
  #if HAVE_LIBKSTAT
  	kc = NULL;
 -	update_kstat ();
@@ -598,9 +600,9 @@ index d259753..5f781c2 100644
  #endif
 -
  #if HAVE_LIBSTATGRAB
- 	if (sg_init ())
- 	{
-@@ -303,6 +479,13 @@ static int do_init (void)
+ 	if (sg_init (
+ # if HAVE_LIBSTATGRAB_0_90
+@@ -327,6 +505,13 @@ static int do_init (void)
  
  	plugin_init_all ();
  
@@ -614,7 +616,7 @@ index d259753..5f781c2 100644
  	return (0);
  } /* int do_init () */
  
-@@ -320,7 +503,7 @@ static int do_loop (void)
+@@ -344,7 +529,7 @@ static int do_loop (void)
  		cdtime_t now;
  
  #if HAVE_LIBKSTAT
@@ -624,17 +626,17 @@ index d259753..5f781c2 100644
  
  		/* Issue all plugins */
 
-From 0d969e63d002a44e5dd2d0cde634e05c65212fbd Mon Sep 17 00:00:00 2001
+From f8c9c934728b62ca9fa297344f1bba0e753ab37d Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Sat, 24 Jan 2015 11:47:51 +0100
-Subject: [PATCH 4/8] Convert interface plugin to new kstat infrastructure.
+Subject: [PATCH 4/9] Convert interface plugin to new kstat infrastructure.
 
 ---
  src/interface.c | 74 +++++++++++++++++++++++++++++----------------------------
  1 file changed, 38 insertions(+), 36 deletions(-)
 
 diff --git a/src/interface.c b/src/interface.c
-index c618af9..1fc5a1a 100644
+index df8ffb4..09165ac 100644
 --- a/src/interface.c
 +++ b/src/interface.c
 @@ -94,10 +94,8 @@ static int config_keys_num = 2;
@@ -757,20 +759,20 @@ index c618af9..1fc5a1a 100644
  /* #endif HAVE_LIBKSTAT */
  
 
-From d3a9307253a656d807415450e890d75fc54c8618 Mon Sep 17 00:00:00 2001
+From e181b9d84493a0cdc2535f6c65a670ea5b56618f Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Sat, 24 Jan 2015 12:00:29 +0100
-Subject: [PATCH 5/8] Convert cpu plugin to new kstat infrastructure.
+Subject: [PATCH 5/9] Convert cpu plugin to new kstat infrastructure.
 
 ---
  src/cpu.c | 34 ++++++++++++----------------------
  1 file changed, 12 insertions(+), 22 deletions(-)
 
 diff --git a/src/cpu.c b/src/cpu.c
-index 6753397..6c23606 100644
+index 57af2dd..6cf478a 100644
 --- a/src/cpu.c
 +++ b/src/cpu.c
-@@ -111,11 +111,8 @@ static mach_msg_type_number_t cpu_list_len;
+@@ -138,11 +138,8 @@ static mach_msg_type_number_t cpu_list_len;
  /* #endif KERNEL_LINUX */
  
  #elif defined(HAVE_LIBKSTAT)
@@ -783,7 +785,7 @@ index 6753397..6c23606 100644
  /* #endif HAVE_LIBKSTAT */
  
  #elif CAN_USE_SYSCTL
-@@ -159,19 +156,11 @@ static int init (void)
+@@ -234,19 +231,11 @@ static int init (void)
  /* #endif PROCESSOR_CPU_LOAD_INFO */
  
  #elif defined(HAVE_LIBKSTAT)
@@ -807,7 +809,7 @@ index 6753397..6c23606 100644
  /* #endif HAVE_LIBKSTAT */
  
  #elif CAN_USE_SYSCTL
-@@ -357,9 +346,10 @@ static int cpu_read (void)
+@@ -649,15 +638,16 @@ static int cpu_read (void)
  	if (kc == NULL)
  		return (-1);
  
@@ -819,34 +821,29 @@ index 6753397..6c23606 100644
 +		if (kstat_read (kc, ks, &cs) == -1)
  			continue; /* error message? */
  
- 		idle = (derive_t) cs.cpu_sysinfo.cpu[CPU_IDLE];
-@@ -367,10 +357,10 @@ static int cpu_read (void)
- 		syst = (derive_t) cs.cpu_sysinfo.cpu[CPU_KERNEL];
- 		wait = (derive_t) cs.cpu_sysinfo.cpu[CPU_WAIT];
- 
--		submit (ksp[cpu]->ks_instance, "user", user);
--		submit (ksp[cpu]->ks_instance, "system", syst);
--		submit (ksp[cpu]->ks_instance, "idle", idle);
--		submit (ksp[cpu]->ks_instance, "wait", wait);
-+		submit (ks->ks_instance, "user", user);
-+		submit (ks->ks_instance, "system", syst);
-+		submit (ks->ks_instance, "idle", idle);
-+		submit (ks->ks_instance, "wait", wait);
+-		cpu_stage (ksp[cpu]->ks_instance, COLLECTD_CPU_STATE_IDLE,   (derive_t) cs.cpu_sysinfo.cpu[CPU_IDLE],   now);
+-		cpu_stage (ksp[cpu]->ks_instance, COLLECTD_CPU_STATE_USER,   (derive_t) cs.cpu_sysinfo.cpu[CPU_USER],   now);
+-		cpu_stage (ksp[cpu]->ks_instance, COLLECTD_CPU_STATE_SYSTEM, (derive_t) cs.cpu_sysinfo.cpu[CPU_KERNEL], now);
+-		cpu_stage (ksp[cpu]->ks_instance, COLLECTD_CPU_STATE_WAIT,   (derive_t) cs.cpu_sysinfo.cpu[CPU_WAIT],   now);
++		cpu_stage (ks->ks_instance, COLLECTD_CPU_STATE_IDLE,   (derive_t) cs.cpu_sysinfo.cpu[CPU_IDLE],   now);
++		cpu_stage (ks->ks_instance, COLLECTD_CPU_STATE_USER,   (derive_t) cs.cpu_sysinfo.cpu[CPU_USER],   now);
++		cpu_stage (ks->ks_instance, COLLECTD_CPU_STATE_SYSTEM, (derive_t) cs.cpu_sysinfo.cpu[CPU_KERNEL], now);
++		cpu_stage (ks->ks_instance, COLLECTD_CPU_STATE_WAIT,   (derive_t) cs.cpu_sysinfo.cpu[CPU_WAIT],   now);
  	}
- /* #endif defined(HAVE_LIBKSTAT) */
+ /* }}} #endif defined(HAVE_LIBKSTAT) */
  
 
-From 195deffe333204d82da062b293e56a2b7e57e807 Mon Sep 17 00:00:00 2001
+From a3a83fb724f00a8c6c97e0fbf2e8949dba990ed3 Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Sat, 24 Jan 2015 12:10:19 +0100
-Subject: [PATCH 6/8] Convert disk plugin to new kstat infrastructure.
+Subject: [PATCH 6/9] Convert disk plugin to new kstat infrastructure.
 
 ---
  src/disk.c | 49 +++++++++++++++++++++----------------------------
  1 file changed, 21 insertions(+), 28 deletions(-)
 
 diff --git a/src/disk.c b/src/disk.c
-index 36d0a0c..b8e6904 100644
+index 8830403..06afdeb 100644
 --- a/src/disk.c
 +++ b/src/disk.c
 @@ -109,10 +109,8 @@ static diskstats_t *disklist;
@@ -861,7 +858,7 @@ index 36d0a0c..b8e6904 100644
  /* #endif HAVE_LIBKSTAT */
  
  #elif defined(HAVE_LIBSTATGRAB)
-@@ -200,24 +198,18 @@ static int disk_init (void)
+@@ -223,24 +221,18 @@ static int disk_init (void)
  /* #endif KERNEL_LINUX */
  
  #elif HAVE_LIBKSTAT
@@ -896,7 +893,7 @@ index 36d0a0c..b8e6904 100644
  #endif /* HAVE_LIBKSTAT */
  
  	return (0);
-@@ -705,26 +697,27 @@ static int disk_read (void)
+@@ -832,26 +824,27 @@ static int disk_read (void)
  	if (kc == NULL)
  		return (-1);
  
@@ -934,21 +931,21 @@ index 36d0a0c..b8e6904 100644
  		}
  	}
 
-From 497f4b39984a9c41530ec9ce6512839fb7617a60 Mon Sep 17 00:00:00 2001
+From a6f340da7c4b9a0085f522d9be6628a1c2e20cb7 Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Sat, 24 Jan 2015 12:26:28 +0100
-Subject: [PATCH 7/8] Convert processes plugin to new kstat infrastructure.
+Subject: [PATCH 7/9] Convert processes plugin to new kstat infrastructure.
 
 ---
  src/processes.c | 36 ++++++++++++++++++++++--------------
  1 file changed, 22 insertions(+), 14 deletions(-)
 
 diff --git a/src/processes.c b/src/processes.c
-index c8e7b82..3339501 100644
+index 68f30a5..614900c 100644
 --- a/src/processes.c
 +++ b/src/processes.c
-@@ -132,6 +132,10 @@
- #  define ARG_MAX 4096
+@@ -136,6 +136,10 @@
+ # endif
  #endif
  
 +#if HAVE_LIBKSTAT
@@ -958,7 +955,7 @@ index c8e7b82..3339501 100644
  typedef struct procstat_entry_s
  {
  	unsigned long id;
-@@ -627,6 +631,16 @@ static int ps_init (void)
+@@ -631,6 +635,16 @@ static int ps_init (void)
  	pagesize = getpagesize();
  #endif /* HAVE_PROCINFO_H */
  
@@ -975,7 +972,7 @@ index c8e7b82..3339501 100644
  	return (0);
  } /* int ps_init */
  
-@@ -1340,28 +1354,22 @@ static int ps_read_process(int pid, procstat_t *ps, char *state)
+@@ -1344,28 +1358,22 @@ static int ps_read_process(int pid, procstat_t *ps, char *state)
  static int read_fork_rate()
  {
  	extern kstat_ctl_t *kc;
@@ -1013,10 +1010,10 @@ index c8e7b82..3339501 100644
  
  	ps_submit_fork_rate (result);
 
-From a6fbdbc1961963f0ba8183d502f23e09715aa655 Mon Sep 17 00:00:00 2001
+From 6c2f439d30077e6ced03ec6fe0ac89b5912edc0e Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Sat, 24 Jan 2015 12:29:23 +0100
-Subject: [PATCH 8/8] Convert tape plugin to new kstat infrastructure.
+Subject: [PATCH 8/9] Convert tape plugin to new kstat infrastructure.
 
 ---
  src/tape.c | 51 ++++++++++++++++-----------------------------------
@@ -1099,3 +1096,180 @@ index a8e7dc4..698aa53 100644
  	}
  
  	return (0);
+
+From be82fcd2fa76d26b1f3ac0552ee07f93fc5ab488 Mon Sep 17 00:00:00 2001
+From: Jan Andres <jandres@gmx.net>
+Date: Mon, 26 Jan 2015 22:19:07 +0100
+Subject: [PATCH 9/9] Fix handling of interface kstats on Solaris.
+
+For Solaris 10 and older, use those kstats that have the interface
+name in ks_name.
+
+For Solaris 11, use the kstats from the "link" and "ipmp" modules.
+Prepend zone name to the interface name, if applicable.
+---
+ configure.ac    |  6 ++++
+ src/interface.c | 95 +++++++++++++++++++++++++++++++++++++++++++++++++--------
+ 2 files changed, 89 insertions(+), 12 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index ee18c72..51e4f86 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -589,6 +589,12 @@ AC_CHECK_HEADERS(net/pfvar.h,
+ have_termios_h="no"
+ AC_CHECK_HEADERS(termios.h, [have_termios_h="yes"])
+ 
++# For the interface plugin on Solaris
++if test "x$ac_system" = "xSolaris"
++then
++	AC_CHECK_HEADERS(zone.h)
++fi
++
+ #
+ # Checks for typedefs, structures, and compiler characteristics.
+ #
+diff --git a/src/interface.c b/src/interface.c
+index 09165ac..66b9801 100644
+--- a/src/interface.c
++++ b/src/interface.c
+@@ -58,6 +58,10 @@
+ # include <libperfstat.h>
+ #endif
+ 
++#if HAVE_ZONE_H
++# include <zone.h>
++#endif
++
+ /*
+  * Various people have reported problems with `getifaddrs' and varying versions
+  * of `glibc'. That's why it's disabled by default. Since more statistics are
+@@ -123,20 +127,55 @@ static int interface_config (const char *key, const char *value)
+ }
+ 
+ #if HAVE_LIBKSTAT
+-static int kstat_filter (const kstat_info_t *info)
++static void resolve_zonename (int id, char *buf, int bufsize)
+ {
+-	derive_t val;
++#if HAVE_ZONE_H
++	if (getzonenamebyid (id, buf, bufsize) >= 0)
++	{
++		/* null-terminate for safety */
++		buf[bufsize - 1] = 0;
++		return;
++	}
++	else
++	{
++		WARNING ("Failed to resolve zoneid %d: %s", id, strerror (errno));
++	}
++#endif
+ 
+-	if (info->kstat == NULL)
+-		/* removed kstat - cannot check, return match */
++	ssnprintf (buf, bufsize, "zone%d", id);
++}
++
++static int kstat_sol11_module (const char *module)
++{
++	/* On Solaris 11, we're interested in kstats from two modules.
++	 * The "link" module covers physical and virtual datalink
++	 * interfaces, i.e. everything that can be seen via the
++	 * "dladm" command.
++	 * The "ipmp" module covers IPMP interfaces.
++	 */
++	if (strcmp (module, "link") == 0)
++		return (0);
++	if (strcmp (module, "ipmp") == 0)
+ 		return (0);
+ 
+-	if (kstat_read (kc, info->kstat, NULL) == -1)
+-		return (-1);
+-	if ((val = get_kstat_value (info->kstat, "obytes")) == -1LL)
+-		return (-1);
++	return (-1);
++}
+ 
+-	return (0);
++static int kstat_filter (const kstat_info_t *info)
++{
++	if (kstat_sol11_module (info->module) == 0)
++		return (0);
++
++	/* Solaris 10 and older: Interesting kstats have an interface name
++	 * in the name field, which consists of the module name plus an
++	 * instance number. These are not found on Solaris 11. */
++	int modlen = strlen (info->module);
++	if (strncmp (info->module, info->name, modlen) == 0
++			&& isdigit (info->name[modlen]))
++		return (0);
++
++	/* Anything else can be thrown away. */
++	return (-1);
+ }
+ 
+ 
+@@ -299,6 +338,38 @@ static int interface_read (void)
+ 		if (kstat_read (kc, ks, NULL) == -1)
+ 			continue;
+ 
++		char *ifname = NULL;
++		char ifname_buf[128];
++		if (kstat_sol11_module (ks->ks_module) != 0)
++		{
++			/* We're on Solaris 10 or older. Interface name in ks_name. */
++			ifname = ks->ks_name;
++		}
++		else
++		{
++			/* Solaris 11. Instance number contains the zone id.
++			 * Interface name is in ks_name, but need not be unique
++			 * across zones. For the global zone (id 0), we use the
++			 * interface name as-is. For non-global zones, prepend
++			 * the zone name to the interface name with a '/' as
++			 * separator, consistent with the output of "dladm". */
++			if (ks->ks_instance == 0)
++			{
++				ifname = ks->ks_name;
++			}
++			else
++			{
++				/* Would be better to use ZONENAME_MAX for the buffer
++				 * size, but we might be on an ancient solaris release
++				 * that doesn't have zones. */
++				char zonename[128];
++				resolve_zonename (ks->ks_instance, zonename, sizeof (zonename));
++				ssnprintf (ifname_buf, sizeof (ifname_buf),
++						"%s/%s", zonename, ks->ks_name);
++				ifname = ifname_buf;
++			}
++		}
++
+ 		/* try to get 64bit counters */
+ 		rx = get_kstat_value (ks, "rbytes64");
+ 		tx = get_kstat_value (ks, "obytes64");
+@@ -308,7 +379,7 @@ static int interface_read (void)
+ 		if (tx == -1LL)
+ 			tx = get_kstat_value (ks, "obytes");
+ 		if ((rx != -1LL) || (tx != -1LL))
+-			if_submit (ks->ks_name, "if_octets", rx, tx);
++			if_submit (ifname, "if_octets", rx, tx);
+ 
+ 		/* try to get 64bit counters */
+ 		rx = get_kstat_value (ks, "ipackets64");
+@@ -319,13 +390,13 @@ static int interface_read (void)
+ 		if (tx == -1LL)
+ 			tx = get_kstat_value (ks, "opackets");
+ 		if ((rx != -1LL) || (tx != -1LL))
+-			if_submit (ks->ks_name, "if_packets", rx, tx);
++			if_submit (ifname, "if_packets", rx, tx);
+ 
+ 		/* no 64bit error counters yet */
+ 		rx = get_kstat_value (ks, "ierrors");
+ 		tx = get_kstat_value (ks, "oerrors");
+ 		if ((rx != -1LL) || (tx != -1LL))
+-			if_submit (ks->ks_name, "if_errors", rx, tx);
++			if_submit (ifname, "if_errors", rx, tx);
+ 	}
+ /* #endif HAVE_LIBKSTAT */
+ 

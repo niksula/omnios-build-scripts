@@ -1,7 +1,5 @@
-1a822486f40287f552890a553181fd620c662ada.patch
-pkg-config.patch -p0
 0001-AC_USE_SYSTEM_EXTENSIONS.patch
 perl-pure_install.patch
-911.patch
-be82fcd2fa76d26b1f3ac0552ee07f93fc5ab488.patch
+915.patch
 hardcode_spamassassin_plugin_socket_path.patch
+automake-workaround.patch

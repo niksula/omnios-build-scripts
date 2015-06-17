@@ -1,0 +1,13 @@
+workaround for automake bug; https://lists.gnu.org/archive/html/bug-automake/2014-04/msg00012.html
+diff --git a/configure.ac b/configure.ac
+index b4b3fdd..38f2311 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -3,6 +3,7 @@ AC_INIT([collectd],[m4_esyscmd(./version-gen.sh)])
++AC_CONFIG_AUX_DIR_DEFAULT
+ AC_USE_SYSTEM_EXTENSIONS
+ AC_CONFIG_SRCDIR(src/)
+ AC_CONFIG_HEADERS(src/config.h)
+ AC_CONFIG_AUX_DIR([libltdl/config])
+ 
+ m4_ifdef([LT_PACKAGE_VERSION],
