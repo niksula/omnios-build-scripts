@@ -28,13 +28,13 @@
 . ../../lib/functions.sh
 
 PROG=ghostscript
-VER=9.10
+VER=9.16
 VERHUMAN=$VER
 PKG=print/filter/ghostscript
 SUMMARY="Ghostscript, a Postscript and PDF interpreter"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='print/cups'
+BUILD_DEPENDS_IPS='print/cups library/liblcms'
 
 CUPSCONFIG="${PREFIX}/bin/cups-config"
 export CUPSCONFIG
@@ -42,6 +42,10 @@ export CUPSCONFIG
 init
 download_source $PROG $PROG $VER
 patch_source
+# force usage of shared lcms2, jpeg (configure uses local copies
+# unconditionally if present)
+rm -f ${TMPDIR}/${BUILDDIR}/lcms2/include/lcms2.h
+rm -f ${TMPDIR}/${BUILDDIR}/jpeg/jpeglib.h
 prep_build
 build
 make_isa_stub

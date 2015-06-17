@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=lcms2
-VER=2.5
+VER=2.7
 VERHUMAN=$VER
 PKG=library/liblcms
 SUMMARY="Little CMS color management library"
