@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=ruby
-VER=2.1.2
+VER=2.1.6
 VERHUMAN=$VER
 PKG=runtime/ruby-21
 SUMMARY="Ruby $VER"
