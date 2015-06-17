@@ -43,7 +43,7 @@ make_install() {
 install_manifest() {
     smfdir=${DESTDIR}/lib/svc/manifest/print
     mkdir -p $smfdir
-    cp ${SRCDIR}/cups.xml $smfdir
+    install -m 0444 ${SRCDIR}/cups.xml $smfdir
 }
 
 BUILD_DEPENDS_IPS='library/gnutls'
