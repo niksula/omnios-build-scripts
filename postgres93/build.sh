@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=postgresql
-VER=9.3.5
+VER=9.3.9
 VERHUMAN=$VER
 PKG=database/postgresql
 SUMMARY="$PROG - Open Source Database System"
