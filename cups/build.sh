@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=cups
-VER=2.0.1
+VER=2.0.3
 VERHUMAN=$VER
 PKG=print/cups
 SUMMARY="Common Unix Printing System"
