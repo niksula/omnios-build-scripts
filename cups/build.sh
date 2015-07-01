@@ -46,12 +46,13 @@ install_manifest() {
     install -m 0444 ${SRCDIR}/cups.xml $smfdir
 }
 
-BUILD_DEPENDS_IPS='library/gnutls'
 PKGCONFIG=${PREFIX}/bin/pkg-config
 export PKGCONFIG
 
+# cups 2.0 dropped openssl support; build without ssl and use a reverse proxy
+# to terminate ssl if necessary.
 # disable DNS-SD/mDNS because incompatible libraries
-CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-gnutls --disable-dnssd --disable-avahi --with-cups-user=lp"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-ssl --disable-dnssd --disable-avahi --with-cups-user=lp"
 
 # fix runtime R_AMD64_PC32 relocation errors by using -shared for libs
 save_function configure64 configure64_orig
