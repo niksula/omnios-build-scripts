@@ -35,6 +35,7 @@ SUMMARY="Facter, a system inventory tool"
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS='runtime/ruby-21'
+DEPENDS_IPS='=runtime/ruby-21@2.1'
 NOSCRIPTSTUB=1
 
 # we need ruby to build

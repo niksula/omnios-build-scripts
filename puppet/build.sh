@@ -35,7 +35,7 @@ SUMMARY="Declarative configuration management tool"
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS='runtime/ruby-21'
-DEPENDS_IPS='runtime/ruby-21 application/hiera application/facter'
+DEPENDS_IPS='runtime/ruby-21 application/hiera application/facter =runtime/ruby-21@2.1'
 NOSCRIPTSTUB=1
 
 PATH="${PATH}:${PREFIX}/bin"
