@@ -1,5 +1,7 @@
 license COPYING license=ruby.license
 license GPL license=GPLv2
 license COPYING.ja license=ruby.license.japanese
-# optional (incorporate) depend on the obsolete ver of ruby-20
+# optional (incorporate) depends on the obsolete/renamed versions of previous
+# packages
 depend type=incorporate fmri=pkg://niksula.hut.fi/runtime/ruby-20@2.0.0.353,5.11-0.151006:20140625T092857Z
+depend type=optional fmri=pkg://niksula.hut.fi/runtime/ruby-21@2.1.6,5.11-151014:20150703T132525Z

@@ -30,7 +30,7 @@
 PROG=ruby
 VER=2.1.6
 VERHUMAN=$VER
-PKG=runtime/ruby-21
+PKG=runtime/ruby
 SUMMARY="Ruby $VER"
 DESC="$SUMMARY"
 

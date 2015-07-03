@@ -1,7 +1,0 @@
-# Manifest to obsolete previous ruby package
-# NOTE: because we are not using buildctl, this isn't automatically published;
-# use pkgsend manually if you need to get this into the package repo
-# XXX we can't use @RELVER@ here unless we use buildctl so this version is
-# hardcoded
-set name=pkg.fmri value=pkg://niksula.hut.fi/runtime/ruby-20@2.0.0.353,5.11-0.151006
-set name=pkg.obsolete value=true
