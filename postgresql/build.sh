@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=postgresql
-VER=9.3.9
+VER=9.4.4
 VERHUMAN=$VER
 PKG=database/postgresql
 SUMMARY="$PROG - Open Source Database System"
@@ -38,6 +38,7 @@ PREFIX=/opt/pgsql
 reset_configure_opts
 
 CFLAGS="-O3"
+BUILDARCH=64
 
 CONFIGURE_OPTS="--enable-thread-safety
     --enable-debug
@@ -49,18 +50,16 @@ CONFIGURE_OPTS="--enable-thread-safety
 CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 --enable-dtrace"
 CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 --enable-dtrace DTRACEFLAGS=\"-64\""
 
-build_man() {
-    pushd ${TMPDIR}/${BUILDDIR}/doc/src/sgml > /dev/null
-    logmsg '--- make man'
-    logcmd $MAKE $MAKE_JOBS man || logerr '--- make man failed'
-    logcmd $MAKE $MAKE_JOBS DESTDIR=${DESTDIR} install || logerr '--- installing manpages failed'
-    popd >/dev/null
+make_prog() {
+    logmsg "--- make"
+    logcmd $MAKE $MAKE_JOBS world || \
+        logerr "--- Make failed"
 }
 
-save_function build build_orig
-build() {
-    build_orig
-    build_man
+make_install() {
+    logmsg "--- make install"
+    logcmd $MAKE DESTDIR=${DESTDIR} install-world || \
+        logerr "--- Make install failed"
 }
 
 install_manifest() {
