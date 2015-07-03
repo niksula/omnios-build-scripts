@@ -1,6 +1,4 @@
 license LICENSE license=OpenLDAP
-group groupname=openldap
-user username=openldap group=openldap home-dir=/var/openldap-data ftpuser=false
 <transform file path=opt/openldap/etc/ -> set preserve renamenew>
 <transform file path=opt/openldap/etc/ -> set owner openldap>
 <transform file path=opt/openldap/etc/ -> set group openldap>
