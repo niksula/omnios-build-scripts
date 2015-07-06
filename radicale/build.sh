@@ -36,11 +36,12 @@ DESC="$SUMMARY"
 
 BUILDARCH=64
 
-BUILD_DEPENDS_IPS="niksula/runtime/python-33"
+BUILD_DEPENDS_IPS='niksula/runtime/python-33'
+DEPENDS_IPS='=niksula/runtime/python-33@3.3'
 PYTHON=${PREFIX}/bin/python3
 
 # python_build function could work here if we were building on multiarch
-# python, but currently niksula python-33 is 64bit only, so hack by hand.
+# python, but currently niksula python is 64bit only, so hack by hand.
 build() {
     pushd $TMPDIR/$BUILDDIR >/dev/null
     logmsg "--- setup.py build"
