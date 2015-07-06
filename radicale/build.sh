@@ -36,8 +36,8 @@ DESC="$SUMMARY"
 
 BUILDARCH=64
 
-BUILD_DEPENDS_IPS='niksula/runtime/python-33'
-DEPENDS_IPS='=niksula/runtime/python-33@3.3'
+BUILD_DEPENDS_IPS='niksula/runtime/python'
+DEPENDS_IPS='=niksula/runtime/python@3.3'
 PYTHON=${PREFIX}/bin/python3
 
 # python_build function could work here if we were building on multiarch
