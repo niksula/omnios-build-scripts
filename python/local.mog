@@ -1,2 +1,4 @@
 license LICENSE license=Python
 <transform file path=.*/lib/python.*/config.*/libpython.*\.a$ -> drop>
+# old package at renamed version
+depend type=optional fmri=pkg://niksula.hut.fi/runtime/python-33@3.3.6,5.11-151014:20150706T110528Z

@@ -30,9 +30,10 @@
 PROG=Python
 VER=3.3.6
 VERHUMAN=$VER
-PKG=niksula/runtime/python-33
+PKG=niksula/runtime/python
 SUMMARY="Python programming language"
 DESC="$SUMMARY"
+VERMAJOR=${VER%.*}
 
 # system ffi is required for 64bit ctypes module
 BUILD_DEPENDS_IPS='library/libffi'
@@ -56,7 +57,7 @@ CPPFLAGS="$CPPFLAGS -I/usr/include/ncurses"
 BUILDARCH=64
 make_install64() {
     logmsg '--- make install'
-    logcmd $MAKE DESTDIR=$DESTDIR DESTSHARED=${PREFIX}/lib/python3.3/lib-dynload install || logerr '--- make install failed'
+    logcmd $MAKE DESTDIR=$DESTDIR DESTSHARED=${PREFIX}/lib/python${VERMAJOR}/lib-dynload install || logerr '--- make install failed'
 }
 
 PKG_CONFIG="${PREFIX}/bin/pkg-config"
