@@ -35,7 +35,7 @@ SUMMARY="Light weight hierarchical data store"
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS='runtime/ruby'
-DEPENDS_IPS='=runtime/ruby@2.1'
+DEPENDS_IPS='=runtime/ruby@2.2'
 NOSCRIPTSTUB=1
 
 PATH="${PATH}:${PREFIX}/bin"

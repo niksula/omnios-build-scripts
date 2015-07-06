@@ -35,7 +35,7 @@ SUMMARY="Check that your Puppet manifests conform to the style guide"
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS='runtime/ruby'
-DEPENDS_IPS='system/management/puppet runtime/ruby =runtime/ruby@2.1'
+DEPENDS_IPS='system/management/puppet runtime/ruby =runtime/ruby@2.2'
 NOSCRIPTSTUB=1
 TAR=gtar
 REMOVE_PREVIOUS=1

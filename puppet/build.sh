@@ -34,8 +34,8 @@ PKG=system/management/puppet
 SUMMARY="Declarative configuration management tool"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='runtime/ruby'
-DEPENDS_IPS='runtime/ruby application/hiera application/facter =runtime/ruby@2.1'
+BUILD_DEPENDS_IPS='runtime/ruby application/facter application/hiera'
+DEPENDS_IPS='runtime/ruby application/hiera application/facter =runtime/ruby@2.2'
 NOSCRIPTSTUB=1
 
 PATH="${PATH}:${PREFIX}/bin"
