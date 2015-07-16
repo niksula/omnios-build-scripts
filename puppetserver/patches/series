@@ -1,0 +1,4 @@
+ext_bin_puppetserver.patch
+ext_cli_foreground.patch
+ext_config_conf.d_puppetserver.conf.patch
+ext_default.patch

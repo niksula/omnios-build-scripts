@@ -1,11 +1,9 @@
-diff --git a/install.rb b/install.rb
-index 1663686..36e9781 100755
---- a/install.rb
-+++ b/install.rb
-@@ -135,9 +135,6 @@ def do_man(man, strip = 'man/')
-       FileUtils.chmod(0755, om)
-       FileUtils.install(mf, omf, {:mode => 0644, :preserve => true, :verbose => true})
-     end
+--- a/install.rb	Tue Sep 29 11:56:14 2015
++++ b/install.rb	Tue Sep 29 11:56:21 2015
+@@ -108,9 +108,6 @@
+     FileUtils.makedirs(om, {:mode => 0755, :verbose => true})
+     FileUtils.chmod(0755, om)
+     FileUtils.install(mf, omf, {:mode => 0644, :preserve => true, :verbose => true})
 -    gzip = %x{which gzip}
 -    gzip.chomp!
 -    %x{#{gzip} -f #{omf}}

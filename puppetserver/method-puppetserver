@@ -1,0 +1,7 @@
+#!/bin/sh -e
+
+. /lib/svc/share/smf_include.sh
+
+. /etc/puppetlabs/puppetserver/default
+
+exec $JAVA_BIN $JAVA_ARGS -cp "${INSTALL_DIR}/puppet-server-release.jar" clojure.main -m puppetlabs.trapperkeeper.main --config "${CONFIG}" -b "${BOOTSTRAP_CONFIG}"

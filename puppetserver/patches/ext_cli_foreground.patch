@@ -1,0 +1,10 @@
+--- a/ext/cli/foreground	Tue Sep 29 16:21:22 2015
++++ b/ext/cli/foreground	Tue Sep 29 16:22:01 2015
+@@ -1,6 +1,6 @@
+ #!/usr/bin/env bash
+ 
+-if !(echo "${@}" | grep -e "--debug" -q)
++if [ -n "$1" ] && expr "$@" : ".*--debug" >/dev/null
+ then
+     LOG_APPENDER="-Dlogappender=STDOUT"
+ fi

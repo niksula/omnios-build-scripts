@@ -1,0 +1,13 @@
+--- a/ext/config/conf.d/puppetserver.conf	Tue Sep 29 15:42:02 2015
++++ b/ext/config/conf.d/puppetserver.conf	Tue Sep 29 15:46:31 2015
+@@ -2,7 +2,7 @@
+ jruby-puppet: {
+     # Where the puppet-agent dependency places puppet, facter, etc...
+     # Puppet server expects to load Puppet from this location
+-    ruby-load-path: [/opt/puppetlabs/puppet/lib/ruby/vendor_ruby]
++    ruby-load-path: [/opt/niksula/lib/ruby/site_ruby]
+ 
+     # This setting determines where JRuby will look for gems.  It is also
+     # used by the `puppetserver gem` command line tool.
+-    gem-home: /opt/puppetlabs/server/data/puppetserver/jruby-gems
++    gem-home: /opt/niksula/lib/ruby/gems
