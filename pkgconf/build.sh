@@ -27,20 +27,16 @@
 # Load support functions
 . ../../lib/functions.sh
 
-PROG=pkg-config
-VER=0.26
+PROG=pkgconf
+VER=0.9.11
 VERHUMAN=$VER
-PKG=developer/build/pkg-config
-SUMMARY="manage compile and link flags for libraries"
-DESC="pkg-config is a system for managing library compile and link flags that works with automake and autoconf."
+PKG=developer/build/pkgconf
+SUMMARY="pkgconf provides compiler and linker configuration for development frameworks"
+DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='library/glib2'
-
-CFLAGS32="$CFLAGS32 -I/usr/include/glib-2.0 -I/usr/lib/glib-2.0/include"
-CFLAGS64="$CFLAGS64 -I/usr/include/amd64/glib-2.0 -I/usr/lib/amd64/glib-2.0/include"
-# add /usr to the default search paths
-CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 GLIB_LIBS=/usr/lib/libglib-2.0.so --with-pc-path=${PREFIX}/lib/pkgconfig:/usr/lib/pkgconfig"
-CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 GLIB_LIBS=/usr/lib/amd64/libglib-2.0.so --with-pc-path=${PREFIX}/lib/${ISAPART64}/pkgconfig:/usr/lib/${ISAPART64}/pkgconfig"
+# add /usr to the default pc paths
+CONFIGURE_OPTS_32="$CONFIGURE_OPTS_32 --with-system-libdir=/usr/lib --with-system-includedir=/usr/include --with-pkg-config-dir=${PREFIX}/lib/pkgconfig:/usr/lib/pkgconfig"
+CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 --with-system-libdir=/usr/lib/amd64 --with-system-includedir=/usr/include/amd64 --with-pkg-config-dir=${PREFIX}/lib/amd64/pkgconfig:/usr/lib/amd64/pkgconfig"
 
 init
 download_source $PROG $PROG $VER

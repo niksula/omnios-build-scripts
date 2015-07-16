@@ -1,0 +1,5 @@
+license COPYING license=ISC
+link path=opt/niksula/bin/pkg-config target=pkgconf
+link path=opt/niksula/share/man/man1/pkg-config.1 target=pkgconf.1
+# require old package at renamed version
+depend type=optional fmri=pkg://niksula.hut.fi/developer/build/pkg-config@0.26,5.11-151014:20150716T091828Z
