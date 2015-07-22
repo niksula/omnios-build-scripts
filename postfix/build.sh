@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=postfix
-VER=3.0.1
+VER=3.0.2
 VERHUMAN=$VER
 PKG=service/network/smtp/postfix
 SUMMARY="Postfix MTA"
