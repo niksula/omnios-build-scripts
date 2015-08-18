@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=protobuf
-VER=2.5.0
+VER=2.6.1
 VERHUMAN=$VER
 PKG=library/protobuf
 SUMMARY="Google protocol buffers"
