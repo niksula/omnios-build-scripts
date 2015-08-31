@@ -28,13 +28,13 @@
 . ../../lib/functions.sh
 
 PROG=ruby
-VER=2.1.6
+VER=2.1.7
 VERHUMAN=$VER
 PKG=runtime/ruby
 SUMMARY="Ruby $VER"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='developer/build/pkg-config library/libffi'
+BUILD_DEPENDS_IPS='developer/build/pkgconf library/libffi'
 
 # required for configure.in patch
 BUILD_DEPENDS_IPS="$BUILD_DEPENDS_IPS developer/build/autoconf"
