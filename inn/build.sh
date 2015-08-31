@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=inn
-VER=2.5.4
+VER=2.5.5
 VERHUMAN=$VER
 PKG=service/network/nntp/inn
 SUMMARY="INN (InterNetNews) is a very full-featured and flexible news server package"
