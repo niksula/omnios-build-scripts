@@ -34,11 +34,9 @@ PKG=mail/mutt
 SUMMARY="The Mutt E-Mail Client"
 DESC='All mail clients suck. This one just sucks less.'
 
-# link against ncurses
-LDFLAGS32="$LDFLAGS32 -R/usr/gnu/lib -L/usr/gnu/lib"
-LDFLAGS64="$LDFLAGS64 -R/usr/gnu/lib/$ISAPART64 -L/usr/gnu/lib/$ISAPART64"
-
-CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-imap --with-ssl --with-sasl --enable-hcache --with-libiconv-prefix=/usr"
+# pending https://www.illumos.org/issues/4006, don't use system wc functions;
+# we get invisible tree drawing characters otherwise.
+CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-imap --with-ssl --with-sasl --enable-hcache --with-libiconv-prefix=/usr --without-wc-funcs"
 BUILD_DEPENDS_IPS='database/tokyocabinet'
 
 init
