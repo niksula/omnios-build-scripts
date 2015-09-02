@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=mosh
-VER=1.2.4
+VER=1.2.5
 VERHUMAN=$VER
 PKG=network/mosh
 SUMMARY="Mobile shell: Remote terminal that supports roaming and intelligent local echo"
@@ -42,6 +42,10 @@ PKG_CONFIG="${PREFIX}/bin/pkg-config"
 export PROTOC PKG_CONFIG
 
 init
+# From protobuf README.md:
+# it is unlikely that any two versions of the Protocol Buffers
+# C++ runtime libraries will have compatible ABIs.
+RUN_DEPENDS_IPS="$RUN_DEPENDS_IPS =$(pkg list -Hv protobuf|cut -d- -f1)" || logerr 'cannot get protobuf version'
 download_source $PROG $PROG $VER
 patch_source
 prep_build
