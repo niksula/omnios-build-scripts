@@ -28,14 +28,11 @@
 . ../../lib/functions.sh
 
 PROG=mutt
-VER=1.5.23
+VER=1.5.24
 VERHUMAN=$VER
 PKG=mail/mutt
 SUMMARY="The Mutt E-Mail Client"
 DESC='All mail clients suck. This one just sucks less.'
-
-# build only 32-bit for now, 64bit segfaults in some shared libs' _fini
-BUILDARCH=32
 
 # link against ncurses
 LDFLAGS32="$LDFLAGS32 -R/usr/gnu/lib -L/usr/gnu/lib"
