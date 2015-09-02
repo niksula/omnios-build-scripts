@@ -34,7 +34,10 @@ PKG=library/protobuf
 SUMMARY="Google protocol buffers"
 DESC="$SUMMARY"
 
-CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static"
+# protobuf builds against installed protobuf version,
+# so old one needs to be removed beforehand
+BUILD_DEPENDS_IPS="-$PKG"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static" 
 
 init
 download_source $PROG $PROG $VER
