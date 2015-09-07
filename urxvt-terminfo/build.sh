@@ -40,8 +40,10 @@ DESC="$SUMMARY"
 build() {
     pushd ${TMPDIR}/$BUILDDIR >/dev/null
     TERMINFO=${DESTDIR}/usr/share/lib/terminfo
-    mkdir -p $TERMINFO
+    GTERMINFO=${DESTDIR}/usr/gnu/share/terminfo
+    mkdir -p $TERMINFO $GTERMINFO
     TERMINFO=$TERMINFO tic doc/etc/${PROG}.terminfo || logerr 'failed to install terminfo file'
+    TERMINFO=$GTERMINFO tic doc/etc/${PROG}.terminfo || logerr 'failed to install terminfo file'
 }
 
 init
