@@ -34,18 +34,23 @@ PKG=text/cmark
 SUMMARY="CommonMark parsing and rendering library and program in C"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='developer/build/cmake'
-BUILDARCH=32
+# tests require python 3, *and* since our python is 64-bit only, we need to
+# build the cmark lib 64-bit too
+BUILD_DEPENDS_IPS='developer/build/cmake niksula/runtime/python@3'
+BUILDARCH=64
 TAR=gtar
 REMOVE_PREVIOUS=1
 
-build32() {
+build64() {
     mkdir ${TMPDIR}/${BUILDDIR}/build
     pushd ${TMPDIR}/${BUILDDIR}/build >/dev/null
-    logcmd ${PREFIX}/bin/cmake -DCMAKE_INSTALL_PREFIX=$PREFIX .. || logerr 'cmake failed'
-    make_prog32
-    $MAKE test
-    make_install32
+    CFLAGS="$CFLAGS $CFLAGS64" \
+        LDFLAGS="$LDFLAGS $LDFLAGS64" \
+        CXXFLAGS="$CFLAGS $CFLAGS64" \
+        logcmd ${PREFIX}/bin/cmake -DCMAKE_INSTALL_PREFIX=$PREFIX .. || logerr 'cmake failed'
+    make_prog64
+    logcmd $MAKE test || logerr 'make test failed'
+    make_install64
     popd >/dev/null
 }
 
