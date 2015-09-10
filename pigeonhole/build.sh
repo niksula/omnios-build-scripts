@@ -51,7 +51,7 @@ install_procmail2sieve() {
 init
 # we need to incorporate the dovecot version used to build since the plugin ABI
 # can change between minor versions
-RUN_DEPENDS_IPS="=$(pkg list -Hv dovecot|cut -d, -f1)" || logerr 'cannot get dovecot version'
+RUN_DEPENDS_IPS="=$(pkg list -Hv dovecot|cut -d- -f1)" || logerr 'cannot get dovecot version'
 download_source $PROG $BUILDDIR ""
 patch_source
 prep_build
