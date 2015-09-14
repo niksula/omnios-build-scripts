@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=Python
-VER=3.4.3
+VER=3.5.0
 VERHUMAN=$VER
 PKG=niksula/runtime/python
 SUMMARY="Python programming language"
