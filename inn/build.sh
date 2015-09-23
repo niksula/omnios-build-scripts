@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=inn
-VER=2.5.5
+VER=2.6.0
 VERHUMAN=$VER
 PKG=service/network/nntp/inn
 SUMMARY="INN (InterNetNews) is a very full-featured and flexible news server package"
@@ -45,7 +45,7 @@ PREFIX=/opt/news
 reset_configure_opts
 
 # don't make isa stubs; bindir seems to have subdirs.
-CONFIGURE_OPTS="$CONFIGURE_OPTS --with-berkeleydb=/opt/niksula --enable-ipv6 --bindir=${PREFIX}/bin"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --with-bdb=/opt/niksula --bindir=${PREFIX}/bin --enable-reduced-depends --without-openssl --without-krb5 --without-sasl"
 
 install_manifest() {
     manifestdir=${DESTDIR}/lib/svc/manifest/network/nntp
