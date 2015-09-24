@@ -1,0 +1,3 @@
+license COPYING license=GPLv2
+group groupname=git
+user group=git username=git home-dir=/var/gitolite login-shell=/bin/sh password=NP
