@@ -1,0 +1,12 @@
+Without this, libs built in 'enc' end up not linked against libruby because of
+ -L$(archlibdir) -lruby
+--- a/enc/Makefile.in	Thu Oct  1 14:23:16 2015
++++ b/enc/Makefile.in	Thu Oct  1 14:23:31 2015
+@@ -10,6 +10,7 @@
+ prefix = @prefix@
+ exec_prefix = @exec_prefix@
+ libdir = @libdir@
++archlibdir = @archlibdir@
+ top_srcdir = $(encsrcdir:/enc=)
+ srcdir = $(top_srcdir)
+ arch = @arch@
