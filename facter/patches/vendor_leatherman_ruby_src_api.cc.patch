@@ -1,0 +1,17 @@
+We can't assume the first ruby found in PATH at runtime is the correct one.
+--- a/vendor/leatherman/ruby/src/api.cc	Fri Oct  2 12:55:44 2015
++++ b/vendor/leatherman/ruby/src/api.cc	Fri Oct  2 12:56:15 2015
+@@ -460,12 +460,7 @@
+             }
+         }
+ 
+-        // Search the path for ruby.exe and query it for the location of its library.
+-        string ruby = execution::which("ruby");
+-        if (ruby.empty()) {
+-            LOG_DEBUG("ruby could not be found on the PATH.");
+-            return library;
+-        }
++        string ruby = "/opt/niksula/bin/i386/ruby";
+         LOG_DEBUG("ruby was found at \"%1%\".", ruby);
+ 
+         bool success;

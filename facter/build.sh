@@ -28,22 +28,30 @@
 . ../../lib/functions.sh
 
 PROG=facter
-VER=2.4.3
+VER=3.1.0
 VERHUMAN=$VER
 PKG=application/facter
 SUMMARY="Facter, a system inventory tool"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='runtime/ruby'
+BUILD_DEPENDS_IPS='runtime/ruby developer/build/cmake library/c++/yaml-cpp library/c++/boost developer/java/jdk'
 DEPENDS_IPS='=runtime/ruby@2.1'
-NOSCRIPTSTUB=1
+BUILDARCH=32
 
 # we need ruby to build
 PATH="$PATH:${PREFIX}/bin"
 
 build() {
     pushd ${TMPDIR}/${BUILDDIR} >/dev/null
-    logcmd ./install.rb --destdir=${DESTDIR} || logerr 'build failed'
+    rm -rf release
+    mkdir release
+    cd release
+    ISALIST=i386 logcmd ${PREFIX}/bin/cmake -DJAVA_HOME=/usr/java -DBOOST_ROOT=/opt/boost -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_INSTALL_RPATH="/opt/niksula/lib:/opt/boost/lib" .. || logerr 'cmake failed'
+    ISALIST=i386 make_prog
+    # tests need to pass with and without ISALIST
+    logcmd $MAKE test || logerr 'make test failed'
+    ISALIST=i386 logcmd $MAKE test || logerr 'ISALIST=i386 make test failed'
+    ISALIST=i386 make_install
     popd >/dev/null
 }
 

@@ -1,1 +1,3 @@
-dont-gzip-man.patch
+vendor_leatherman_cmake_cflags.cmake.patch
+vendor_leatherman_ruby_src_api.cc.patch
+CMakeLists.txt.patch
