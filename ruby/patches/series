@@ -1,3 +1,4 @@
 ruby-2.1.0-Enable-configuration-of-archlibdir.patch
 configurable-archincludedir.patch
 workaround-rbconfig-insanity.patch
+enc_Makefile.in.patch
