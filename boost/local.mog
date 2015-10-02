@@ -1,0 +1,2 @@
+license LICENSE_1_0.txt license=Boost
+<transform file path=opt/boost/lib(/amd64)?/.*\.a -> drop>

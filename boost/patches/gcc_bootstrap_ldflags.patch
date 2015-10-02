@@ -1,0 +1,14 @@
+bootstrapping --with-toolset=cc works to, but the build then fails.
+https://svn.boost.org/trac/boost/ticket/5917
+--- a/tools/build/src/engine/build.sh	Wed Sep 30 12:31:39 2015
++++ b/tools/build/src/engine/build.sh	Wed Sep 30 12:31:59 2015
+@@ -139,6 +139,9 @@
+ 
+     gcc)
+     BOOST_JAM_CC=gcc
++    BOOST_JAM_OPT_JAM="$BOOST_JAM_OPT_JAM $CFLAGS $LDFLAGS"
++    BOOST_JAM_OPT_MKJAMBASE="$BOOST_JAM_OPT_MKJAMBASE $CFLAGS $LDFLAGS"
++    BOOST_JAM_OPT_YYACC="$BOOST_JAM_OPT_YYACC $CFLAGS $LDFLAGS"
+     ;;
+ 
+     darwin)

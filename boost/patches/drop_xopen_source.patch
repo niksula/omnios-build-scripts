@@ -1,0 +1,20 @@
+--- a/libs/asio/test/Jamfile.v2	Wed Sep 30 11:20:02 2015
++++ b/libs/asio/test/Jamfile.v2	Wed Sep 30 11:20:37 2015
+@@ -43,7 +43,6 @@
+     <threading>multi
+     <os>LINUX:<define>_XOPEN_SOURCE=600
+     <os>LINUX:<define>_GNU_SOURCE=1
+-    <os>SOLARIS:<define>_XOPEN_SOURCE=500
+     <os>SOLARIS:<define>__EXTENSIONS__
+     <os>SOLARIS:<library>socket
+     <os>SOLARIS:<library>nsl
+--- a/libs/log/build/Jamfile.v2	Wed Sep 30 11:20:02 2015
++++ b/libs/log/build/Jamfile.v2	Wed Sep 30 11:20:43 2015
+@@ -193,7 +193,6 @@
+         <target-os>linux:<define>_XOPEN_SOURCE=600
+         <target-os>linux:<define>_GNU_SOURCE=1
+ 
+-        <target-os>solaris:<define>_XOPEN_SOURCE=500
+         <target-os>solaris:<define>__EXTENSIONS__
+         <target-os>solaris:<library>socket
+         <target-os>solaris:<library>nsl

@@ -1,0 +1,2 @@
+drop_xopen_source.patch
+gcc_bootstrap_ldflags.patch
