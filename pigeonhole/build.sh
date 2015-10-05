@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=pigeonhole
-VER=0.4.8
+VER=0.4.9
 VERHUMAN=$VER
 PKG=mail/dovecot/pigeonhole
 SUMMARY="Sieve support for Dovecot"
