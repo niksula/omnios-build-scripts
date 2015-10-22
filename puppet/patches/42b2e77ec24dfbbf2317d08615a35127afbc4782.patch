@@ -1,0 +1,24 @@
+From 42b2e77ec24dfbbf2317d08615a35127afbc4782 Mon Sep 17 00:00:00 2001
+From: Kylo Ginsberg <kylo@puppetlabs.com>
+Date: Fri, 23 Jan 2015 19:05:10 -0800
+Subject: [PATCH] (pup-3796) Incorporate ruby 2.2 patch to safe_yaml from
+ upstream
+
+See https://github.com/dtao/safe_yaml/commit/e281053e80fa3b3abd9a63d16d2492e24f075ac4
+---
+ lib/puppet/vendor/safe_yaml/lib/safe_yaml.rb | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/lib/puppet/vendor/safe_yaml/lib/safe_yaml.rb b/lib/puppet/vendor/safe_yaml/lib/safe_yaml.rb
+index 8670ace..722dd3e 100644
+--- a/lib/puppet/vendor/safe_yaml/lib/safe_yaml.rb
++++ b/lib/puppet/vendor/safe_yaml/lib/safe_yaml.rb
+@@ -3,7 +3,7 @@
+ # This needs to be defined up front in case any internal classes need to base
+ # their behavior off of this.
+ module SafeYAML
+-  YAML_ENGINE = defined?(YAML::ENGINE) ? YAML::ENGINE.yamler : "syck"
++  YAML_ENGINE = defined?(YAML::ENGINE) ? YAML::ENGINE.yamler : (defined?(Psych) && YAML == Psych ? "psych" : "syck")
+ end
+ 
+ require "set"

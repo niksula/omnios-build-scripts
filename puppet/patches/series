@@ -1,3 +1,4 @@
 dont-gzip-man.patch
 3132.patch
 0001-PUP-3564-suppress-empty-pkg-certificate-warnings.patch
+42b2e77ec24dfbbf2317d08615a35127afbc4782.patch
