@@ -1,7 +1,745 @@
-From d34cb8718f2cfcba2e846d6a4fad2b16f30a5a22 Mon Sep 17 00:00:00 2001
+From fc9d85303b214bcd0a2bc727d1fb325949b367c6 Mon Sep 17 00:00:00 2001
+From: Jan Andres <jandres@gmx.net>
+Date: Sat, 24 Oct 2015 21:29:19 +0200
+Subject: [PATCH 01/10] utils_hashtable: Add generic hash table implemenation.
+
+This is an implementation of a hash table that is hopefully generic
+and reusable enough to be generally useful.
+
+It can store data items of arbitrary size and alignment and makes no
+assumptions about the type of the key used to locate entries.
+
+Also included are some utility functions for hashing strings (or other
+areas of memory) using the FNV-1a hash algorithm.
+---
+ src/daemon/Makefile.am       |   1 +
+ src/daemon/utils_hashtable.c | 474 +++++++++++++++++++++++++++++++++++++++++++
+ src/daemon/utils_hashtable.h | 218 ++++++++++++++++++++
+ 3 files changed, 693 insertions(+)
+ create mode 100644 src/daemon/utils_hashtable.c
+ create mode 100644 src/daemon/utils_hashtable.h
+
+diff --git a/src/daemon/Makefile.am b/src/daemon/Makefile.am
+index 4e38341..dbf2a18 100644
+--- a/src/daemon/Makefile.am
++++ b/src/daemon/Makefile.am
+@@ -58,6 +58,7 @@ collectd_SOURCES = collectd.c collectd.h \
+ 		   plugin.c plugin.h \
+ 		   utils_cache.c utils_cache.h \
+ 		   utils_complain.c utils_complain.h \
++		   utils_hashtable.c utils_hashtable.h \
+ 		   utils_llist.c utils_llist.h \
+ 		   utils_random.c utils_random.h \
+ 		   utils_tail_match.c utils_tail_match.h \
+diff --git a/src/daemon/utils_hashtable.c b/src/daemon/utils_hashtable.c
+new file mode 100644
+index 0000000..f950feb
+--- /dev/null
++++ b/src/daemon/utils_hashtable.c
+@@ -0,0 +1,474 @@
++#include "utils_hashtable.h"
++#include "plugin.h"
++
++#include <stdio.h>
++#include <stdlib.h>
++#include <string.h>
++#include <stdint.h>
++#include <assert.h>
++#include <errno.h>
++
++
++/*
++ * Implementation notes:
++ *
++ * The size of the table (i.e. the number of buckets) is always a
++ * power of 2.
++ *
++ * We use double hashing where both h1 and h2 are taken from the
++ * user-supplied hash value. The low order bits go into h1, the next
++ * higher ones into h2. The probe sequence is then
++ * h1 + i * h2 for i = 0, 1, 2, ...
++ * h2 needs to be relatively prime to the table size to ensure all
++ * buckets get probed eventually. This is ensured by setting h2's
++ * lowest bit to 1, making it an odd number while the size is a power
++ * of 2.
++ *
++ * To ensure we have some entropy in the higher order bits (so we get
++ * sensible values for h2), the user-supplied hash value is multiplied
++ * by HASH_MULT (a relatively large prime).
++ *
++ * When an entry is deleted, we put a "tombstone" marked by a status of
++ * BUCKET_TOMB in its location. This is to ensure the probe sequence
++ * for other entries does not get interrupted.
++ *
++ * Tombstones must be removed eventually if they grow too many; this
++ * is realized with a rehash: A new table is allocated and all entries
++ * from the old table are reinserted into the new one.
++ *
++ * The same rehash procedure is also used to resize the table. It both
++ * grows and shrinks dynamically according to the number of elements
++ * it contains. For optimum performance, we maintain a load factor
++ * between 1/8 and 1/2 the table size; the number of tombstones is kept
++ * below 1/4 the size.
++ */
++
++
++#define MIN_ALIGN 16
++
++
++enum bucket_status_e {
++    BUCKET_EMPTY    = 0,
++    BUCKET_USED     = 1,
++    BUCKET_TOMB     = 2,
++};
++
++typedef enum bucket_status_e bucket_status_t;
++
++
++struct bucket_s {
++    hash_t hash;
++    bucket_status_t status;
++};
++
++typedef struct bucket_s bucket_t;
++
++
++static inline uintptr_t do_align (uintptr_t base, uintptr_t alignment);
++static inline bucket_t *get_bucket (hashtable_t *table, hash_t index);
++static inline bucket_t *get_bucket2 (char *arena, hash_t stride, hash_t index);
++static int alloc_arena (hashtable_t *table, unsigned size_exp);
++int hashtable_init (hashtable_t *table, unsigned data_size, unsigned alignment, unsigned minsize_exp);
++static inline hash_t mod_size (const hashtable_t *table, hash_t x);
++static inline hash_t get_h1 (const hashtable_t *table, hash_t hash);
++static inline hash_t get_h2 (const hashtable_t *table, hash_t hash);
++static inline void *bucket_to_user (const hashtable_t *table, bucket_t *bucket);
++static inline bucket_t *user_to_bucket (const hashtable_t *table, void *user);
++static int rehash (hashtable_t *table, unsigned size_exp);
++static int check_grow (hashtable_t *table);
++static int check_shrink (hashtable_t *table, bool bulk);
++static int hashtable_lookup_internal (hashtable_t *table, hash_t hash,
++        bool (*match) (void *, void *), void *match_arg, void **data);
++
++
++static inline uintptr_t
++do_align (uintptr_t base, uintptr_t alignment)
++{
++    return (base + alignment - 1) / alignment * alignment;
++}
++
++
++static inline bucket_t *
++get_bucket (hashtable_t *table, hash_t index)
++{
++    return get_bucket2 (table->arena, table->bucket_stride, index);
++}
++
++
++static inline bucket_t *
++get_bucket2 (char *arena, hash_t stride, hash_t index)
++{
++    return (bucket_t *) (arena + index * stride);
++}
++
++
++static int
++alloc_arena (hashtable_t *table, unsigned size_exp)
++{
++    const hash_t size = (hash_t) 1 << size_exp;
++    /* Add extra bytes to allocation for possible alignment correction. */
++    const hash_t bytes = size * table->bucket_stride + table->data_align - 1;
++    void *const handle = malloc (bytes);
++    if (handle == NULL)
++        return ENOMEM;
++
++    /*
++     * Correct the pointer returned by malloc() for alignment.
++     * Save the original pointer in arena_handle for a later free().
++     */
++    table->arena = (char *) do_align ((uintptr_t) handle, table->data_align);
++    table->arena_handle = handle;
++    table->size_exp = size_exp;
++    table->size = size;
++    table->used = 0;
++    table->tombs = 0;
++    table->bulk_update = 0;
++
++    hash_t i;
++    for (i = 0; i < table->size; i++)
++        get_bucket (table, i)->status = BUCKET_EMPTY;
++
++    return 0;
++}
++
++
++int
++hashtable_init (hashtable_t *table, unsigned data_size, unsigned alignment, unsigned minsize_exp)
++{
++    /* Alignment must be a power of 2. */
++    if ((alignment & (alignment - 1)) != 0)
++        return EINVAL;
++
++    if (alignment < MIN_ALIGN)
++        alignment = MIN_ALIGN;
++
++    if ((hash_t) 1 << minsize_exp == 0)
++        return EINVAL;
++
++    table->data_size = data_size;
++    table->data_align = alignment;
++    table->minsize_exp = minsize_exp;
++
++    table->bucket_doff = do_align (sizeof (bucket_t), alignment);
++    table->bucket_stride = table->bucket_doff + do_align (data_size, alignment);
++
++#ifdef HASHTABLE_STATS
++    hashtable_clearstats (table);
++#endif
++
++    return alloc_arena (table, minsize_exp);
++}
++
++
++#ifdef HASHTABLE_STATS
++void
++hashtable_clearstats (hashtable_t *table)
++{
++    int i;
++    for (i = 0; i < HASHTABLE_STATS_MAX + 1; i++)
++        table->stat_iter[i] = 0;
++    table->total_ops = 0;
++    table->total_iter = 0;
++}
++#endif
++
++
++void
++hashtable_destroy (hashtable_t *table)
++{
++    free (table->arena_handle);
++}
++
++
++hash_t
++hashtable_count (const hashtable_t *table)
++{
++    return table->used;
++}
++
++
++static inline hash_t
++mod_size (const hashtable_t *table, hash_t x)
++{
++    return x & (table->size - 1);
++}
++
++
++static inline hash_t
++get_h1 (const hashtable_t *table, hash_t hash)
++{
++    return mod_size (table, hash);
++}
++
++
++static inline hash_t
++get_h2 (const hashtable_t *table, hash_t hash)
++{
++    return mod_size (table, (hash >> (table->size_exp - 1)) | 1);
++}
++
++
++static inline void *
++bucket_to_user (const hashtable_t *table, bucket_t *bucket)
++{
++    return (char *) bucket + table->bucket_doff;
++}
++
++
++static inline bucket_t *
++user_to_bucket (const hashtable_t *table, void *user)
++{
++    return (bucket_t *) ((char *) user - table->bucket_doff);
++}
++
++
++static int
++rehash (hashtable_t *table, unsigned size_exp)
++{
++    const hash_t old_size = table->size;
++    char *const old_arena = table->arena;
++    void *const old_handle = table->arena_handle;
++
++    int rc = alloc_arena (table, size_exp);
++    if (rc != 0)
++        return rc;
++
++    hash_t i;
++    for (i = 0; i < old_size; i++) {
++        bucket_t *const old_bucket = get_bucket2 (old_arena, table->bucket_stride, i);
++        if (old_bucket->status != BUCKET_USED)
++            continue;
++
++        void *data = NULL;
++        rc = hashtable_lookup_internal (table, old_bucket->hash, NULL, NULL, &data);
++        assert (rc == ENOENT);
++        memcpy (data, bucket_to_user (table, old_bucket), table->data_size);
++        user_to_bucket (table, data)->status = BUCKET_USED;
++        table->used++;
++    }
++
++    free (old_handle);
++    return 0;
++}
++
++
++int
++hashtable_lookup (hashtable_t *table, hash_t hash, bool (*match) (void *, void *), void *match_arg, void **data)
++{
++    /*
++     * Multiply user-supplied hash by HASH_MULT once to ensure we get
++     * some entropy in the high-order bits even if the users supplies
++     * a sucky hash value (i.e. a small number), so we have sensible
++     * values for h2.
++     */
++    return hashtable_lookup_internal (table, hash * HASH_MULT, match, match_arg, data);
++}
++
++
++#ifdef HASHTABLE_STATS
++static void
++put_stats (hashtable_t *table, unsigned iter)
++{
++    table->total_iter += iter;
++    table->total_ops++;
++    if (iter > HASHTABLE_STATS_MAX)
++        iter = HASHTABLE_STATS_MAX;
++    table->stat_iter[iter]++;
++}
++#endif
++
++
++static int
++hashtable_lookup_internal (hashtable_t *table, hash_t hash, bool (*match) (void *, void *), void *match_arg, void **data)
++{
++    hash_t pos = get_h1 (table, hash);
++    const hash_t h2 = get_h2 (table, hash);
++    void *insert_here = NULL;
++#ifdef HASHTABLE_STATS
++    unsigned iter = 0;
++#endif
++
++    for (;;) {
++        bucket_t *const bucket = get_bucket (table, pos);
++        void *const user = bucket_to_user (table, bucket);
++
++        switch (bucket->status) {
++            case BUCKET_EMPTY:
++                if (insert_here != NULL)
++                    *data = insert_here;
++                else
++                    *data = user;
++                user_to_bucket (table, *data)->hash = hash;
++#ifdef HASHTABLE_STATS
++                put_stats (table, iter);
++#endif
++                return ENOENT;
++
++            case BUCKET_USED:
++                /*
++                 * One could check for bucket->hash == hash before
++                 * calling the match function. This may give better
++                 * or worse performance, depending on how expensive
++                 * the match function is.
++                 */
++                if (match != NULL && match (user, match_arg)) {
++                    *data = user;
++#ifdef HASHTABLE_STATS
++                    put_stats (table, iter);
++#endif
++                    return 0;
++                }
++                break;
++
++            case BUCKET_TOMB:
++                if (match == NULL) {
++                    *data = user;
++#ifdef HASHTABLE_STATS
++                    put_stats (table, iter);
++#endif
++                    return ENOENT;
++                }
++                if (insert_here == NULL)
++                    insert_here = user;
++                break;
++        }
++
++        pos = mod_size (table, pos + h2);
++#ifdef HASHTABLE_STATS
++        iter++;
++#endif
++    }
++
++    /* We can never get here. */
++    assert (false);
++}
++
++
++static int
++check_grow (hashtable_t *table)
++{
++    if (table->used > (table->size >> 1)) {
++        DEBUG ("Rehashing to grow with used=%lu, tombs=%lu, size=%lu", table->used, table->tombs, table->size);
++        return rehash (table, table->size_exp + 1);
++    } else {
++        return 0;
++    }
++}
++
++
++static int
++check_shrink (hashtable_t *table, bool bulk)
++{
++    /*
++     * Only shrink if table gets below 1/8 of its capacity, so after
++     * shrink it is at 1/4 its capacity. This may be wasteful, but if
++     * we shrink such that the table is at 1/2 its capacity after
++     * shrink, then the next insert would cause it to grow again
++     * immediately, resulting in too many rehashes.
++     */
++    if (table->used <= (table->size >> 3) && table->size_exp > table->minsize_exp) {
++        DEBUG ("Rehashing to shrink with used=%lu, tombs=%lu, size=%lu", table->used, table->tombs, table->size);
++        unsigned new_exp;
++
++        if (!bulk) {
++            new_exp = table->size_exp - 1;
++        } else {
++            /*
++             * We are at the end of a bulk update, so more than one entry
++             * may have been deleted without a rehash. Determine the
++             * desired new size from the number of elements left.
++             */
++            new_exp = table->minsize_exp;
++            const hash_t min_size = table->used << 2;
++            while ((hash_t) 1 << new_exp < min_size)
++                new_exp++;
++        }
++
++        return rehash (table, new_exp);
++    } else if (table->tombs > (table->size >> 2)) {
++        DEBUG ("Rehashing to clean with used=%lu, tombs=%lu, size=%lu", table->used, table->tombs, table->size);
++        return rehash (table, table->size_exp);
++    } else {
++        return 0;
++    }
++}
++
++
++int
++hashtable_insert (hashtable_t *table, void *data)
++{
++    bucket_t *const bucket = user_to_bucket (table, data);
++    const bucket_status_t old_status = bucket->status;
++
++    assert (bucket->status != BUCKET_USED);
++
++    if (bucket->status == BUCKET_TOMB)
++        table->tombs--;
++
++    bucket->status = BUCKET_USED;
++    table->used++;
++
++    const int rc = check_grow (table);
++
++    /*
++     * We can't allow an insert if rehash fails lest the table will
++     * be completely full at some point, so undo it.
++     */
++    if (rc != 0) {
++        bucket->status = old_status;
++        if (bucket->status == BUCKET_TOMB)
++            table->tombs++;
++        table->used--;
++    }
++
++    return rc;
++}
++
++
++int
++hashtable_delete (hashtable_t *table, void *data)
++{
++    bucket_t *const bucket = user_to_bucket (table, data);
++
++    assert (bucket->status == BUCKET_USED);
++
++    bucket->status = BUCKET_TOMB;
++    table->used--;
++    table->tombs++;
++
++    if (table->bulk_update != 0)
++        return 0;
++    else
++        return check_shrink (table, false);
++}
++
++
++bool
++hashtable_traverse (hashtable_t *table, bool (*callback) (void *, void *), void *user_data)
++{
++    hash_t i;
++    for (i = 0; i < table->size; i++) {
++        bucket_t *const bucket = get_bucket (table, i);
++        if (bucket->status == BUCKET_USED
++                && callback (bucket_to_user (table, bucket), user_data))
++            return true;
++    }
++    return false;
++}
++
++
++void
++hashtable_start_bulk_update (hashtable_t *table)
++{
++    table->bulk_update++;
++}
++
++
++int
++hashtable_end_bulk_update (hashtable_t *table)
++{
++    if (--table->bulk_update != 0)
++        return 0;
++    else
++        return check_shrink (table, true);
++}
+diff --git a/src/daemon/utils_hashtable.h b/src/daemon/utils_hashtable.h
+new file mode 100644
+index 0000000..1045aba
+--- /dev/null
++++ b/src/daemon/utils_hashtable.h
+@@ -0,0 +1,218 @@
++#ifndef UTILS_HASHTABLE_H
++#define UTILS_HASHTABLE_H
++
++#include "config.h"
++
++#include <stdbool.h>
++#include <limits.h>
++
++
++typedef unsigned long hash_t;
++
++
++/*
++ * FNV-1a hash function.
++ *
++ * Use HASH_INIT as the initial value, then calls to the hash_update*()
++ * functions to generate the hash.
++ *
++ * E.g., to hash a single string "s":
++ *
++ *     hash_t hash = hash_update_str (HASH_INIT, s);
++ *
++ * Given strings "s1" and "s2", get a hash of the value "s1:s2"
++ * without having to concatenate the strings in a buffer:
++ *
++ *     hash_t hash = HASH_INIT;
++ *     hash = hash_update_str (hash, s1);
++ *     hash = hash_update (hash, ':');
++ *     hash = hash_update_str (hash, s2);
++ *
++ * The different hash_update*() functions can be arbitrarity combined.
++ */
++
++/*
++ * Update hash value with a single byte.
++ */
++static inline hash_t hash_update (hash_t h, unsigned char input);
++
++/*
++ * Equivalent to chaining hash_update() calls for all bytes of "str",
++ * not including the trailing NUL.
++ */
++static inline hash_t hash_update_str (hash_t h, const char *str);
++
++/*
++ * Equivalent to chaining hash_update() calls for "len" bytes of memory
++ * starting at "data".
++ */
++static inline hash_t hash_update_mem (hash_t h, const void *data, unsigned len);
++
++
++/*
++ * Hash table.
++ *
++ * hashtable_init() initializes an empty hash table for storage of user
++ * objects with the given size and alignment requirements. alignment must
++ * be a power of 2 and can also be given as zero. Small alignment values
++ * will be adjusted upward to a sensible default. Currently that default
++ * is 16, which seems to be what most malloc() implementations use and
++ * should thus be safe for most use cases.
++ *
++ * The "minsize_exp" specifies the initial and minimum size of the table
++ * below which it will never shrink. This is given as a power of 2, e.g.
++ * a value of 4 will give a minimum table size of 2^4 = 16.
++ *
++ * Return value is zero on success, EINVAL if an invalid alignment was
++ * specified, ENOMEM if memory allocation fails.
++ *
++ * hashtable_count() returns the number of elements currently in the
++ * hash table.
++ *
++ * hashtable_lookup() is the basis for all operations on the table.
++ * The caller must supply the hash value of the key to be looked up,
++ * and a match function to compare a given element's key to the one
++ * the caller is looking for. The match function will be given a
++ * pointer to an entry in the table as its first argument, and
++ * match_arg as the second argument.
++ *
++ * If the lookup is successful, zero is returned and *data is set to
++ * the entry found. The caller can use this pointer to read and update
++ * the entry in-place, but must not modify the entry's key.
++ *
++ * The caller can use hashtable_delete() with the pointer returned to
++ * delete the element from the hash table. hashtable_delete() will
++ * return zero on success. If the delete triggered a rehash and the
++ * rehash could not complete because of a memory allocation failure,
++ * hashtable_delete() will return ENOMEM. Even in this case, the entry
++ * is still deleted from the table.
++ *
++ * If hashtable_lookup() fails to find a matching entry, ENOENT is
++ * returned and *data points to an area of memory where the caller can
++ * construct an entry with the key used for the lookup, for insertion
++ * into the table.
++ *
++ * Once the entry has been initialized, hashtable_insert() can be called
++ * to add the new entry into the hash table. hashtable_insert() returns
++ * zero in case of success, or ENOMEM if there was a memory allocation
++ * failure during a rehash. If hashtable_insert() returns ENOMEM, the
++ * new entry is NOT inserted.
++ *
++ * If you want to insert a new entry and you are sure that its key is
++ * not currently in the table, you can pass NULL for the match function
++ * (but be sure to give the correct hash value for the key you're
++ * inserting).
++ *
++ * A call to hashtable_insert() or hashtable_delete() invalidates all
++ * pointers previously returned by calls to hashtable_lookup().
++ *
++ * Call hashtable_start_bulk_update() to start a "bulk update". Bulk
++ * updates are "recursive": If hashtable_start_bulk_update() has been
++ * called n times, then hashtable_end_bulk_update() must be called
++ * as many times to get the table out of bulk update mode.
++ *
++ * During a bulk update, calls to hashtable_delete() do not cause any
++ * rehashes and thus do not invalidate pointers returned by previous
++ * hashtable_lookup() calls. hashtable_insert() calls are possible
++ * during a bulk update, but may still cause rehashes and do invalidate
++ * pointers. A rehash may happen during hashtable_end_bulk_update(),
++ * in which case ENOMEM may be returned. However, entries deleted
++ * during the bulk update will stay deleted.
++ *
++ * hashtable_traverse() calls a callback function for each entry in the
++ * table. The entry is passed as the first argument to the callback,
++ * and the user_data pointer as the second argument.
++ *
++ * The callback cannot do anything that may cause a rehash: It cannot
++ * use hashtable_insert(), and it can use hashtable_delete() only if
++ * the table is in bulk update mode. It also cannot use
++ * hashtable_end_bulk_update().
++ *
++ * If the callback returns a true value, hashtable_traverse() will
++ * abort the traversal and return true immediately. Otherwise, if the
++ * traversal is not aborted, hashtable_traverse() returns false.
++ */
++struct hashtable_s {
++    char *arena;
++    void *arena_handle;
++    unsigned data_size;
++    unsigned data_align;
++    unsigned minsize_exp;
++
++    unsigned bucket_stride, bucket_doff;
++
++    unsigned size_exp;
++    hash_t size, used, tombs;
++
++    unsigned bulk_update;
++
++#ifdef HASHTABLE_STATS
++#define HASHTABLE_STATS_MAX 32
++    unsigned long stat_iter[HASHTABLE_STATS_MAX + 1];
++    unsigned long total_iter, total_ops;
++#endif
++};
++
++typedef struct hashtable_s hashtable_t;
++
++
++int hashtable_init (hashtable_t *table, unsigned data_size, unsigned alignment, unsigned minsize_exp);
++void hashtable_destroy (hashtable_t *table);
++hash_t hashtable_count (const hashtable_t *table);
++int hashtable_lookup (hashtable_t *table, hash_t hash, bool (*match) (void *, void *), void *match_arg, void **data);
++int hashtable_insert (hashtable_t *table, void *data);
++int hashtable_delete (hashtable_t *table, void *data);
++bool hashtable_traverse (hashtable_t *table, bool (*callback) (void *, void *), void *user_data);
++void hashtable_start_bulk_update (hashtable_t *table);
++int hashtable_end_bulk_update (hashtable_t *table);
++#ifdef HASHTABLE_STATS
++void hashtable_clearstats (hashtable_t *table);
++#endif
++
++
++/* FNV-1a hash algorithm - implementation */
++
++#if ULONG_MAX == 4294967295UL
++
++/* long is 32 bits */
++#define HASH_INIT 2166136261UL
++#define HASH_MULT 16777619UL
++
++#elif ULONG_MAX == 18446744073709551615UL
++
++/* long is 64 bits */
++#define HASH_INIT 14695981039346656037UL
++#define HASH_MULT 1099511628211UL
++
++#else
++#error ULONG_MAX must be 2^32-1 or 2^64-1
++#endif
++
++
++static inline hash_t
++hash_update (hash_t h, unsigned char input)
++{
++    return (h ^ input) * HASH_MULT;
++}
++
++
++static inline hash_t
++hash_update_str (hash_t h, const char *str)
++{
++    for (; *str != 0; str++)
++        h = hash_update (h, (unsigned char) *str);
++    return h;
++}
++
++
++static inline hash_t
++hash_update_mem (hash_t h, const void *data, unsigned len)
++{
++    const unsigned char *c = data;
++    unsigned i;
++    for (i = 0; i < len; i++)
++        h = hash_update (h, c[i]);
++    return h;
++}
++
++#endif /* UTILS_HASHTABLE_H */
+
+From 24777cfa5fe2276c064967f83c454110e75ad17c Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Sat, 24 Jan 2015 10:23:02 +0100
-Subject: [PATCH 1/9] Implementation of kstat_set_t.
+Subject: [PATCH 02/10] Implementation of kstat_set_t.
 
 This is a set of kstat items which can be dynamically added
 and removed using the supplied functions.
@@ -11,10 +749,10 @@ and removed using the supplied functions.
  2 files changed, 66 insertions(+)
 
 diff --git a/src/daemon/common.c b/src/daemon/common.c
-index e2b618f..a83fd49 100644
+index 8f22011..8c1437e 100644
 --- a/src/daemon/common.c
 +++ b/src/daemon/common.c
-@@ -790,6 +790,55 @@ long long get_kstat_value (kstat_t *ksp, char *name)
+@@ -796,6 +796,55 @@ long long get_kstat_value (kstat_t *ksp, char *name)
  
  	return (retval);
  }
@@ -71,7 +809,7 @@ index e2b618f..a83fd49 100644
  
  #ifndef HAVE_HTONLL
 diff --git a/src/daemon/common.h b/src/daemon/common.h
-index da21cad..cd88688 100644
+index c3f7f54..c22aaa8 100644
 --- a/src/daemon/common.h
 +++ b/src/daemon/common.h
 @@ -290,6 +290,23 @@ int check_create_dir (const char *file_orig);
@@ -99,10 +837,10 @@ index da21cad..cd88688 100644
  
  #ifndef HAVE_HTONLL
 
-From 1fffb7287950edf32c4c2ece4004be066369468b Mon Sep 17 00:00:00 2001
+From 83f0669392dd525823270ba98bf9b144eb509c1e Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Sat, 24 Jan 2015 11:19:44 +0100
-Subject: [PATCH 2/9] Add a callback function for kstat changes.
+Subject: [PATCH 03/10] Add a callback function for kstat changes.
 
 Plugins can register a callback to be notified when certain
 classes of kstats are added or removed by a kstat chain update.
@@ -112,7 +850,7 @@ classes of kstats are added or removed by a kstat chain update.
  2 files changed, 166 insertions(+)
 
 diff --git a/src/daemon/plugin.c b/src/daemon/plugin.c
-index 3a95f36..8a77a81 100644
+index b57dd4a..124a151 100644
 --- a/src/daemon/plugin.c
 +++ b/src/daemon/plugin.c
 @@ -71,6 +71,15 @@ struct read_func_s
@@ -131,7 +869,7 @@ index 3a95f36..8a77a81 100644
  struct write_queue_s;
  typedef struct write_queue_s write_queue_t;
  struct write_queue_s
-@@ -92,6 +101,9 @@ static llist_t *list_missing;
+@@ -98,6 +107,9 @@ static llist_t *list_missing;
  static llist_t *list_shutdown;
  static llist_t *list_log;
  static llist_t *list_notification;
@@ -141,7 +879,7 @@ index 3a95f36..8a77a81 100644
  
  static fc_chain_t *pre_cache_chain = NULL;
  static fc_chain_t *post_cache_chain = NULL;
-@@ -1343,6 +1355,55 @@ int plugin_register_notification (const char *name,
+@@ -1493,6 +1505,55 @@ int plugin_register_notification (const char *name,
  				(void *) callback, ud));
  } /* int plugin_register_log */
  
@@ -197,7 +935,7 @@ index 3a95f36..8a77a81 100644
  int plugin_unregister_config (const char *name)
  {
  	cf_unregister (name);
-@@ -1507,6 +1568,13 @@ int plugin_unregister_notification (const char *name)
+@@ -1676,6 +1737,13 @@ int plugin_unregister_notification (const char *name)
  	return (plugin_unregister (list_notification, name));
  }
  
@@ -211,7 +949,7 @@ index 3a95f36..8a77a81 100644
  void plugin_init_all (void)
  {
  	char const *chain_name;
-@@ -1848,6 +1916,10 @@ void plugin_shutdown_all (void)
+@@ -2018,6 +2086,10 @@ void plugin_shutdown_all (void)
  	destroy_all_callbacks (&list_shutdown);
  	destroy_all_callbacks (&list_log);
  
@@ -222,7 +960,7 @@ index 3a95f36..8a77a81 100644
  	plugin_free_loaded ();
  	plugin_free_data_sets ();
  } /* void plugin_shutdown_all */
-@@ -2281,6 +2353,42 @@ int plugin_dispatch_notification (const notification_t *notif)
+@@ -2451,6 +2523,42 @@ int plugin_dispatch_notification (const notification_t *notif)
  	return (0);
  } /* int plugin_dispatch_notification */
  
@@ -266,10 +1004,10 @@ index 3a95f36..8a77a81 100644
  {
  	char msg[1024];
 diff --git a/src/daemon/plugin.h b/src/daemon/plugin.h
-index 86a2d66..2778872 100644
+index b1adb52..4244382 100644
 --- a/src/daemon/plugin.h
 +++ b/src/daemon/plugin.h
-@@ -198,6 +198,29 @@ typedef void (*plugin_log_cb) (int severity, const char *message,
+@@ -200,6 +200,29 @@ typedef void (*plugin_log_cb) (int severity, const char *message,
  typedef int (*plugin_shutdown_cb) (void);
  typedef int (*plugin_notification_cb) (const notification_t *,
  		user_data_t *);
@@ -299,7 +1037,7 @@ index 86a2d66..2778872 100644
  
  /*
   * NAME
-@@ -308,6 +331,34 @@ int plugin_register_log (const char *name,
+@@ -310,6 +333,34 @@ int plugin_register_log (const char *name,
  		plugin_log_cb callback, user_data_t *user_data);
  int plugin_register_notification (const char *name,
  		plugin_notification_cb callback, user_data_t *user_data);
@@ -334,7 +1072,7 @@ index 86a2d66..2778872 100644
  
  int plugin_unregister_config (const char *name);
  int plugin_unregister_complex_config (const char *name);
-@@ -321,6 +372,9 @@ int plugin_unregister_shutdown (const char *name);
+@@ -323,6 +374,9 @@ int plugin_unregister_shutdown (const char *name);
  int plugin_unregister_data_set (const char *name);
  int plugin_unregister_log (const char *name);
  int plugin_unregister_notification (const char *name);
@@ -342,9 +1080,9 @@ index 86a2d66..2778872 100644
 +int plugin_unregister_kstat (const char *name);
 +#endif
  
- 
  /*
-@@ -379,6 +433,10 @@ int plugin_dispatch_missing (const value_list_t *vl);
+  * NAME
+@@ -392,6 +446,10 @@ int plugin_dispatch_missing (const value_list_t *vl);
  
  int plugin_dispatch_notification (const notification_t *notif);
  
@@ -356,140 +1094,110 @@ index 86a2d66..2778872 100644
  	__attribute__ ((format(printf,2,3)));
  
 
-From 4c2132da0b64722cf417f5d01ebf8a49cba4cea1 Mon Sep 17 00:00:00 2001
+From 16fd60995273ad41abc20142d7334aa77051a3ed Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Fri, 23 Jan 2015 19:21:41 +0100
-Subject: [PATCH 3/9] Incremental detection of changes in kstat chain.
+Subject: [PATCH 04/10] Incremental detection of changes in kstat chain.
 
 Use a hash table to detect which kstats have been added/removed
 by a chain update and invoke the appropriate plugin callbacks.
 ---
- src/daemon/collectd.c | 201 ++++++++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 193 insertions(+), 8 deletions(-)
+ src/daemon/collectd.c | 141 +++++++++++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 133 insertions(+), 8 deletions(-)
 
 diff --git a/src/daemon/collectd.c b/src/daemon/collectd.c
-index 1b9c374..ecde9c9 100644
+index fc52933..9917d66 100644
 --- a/src/daemon/collectd.c
 +++ b/src/daemon/collectd.c
-@@ -59,6 +59,173 @@ int  pidfile_from_cli = 0;
+@@ -31,6 +31,8 @@
+ #include "plugin.h"
+ #include "configfile.h"
+ 
++#include "utils_hashtable.h"
++
+ #include <sys/types.h>
+ #include <sys/un.h>
+ #include <netdb.h>
+@@ -58,6 +60,111 @@ int  pidfile_from_cli = 0;
  int  timeout_g;
  #if HAVE_LIBKSTAT
  kstat_ctl_t *kc;
 +
 +
-+/* FNV-1a hash algorithm (32-bit) */
-+typedef uint32_t hash_t;
-+static const hash_t hash_init = 2166136261UL;
-+static const hash_t hash_mult = 16777619UL;
-+
-+/* for 64-bit hash use:
-+typedef uint64_t hash_t;
-+static const hash_t hash_init = 14695981039346656037ULL;
-+static const hash_t hash_mult = 1099511628211ULL;
-+*/
-+
-+static inline hash_t
-+hash_update (hash_t h, unsigned char input)
-+{
-+	return (h ^ input) * hash_mult;
-+}
-+
-+static inline hash_t
-+hash_update_str (hash_t h, const char *str)
-+{
-+	for (; *str != 0; str++)
-+		h = hash_update (h, (unsigned char) *str);
-+	return h;
-+}
-+
-+static inline hash_t
-+hash_update_mem (hash_t h, const void *data, unsigned len)
-+{
-+	const unsigned char *c = data;
-+	unsigned i;
-+	for (i = 0; i < len; i++)
-+		h = hash_update (h, c[i]);
-+	return h;
-+}
-+
-+
 +struct kstat_entry {
-+	struct kstat_entry *next;
 +	unsigned generation;
 +	kstat_info_t info;
 +};
 +
 +
 +struct kstat_table {
++	hashtable_t table;
 +	unsigned generation;
-+	unsigned buckets;
-+	unsigned entries;
-+	struct kstat_entry **bucket;
 +};
 +
 +
 +static void
 +kst_init (struct kstat_table *table, kstat_t *chain)
 +{
-+	unsigned size = 0;
-+	kstat_t *k;
-+	/* Count the kstat entries and use this to size the hash table. */
-+	for (k = chain; k != NULL; k = k->ks_next)
-+		size++;
-+	if (size < 32)
-+		size = 32;
-+
 +	table->generation = 0;
-+	table->buckets = size;
-+	table->entries = 0;
-+	table->bucket = malloc (table->buckets * sizeof (*table->bucket));
-+	if (table->bucket == NULL)
++
++	int rc = hashtable_init (&table->table, sizeof (struct kstat_entry), 0, 8);
++	if (rc != 0)
 +	{
-+		ERROR ("Failed to initialize kstat hash table: out of memory.");
++		ERROR ("Failed to initialize kstat hash table: %s", strerror (rc));
 +		return;
 +	}
-+	memset (table->bucket, 0, table->buckets * sizeof (*table->bucket));
++}
++
++
++static bool
++kid_compare (void *_ksi, void *_kid)
++{
++	struct kstat_entry *const ksi = _ksi;
++	return ksi->info.id == * (kid_t *) _kid;
++}
++
++
++static bool
++kstat_sweep (void *_ksi, void *_table)
++{
++	struct kstat_entry *const ksi = _ksi;
++	struct kstat_table *const table = _table;
++
++	if (ksi->generation != table->generation)
++	{
++		DEBUG ("removed kstat item %s:%d:%s:%s", ksi->info.module,
++				ksi->info.instance, ksi->info.name, ksi->info.class);
++
++		/* The pointer is already invalid, set it to NULL to
++		 * ensure plugins don't mess with it. */
++		ksi->info.kstat = NULL;
++		plugin_dispatch_kstat (KSTAT_REMOVED, &ksi->info);
++
++		hashtable_delete (&table->table, ksi);
++	}
++
++	return false;
 +}
 +
 +
 +static void
 +kst_update (struct kstat_table *table, kstat_t *chain)
 +{
-+	unsigned bucket;
-+
-+	if (table->bucket == NULL)
-+	{
-+		ERROR ("kstat hash table is not initialized.");
-+		return;
-+	}
-+
 +	table->generation++;
 +
 +	/* Insert any newly-appeared kstats into the hash table, and mark those
 +	 * that already exist by updating their generation field. */
 +	for (; chain != NULL; chain = chain->ks_next)
 +	{
-+		hash_t h = hash_update_mem (hash_init, &chain->ks_kid, sizeof (chain->ks_kid));
-+		bucket = h % table->buckets;
++		struct kstat_entry *ksi = NULL;
++		int rc = hashtable_lookup (&table->table, chain->ks_kid, kid_compare, &chain->ks_kid, (void **) &ksi);
 +
-+		struct kstat_entry *ksi = table->bucket[bucket];
-+		while (ksi != NULL && ksi->info.id != chain->ks_kid)
-+			ksi = ksi->next;
++		ksi->generation = table->generation;
 +
-+		if (ksi == NULL) {
++		if (rc != 0)
++		{
 +			/* new kstat */
-+			ksi = malloc (sizeof (*ksi));
-+			if (ksi == NULL)
-+			{
-+				ERROR ("Cannot insert entry to kstat hash table: out of memory.");
-+				continue;
-+			}
-+
-+			table->entries++;
-+
-+			ksi->next = table->bucket[bucket];
-+			table->bucket[bucket] = ksi;
-+
 +			ksi->info.kstat = chain;
 +			ksi->info.id = chain->ks_kid;
 +			sstrncpy (ksi->info.module, chain->ks_module,
@@ -505,47 +1213,24 @@ index 1b9c374..ecde9c9 100644
 +					chain->ks_instance, chain->ks_name, chain->ks_class);
 +
 +			plugin_dispatch_kstat (KSTAT_ADDED, &ksi->info);
-+		}
 +
-+		ksi->generation = table->generation;
++			hashtable_insert (&table->table, ksi);
++		}
 +	}
 +
 +	/* Now, find any entries in the table which haven't had their
 +	 * generation field updated in the previous step. Those
 +	 * correspond to kstats that have disappeared from the chain. */
-+	for (bucket = 0; bucket < table->buckets; bucket++)
-+	{
-+		struct kstat_entry **ksi = &table->bucket[bucket];
-+		while (*ksi != NULL) {
-+			if ((*ksi)->generation == table->generation)
-+			{
-+				ksi = &(*ksi)->next;
-+			}
-+			else
-+			{
-+				/* removed kstat */
-+				DEBUG ("removed kstat item %s:%d:%s:%s", (*ksi)->info.module,
-+						(*ksi)->info.instance, (*ksi)->info.name, (*ksi)->info.class);
-+
-+				/* The pointer is already invalid, set it to NULL to
-+				 * ensure plugins don't mess with it. */
-+				(*ksi)->info.kstat = NULL;
-+				plugin_dispatch_kstat (KSTAT_REMOVED, &(*ksi)->info);
-+
-+				table->entries--;
-+				struct kstat_entry *next = (*ksi)->next;
-+				free (*ksi);
-+				*ksi = next;
-+			}
-+		}
-+	}
++	hashtable_start_bulk_update (&table->table);
++	hashtable_traverse (&table->table, kstat_sweep, table);
++	hashtable_end_bulk_update (&table->table);
 +}
 +
 +struct kstat_table kstat_table;
  #endif /* HAVE_LIBKSTAT */
  
  static int loop = 0;
-@@ -240,12 +407,14 @@ static int change_basedir (const char *orig_dir)
+@@ -241,12 +348,14 @@ static int change_basedir (const char *orig_dir)
  } /* static int change_basedir (char *dir) */
  
  #if HAVE_LIBKSTAT
@@ -561,7 +1246,7 @@ index 1b9c374..ecde9c9 100644
  	}
  	else
  	{
-@@ -254,15 +423,21 @@ static void update_kstat (void)
+@@ -255,15 +364,21 @@ static void update_kstat (void)
  		if (kid > 0)
  		{
  			INFO ("kstat chain has been updated");
@@ -587,7 +1272,7 @@ index 1b9c374..ecde9c9 100644
  #endif /* HAVE_LIBKSTAT */
  
  /* TODO
-@@ -304,9 +479,12 @@ static int do_init (void)
+@@ -305,9 +420,12 @@ static int do_init (void)
  
  #if HAVE_LIBKSTAT
  	kc = NULL;
@@ -602,7 +1287,7 @@ index 1b9c374..ecde9c9 100644
  #if HAVE_LIBSTATGRAB
  	if (sg_init (
  # if HAVE_LIBSTATGRAB_0_90
-@@ -327,6 +505,13 @@ static int do_init (void)
+@@ -328,6 +446,13 @@ static int do_init (void)
  
  	plugin_init_all ();
  
@@ -616,7 +1301,7 @@ index 1b9c374..ecde9c9 100644
  	return (0);
  } /* int do_init () */
  
-@@ -344,7 +529,7 @@ static int do_loop (void)
+@@ -345,7 +470,7 @@ static int do_loop (void)
  		cdtime_t now;
  
  #if HAVE_LIBKSTAT
@@ -626,20 +1311,20 @@ index 1b9c374..ecde9c9 100644
  
  		/* Issue all plugins */
 
-From f8c9c934728b62ca9fa297344f1bba0e753ab37d Mon Sep 17 00:00:00 2001
+From 06174e412e29eaae6c82c99efdc3575756964985 Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Sat, 24 Jan 2015 11:47:51 +0100
-Subject: [PATCH 4/9] Convert interface plugin to new kstat infrastructure.
+Subject: [PATCH 05/10] Convert interface plugin to new kstat infrastructure.
 
 ---
  src/interface.c | 74 +++++++++++++++++++++++++++++----------------------------
  1 file changed, 38 insertions(+), 36 deletions(-)
 
 diff --git a/src/interface.c b/src/interface.c
-index df8ffb4..09165ac 100644
+index e17711e..8cb17fa 100644
 --- a/src/interface.c
 +++ b/src/interface.c
-@@ -94,10 +94,8 @@ static int config_keys_num = 2;
+@@ -91,10 +91,8 @@ static int config_keys_num = 2;
  static ignorelist_t *ignorelist = NULL;
  
  #ifdef HAVE_LIBKSTAT
@@ -651,7 +1336,7 @@ index df8ffb4..09165ac 100644
  #endif /* HAVE_LIBKSTAT */
  
  static int interface_config (const char *key, const char *value)
-@@ -125,30 +123,32 @@ static int interface_config (const char *key, const char *value)
+@@ -122,30 +120,32 @@ static int interface_config (const char *key, const char *value)
  }
  
  #if HAVE_LIBKSTAT
@@ -702,7 +1387,7 @@ index df8ffb4..09165ac 100644
  
  	return (0);
  } /* int interface_init */
-@@ -292,38 +292,40 @@ static int interface_read (void)
+@@ -289,38 +289,40 @@ static int interface_read (void)
  	if (kc == NULL)
  		return (-1);
  
@@ -759,17 +1444,17 @@ index df8ffb4..09165ac 100644
  /* #endif HAVE_LIBKSTAT */
  
 
-From e181b9d84493a0cdc2535f6c65a670ea5b56618f Mon Sep 17 00:00:00 2001
+From 6f4309d3b057dec6515360f154e6e69e8ef2c284 Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Sat, 24 Jan 2015 12:00:29 +0100
-Subject: [PATCH 5/9] Convert cpu plugin to new kstat infrastructure.
+Subject: [PATCH 06/10] Convert cpu plugin to new kstat infrastructure.
 
 ---
  src/cpu.c | 34 ++++++++++++----------------------
  1 file changed, 12 insertions(+), 22 deletions(-)
 
 diff --git a/src/cpu.c b/src/cpu.c
-index 57af2dd..6cf478a 100644
+index bcaea38..a2d7b0f 100644
 --- a/src/cpu.c
 +++ b/src/cpu.c
 @@ -138,11 +138,8 @@ static mach_msg_type_number_t cpu_list_len;
@@ -833,21 +1518,21 @@ index 57af2dd..6cf478a 100644
  /* }}} #endif defined(HAVE_LIBKSTAT) */
  
 
-From a3a83fb724f00a8c6c97e0fbf2e8949dba990ed3 Mon Sep 17 00:00:00 2001
+From c7a940c6aa1d5d9528a5493f2131ad12d9330fde Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Sat, 24 Jan 2015 12:10:19 +0100
-Subject: [PATCH 6/9] Convert disk plugin to new kstat infrastructure.
+Subject: [PATCH 07/10] Convert disk plugin to new kstat infrastructure.
 
 ---
  src/disk.c | 49 +++++++++++++++++++++----------------------------
  1 file changed, 21 insertions(+), 28 deletions(-)
 
 diff --git a/src/disk.c b/src/disk.c
-index 8830403..06afdeb 100644
+index 8f8f370..038332e 100644
 --- a/src/disk.c
 +++ b/src/disk.c
-@@ -109,10 +109,8 @@ static diskstats_t *disklist;
- /* #endif KERNEL_LINUX */
+@@ -116,10 +116,8 @@ static struct gmesh geom_tree;
+ /* #endif KERNEL_FREEBSD */
  
  #elif HAVE_LIBKSTAT
 -#define MAX_NUMDISK 1024
@@ -858,8 +1543,8 @@ index 8830403..06afdeb 100644
  /* #endif HAVE_LIBKSTAT */
  
  #elif defined(HAVE_LIBSTATGRAB)
-@@ -223,24 +221,18 @@ static int disk_init (void)
- /* #endif KERNEL_LINUX */
+@@ -245,24 +243,18 @@ static int disk_init (void)
+ /* #endif KERNEL_FREEBSD */
  
  #elif HAVE_LIBKSTAT
 -	kstat_t *ksp_chain;
@@ -893,7 +1578,7 @@ index 8830403..06afdeb 100644
  #endif /* HAVE_LIBKSTAT */
  
  	return (0);
-@@ -832,26 +824,27 @@ static int disk_read (void)
+@@ -904,26 +896,27 @@ static int disk_read (void)
  	if (kc == NULL)
  		return (-1);
  
@@ -931,20 +1616,20 @@ index 8830403..06afdeb 100644
  		}
  	}
 
-From a6f340da7c4b9a0085f522d9be6628a1c2e20cb7 Mon Sep 17 00:00:00 2001
+From a32c43b4d1ebd7b44f717bebd0205708046421a5 Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Sat, 24 Jan 2015 12:26:28 +0100
-Subject: [PATCH 7/9] Convert processes plugin to new kstat infrastructure.
+Subject: [PATCH 08/10] Convert processes plugin to new kstat infrastructure.
 
 ---
  src/processes.c | 36 ++++++++++++++++++++++--------------
  1 file changed, 22 insertions(+), 14 deletions(-)
 
 diff --git a/src/processes.c b/src/processes.c
-index 68f30a5..614900c 100644
+index d094e73..fc2d334 100644
 --- a/src/processes.c
 +++ b/src/processes.c
-@@ -136,6 +136,10 @@
+@@ -151,6 +151,10 @@
  # endif
  #endif
  
@@ -955,7 +1640,7 @@ index 68f30a5..614900c 100644
  typedef struct procstat_entry_s
  {
  	unsigned long id;
-@@ -631,6 +635,16 @@ static int ps_init (void)
+@@ -665,6 +669,16 @@ static int ps_init (void)
  	pagesize = getpagesize();
  #endif /* HAVE_PROCINFO_H */
  
@@ -972,7 +1657,7 @@ index 68f30a5..614900c 100644
  	return (0);
  } /* int ps_init */
  
-@@ -1344,28 +1358,22 @@ static int ps_read_process(int pid, procstat_t *ps, char *state)
+@@ -1470,28 +1484,22 @@ static int ps_read_process(long pid, procstat_t *ps, char *state)
  static int read_fork_rate()
  {
  	extern kstat_ctl_t *kc;
@@ -1010,10 +1695,10 @@ index 68f30a5..614900c 100644
  
  	ps_submit_fork_rate (result);
 
-From 6c2f439d30077e6ced03ec6fe0ac89b5912edc0e Mon Sep 17 00:00:00 2001
+From 7d9553ffbf0796eef769fbbc7f7d00b3c649c833 Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Sat, 24 Jan 2015 12:29:23 +0100
-Subject: [PATCH 8/9] Convert tape plugin to new kstat infrastructure.
+Subject: [PATCH 09/10] Convert tape plugin to new kstat infrastructure.
 
 ---
  src/tape.c | 51 ++++++++++++++++-----------------------------------
@@ -1097,10 +1782,10 @@ index a8e7dc4..698aa53 100644
  
  	return (0);
 
-From be82fcd2fa76d26b1f3ac0552ee07f93fc5ab488 Mon Sep 17 00:00:00 2001
+From b6b1e5e5a277488a0b17ab5d3f2f21081f2aa22e Mon Sep 17 00:00:00 2001
 From: Jan Andres <jandres@gmx.net>
 Date: Mon, 26 Jan 2015 22:19:07 +0100
-Subject: [PATCH 9/9] Fix handling of interface kstats on Solaris.
+Subject: [PATCH 10/10] Fix handling of interface kstats on Solaris.
 
 For Solaris 10 and older, use those kstats that have the interface
 name in ks_name.
@@ -1108,18 +1793,19 @@ name in ks_name.
 For Solaris 11, use the kstats from the "link" and "ipmp" modules.
 Prepend zone name to the interface name, if applicable.
 ---
- configure.ac    |  6 ++++
+ configure.ac    |  7 +++++
  src/interface.c | 95 +++++++++++++++++++++++++++++++++++++++++++++++++--------
- 2 files changed, 89 insertions(+), 12 deletions(-)
+ 2 files changed, 90 insertions(+), 12 deletions(-)
 
 diff --git a/configure.ac b/configure.ac
-index ee18c72..51e4f86 100644
+index 3f5f2d8..9362228 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -589,6 +589,12 @@ AC_CHECK_HEADERS(net/pfvar.h,
- have_termios_h="no"
- AC_CHECK_HEADERS(termios.h, [have_termios_h="yes"])
+@@ -675,6 +675,13 @@ have_cpuid_h="no"
+ AC_CHECK_HEADERS(cpuid.h, [have_cpuid_h="yes"])
  
+ AC_CHECK_HEADERS(sys/capability.h)
++
 +# For the interface plugin on Solaris
 +if test "x$ac_system" = "xSolaris"
 +then
@@ -1130,10 +1816,10 @@ index ee18c72..51e4f86 100644
  # Checks for typedefs, structures, and compiler characteristics.
  #
 diff --git a/src/interface.c b/src/interface.c
-index 09165ac..66b9801 100644
+index 8cb17fa..34bdbc7 100644
 --- a/src/interface.c
 +++ b/src/interface.c
-@@ -58,6 +58,10 @@
+@@ -55,6 +55,10 @@
  # include <libperfstat.h>
  #endif
  
@@ -1144,7 +1830,7 @@ index 09165ac..66b9801 100644
  /*
   * Various people have reported problems with `getifaddrs' and varying versions
   * of `glibc'. That's why it's disabled by default. Since more statistics are
-@@ -123,20 +127,55 @@ static int interface_config (const char *key, const char *value)
+@@ -120,20 +124,55 @@ static int interface_config (const char *key, const char *value)
  }
  
  #if HAVE_LIBKSTAT
@@ -1209,7 +1895,7 @@ index 09165ac..66b9801 100644
  }
  
  
-@@ -299,6 +338,38 @@ static int interface_read (void)
+@@ -296,6 +335,38 @@ static int interface_read (void)
  		if (kstat_read (kc, ks, NULL) == -1)
  			continue;
  
@@ -1248,7 +1934,7 @@ index 09165ac..66b9801 100644
  		/* try to get 64bit counters */
  		rx = get_kstat_value (ks, "rbytes64");
  		tx = get_kstat_value (ks, "obytes64");
-@@ -308,7 +379,7 @@ static int interface_read (void)
+@@ -305,7 +376,7 @@ static int interface_read (void)
  		if (tx == -1LL)
  			tx = get_kstat_value (ks, "obytes");
  		if ((rx != -1LL) || (tx != -1LL))
@@ -1257,7 +1943,7 @@ index 09165ac..66b9801 100644
  
  		/* try to get 64bit counters */
  		rx = get_kstat_value (ks, "ipackets64");
-@@ -319,13 +390,13 @@ static int interface_read (void)
+@@ -316,13 +387,13 @@ static int interface_read (void)
  		if (tx == -1LL)
  			tx = get_kstat_value (ks, "opackets");
  		if ((rx != -1LL) || (tx != -1LL))
