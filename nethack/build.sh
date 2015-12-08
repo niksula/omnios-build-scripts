@@ -28,43 +28,50 @@
 . ../../lib/functions.sh
 
 PROG=nethack
-VER=3.4.3
+VER=3.6.0
 VERHUMAN=$VER
 PKG=games/nethack
 SUMMARY="NetHack, roguelike dungeon crawl game"
 DESC="$SUMMARY"
 
+BUILD_DEPENDS_IPS='developer/lexer/flex'
+
 BUILDARCH=64
+MAKE_JOBS=
 
 configure64() {
-    logcmd sh sys/unix/setup.sh
+    pushd sys/unix >/dev/null
+    logcmd sh setup.sh hints/unix || logerr 'setup.sh failed'
+    popd >/dev/null
 }
 
 make_prog64() {
     logmsg '--- make'
-    logcmd $MAKE CC="$CC" CFLAGS="$CFLAGS $CFLAGS64 -I../include" LFLAGS="$LDFLAGS $LDFLAGS64" $MAKE_JOBS all || logerr '--- make failed'
+    logcmd $MAKE CC="$CC" LINK="$CC" CFLAGS="$CFLAGS $CFLAGS64 -I../include" LFLAGS="$LDFLAGS $LDFLAGS64" WINTTYLIB=-lncurses LEX=flex $MAKE_JOBS all || logerr '--- make failed'
 }
 
 make_install64() {
-    HACKDIR=${DESTDIR}/${PREFIX}/games/lib/nethack
+    HACKDIR=${DESTDIR}${PREFIX}/games/lib/nethack
     VAR_PLAYGROUND=${DESTDIR}/var/games/nethack
-    MANDIR=${DESTDIR}/${PREFIX}/share/man/man6
+    MANDIR=${DESTDIR}${PREFIX}/share/man/man6
     logmsg '--- make install'
-    logcmd $MAKE GAMEDIR=$HACKDIR VARDIR=$VAR_PLAYGROUND PREFIX=${DESTDIR}/${PREFIX} CHOWN=: CHGRP=: install
+    logcmd $MAKE HACKDIR=$HACKDIR VARDIR=$VAR_PLAYGROUND PREFIX=${DESTDIR}${PREFIX} CHOWN=: CHGRP=: SHELLDIR=${DESTDIR}${PREFIX}/bin install || logerr 'make install failed'
+    mkdir ${DESTDIR}${PREFIX}/etc
+    logcmd install -m 0644 sys/unix/sysconf ${DESTDIR}${PREFIX}/etc/nethackrc || logerr 'install nethackrc failed'
     # install manpages too
-    pushd doc
+    pushd doc >/dev/null
     mkdir -p $MANDIR
-    logcmd $MAKE MANDIR=$MANDIR manpages
+    logcmd $MAKE MANDIR=$MANDIR manpages || logerr 'make manpages failed'
     popd >/dev/null
-    mkdir -p ${DESTDIR}/${PREFIX}/bin
-    mv ${HACKDIR}/nethack ${DESTDIR}/${PREFIX}/bin
     # usr/games/nethack is normally a wrapper script but we don't need one (and
-    # it would have wrong paths in it since it's created during make install)
-    ln -sf ../bin/nethack ${DESTDIR}/${PREFIX}/games/nethack
+    # it has the tmpdir paths in it anyway, so it doesn't work)
+    mv ${HACKDIR}/nethack ${DESTDIR}${PREFIX}/bin
+    ln -sf ../bin/nethack ${DESTDIR}${PREFIX}/games/nethack
 }
 
 init
-download_source $PROG "nethack-343-src"
+VERNUM=${VER//./}
+download_source $PROG "nethack-$VERNUM-src"
 patch_source
 prep_build
 build

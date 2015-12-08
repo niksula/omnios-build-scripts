@@ -1,22 +1,9 @@
-From cee9cff2d036e5f0e69bdc1394d7b9a8ef53af5b Mon Sep 17 00:00:00 2001
-From: Lauri Tirkkonen <lotheac@iki.fi>
-Date: Tue, 24 Sep 2013 13:44:25 +0000
-Subject: [PATCH] add orvoposter rumors
-
----
- dat/rumors.orvo       | 3049 +++++++++++++++++++++++++++++++++++++++++++++++++
- src/rumors.c          |    2 +-
- sys/unix/Makefile.dat |    2 +-
- util/makedefs.c       |   15 +
- 4 files changed, 3066 insertions(+), 2 deletions(-)
- create mode 100644 dat/rumors.orvo
-
-diff --git a/dat/rumors.orvo b/dat/rumors.orvo
-new file mode 100644
-index 0000000..dfeb3fa
---- /dev/null
-+++ b/dat/rumors.orvo
-@@ -0,0 +1,3049 @@
+--- a/dat/rumors.fal	Tue Dec  8 10:32:58 2015
++++ b/dat/rumors.fal	Tue Dec  8 10:33:03 2015
+@@ -390,3 +390,3052 @@
+ You swallowed the fortune!
+ You want to regain strength?  Two levels ahead is a guesthouse!
+ You will encounter a tall, dark, and gruesome creature...
 +0,39e jalka mk
 +1000 ruplaa/pelmeni. Elämä on.
 +100g:aan meetvurstia on käytetty 114g hevosta. Valmistettu täyshevostiivisteestä.
@@ -3066,58 +3053,14 @@ index 0000000..dfeb3fa
 +ösh
 +Ösqy känny mkyy. Tyrkkyjä Mytrylle!
 +Ø, ø, Nøgne Ø, Nøgne Øs øl.
-diff --git a/src/rumors.c b/src/rumors.c
-index 3272d1c..f05a91f 100644
---- a/src/rumors.c
-+++ b/src/rumors.c
-@@ -358,7 +358,7 @@ register struct monst *oracl;
- 	flags.botl = 1;
- 	add_xpts = 0;	/* first oracle of each type gives experience points */
- 	if (u_pay == minor_cost) {
--		outrumor(1, BY_ORACLE);
-+		outrumor(-1, BY_ORACLE);
- 		if (!u.uevent.minor_oracle)
- 		    add_xpts = u_pay / (u.uevent.major_oracle ? 25 : 10);
- 		    /* 5 pts if very 1st, or 2 pts if major already done */
-diff --git a/sys/unix/Makefile.dat b/sys/unix/Makefile.dat
-index 75a5aa8..2272816 100644
---- a/sys/unix/Makefile.dat
-+++ b/sys/unix/Makefile.dat
-@@ -85,7 +85,7 @@ GEM_RSC.RSC:
- data:	data.base ../util/makedefs
- 	../util/makedefs -d
- 
--rumors:	rumors.tru rumors.fal ../util/makedefs
-+rumors:	rumors.tru rumors.fal rumors.orvo ../util/makedefs
- 	../util/makedefs -r
- 
- quest.dat:	quest.txt ../util/makedefs
-diff --git a/util/makedefs.c b/util/makedefs.c
-index 23dace2..0cf1bc4 100644
---- a/util/makedefs.c
-+++ b/util/makedefs.c
-@@ -404,6 +404,21 @@ do_rumors()
- 		(void) fputs(xcrypt(in_line), ofp);
- 
- 	Fclose(ifp);
-+
-+	Sprintf(infile, DATA_IN_TEMPLATE, RUMOR_FILE);
-+	Strcat(infile, ".orvo");
-+	if (!(ifp = fopen(infile, RDTMODE))) {
-+		perror(infile);
-+		Fclose(ofp);
-+		Unlink(filename);	/* kill incomplete output file */
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	/* copy orvoposter rumors */
-+	while (fgets(in_line, sizeof in_line, ifp) != 0)
-+		(void) fputs(xcrypt(in_line), ofp);
-+
-+        Fclose(ifp);
- 	Fclose(ofp);
- 	return;
- }
--- 
-1.8.1.3
-
+--- a/src/rumors.c	Tue Dec  8 10:29:50 2015
++++ b/src/rumors.c	Tue Dec  8 10:30:45 2015
+@@ -524,7 +524,7 @@
+     context.botl = 1;
+     add_xpts = 0; /* first oracle of each type gives experience points */
+     if (u_pay == minor_cost) {
+-        outrumor(1, BY_ORACLE);
++        outrumor(-1, BY_ORACLE);
+         if (!u.uevent.minor_oracle)
+             add_xpts = u_pay / (u.uevent.major_oracle ? 25 : 10);
+         /* 5 pts if very 1st, or 2 pts if major already done */
