@@ -58,6 +58,10 @@ BUILDARCH=64
 make_install64() {
     logmsg '--- make install'
     logcmd $MAKE DESTDIR=$DESTDIR DESTSHARED=${PREFIX}/lib/python${VERMAJOR}/lib-dynload install || logerr '--- make install failed'
+    # 3.5.0 -> 3.5.1 upgrade managed to create a package that did not include
+    # bin/pip3 nor bin/pip3.5. Could not reproduce it rebuilding 3.5.1, so
+    # check for it here in case it happens in the future.
+    [ -f "$DESTDIR$PREFIX"/bin/pip3 ] || logerr 'pip executable not installed; ensurepip problem?'
 }
 
 PKG_CONFIG="${PREFIX}/bin/pkg-config"
