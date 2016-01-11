@@ -32,7 +32,7 @@ VER=1.36
 VERHUMAN=1.36
 # ioq3 team doesn't seem to make releases, so let's just decide to build some
 # known good version
-commit=6a763f0
+commit=42dee17663cfc841fe6d0933f5c1dc10463e2dbd
 PKG=service/games/ioquake3
 SUMMARY="Standalone server for ioQuake3 based games"
 DESC="$SUMMARY"
