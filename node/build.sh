@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=node
-VER=4.2.4
+VER=0.10.41
 VERHUMAN=$VER
 PKG=runtime/node
 SUMMARY="JavaScript runtime built on Chrome's V8 JavaScript engine"
