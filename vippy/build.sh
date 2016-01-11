@@ -28,27 +28,40 @@
 . ../../lib/functions.sh
 
 PROG=vippy
-VER=0.0.10
-PKG=omniti/runtime/nodejs/$PROG
+VER=0.0.11
+PKG=runtime/node/$PROG
 SUMMARY="VIP management (juggler of IPs)"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS="omniti/runtime/nodejs"
-DEPENDS_IPS="omniti/runtime/nodejs"
+BUILD_DEPENDS_IPS="runtime/node"
+DEPENDS_IPS="runtime/node"
 
 BUILDARCH=64
 
-PATH=/usr/gnu/bin:$PATH
-export PATH
+# need 'node' in PATH, and 'make' to be gmake
+PATH=${PREFIX}/bin:/usr/gnu/bin:$PATH
+
+# XXX normally we would like to keep local copies of all sources we build
+# packages from, but unfortunately there does not seem to be a way to tell npm
+# to not hit the online repository for dependencies. So let's just do what
+# everyone else is doing and blindly install things directly from the interwebs
+# npm repository.
+build_npm() {
+    mkdir -p ${DESTDIR}${PREFIX}/lib
+    pushd ${DESTDIR}${PREFIX}/lib >/dev/null
+    logcmd npm install $PROG@$VER || logerr '--- npm install failed'
+    rm -f npm-debug.log
+    popd >/dev/null
+}
 
 init
 prep_build
 build_npm
-logcmd mkdir -p $DESTDIR/opt/omni/bin || logerr "mkdir bin failed"
-logcmd mkdir -p $DESTDIR/opt/omni/sbin || logerr "mkdir sbin failed"
-logcmd ln -s ../lib/node/.bin/vippyctl $DESTDIR/opt/omni/bin/vippyctl \
+logcmd mkdir -p $DESTDIR$PREFIX/bin || logerr "mkdir bin failed"
+logcmd mkdir -p $DESTDIR$PREFIX/sbin || logerr "mkdir sbin failed"
+logcmd ln -s ../lib/node_modules/.bin/vippyctl $DESTDIR$PREFIX/bin/vippyctl \
 	|| logerr "Failed to link vippyctl"
-logcmd ln -s ../lib/node/.bin/vippyd $DESTDIR/opt/omni/sbin/vippyd \
+logcmd ln -s ../lib/node_modules/.bin/vippyd $DESTDIR$PREFIX/sbin/vippyd \
 	|| logerr "Failed to link vippyd"
 logcmd mkdir -p $DESTDIR/lib/svc/manifest/network \
 	|| logerr "Failed to mkdir for SMF manifest"
