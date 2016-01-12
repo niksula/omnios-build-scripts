@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=znapzend
-VER=0.14.0
+VER=0.14.1
 VERHUMAN=$VER
 PKG=service/storage/znapzend
 SUMMARY="zfs backup with mbuffer and ssh support"
@@ -42,12 +42,21 @@ PREFIX=${PREFIX}/perl5
 PATH=${PREFIX}/bin:${PATH}
 CONFIGURE_OPTS_64="--prefix=$PREFIX --enable-pkgonly --mandir=/opt/niksula/share/man --exec-prefix=/opt/niksula --libdir=$(perl -MConfig -e 'print "$Config{sitelib}"') --enable-svcinstall=/lib/svc/manifest/oep"
 
+# this is necessary because of 4b8b81a5c80f293da4583d19f82cf3b384e5d82a.patch
+# to Makefile.am
+run_automake() {
+    pushd $TMPDIR/$BUILDDIR >/dev/null
+    logmsg 'running aclocal && automake'
+    logcmd aclocal || logerr 'aclocal failed'
+    logcmd automake || logerr 'automake failed'
+    popd >/dev/null
+}
+
 init
 download_source $PROG $PROG $VER
 patch_source
 prep_build
-# configure.ac assumes GNU sed/tr; possibly fixed after 0.14.0 in master
-PATH=/usr/gnu/bin:$PATH run_autoconf
+run_automake
 build
 make_package
 clean_up
