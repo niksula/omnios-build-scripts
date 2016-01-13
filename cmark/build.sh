@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=cmark
-VER=0.23.0
+VER=0.24.0
 VERHUMAN=$VER
 PKG=text/cmark
 SUMMARY="CommonMark parsing and rendering library and program in C"
