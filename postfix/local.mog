@@ -22,8 +22,8 @@ group groupname=postdrop
 # perfectly fine: the package we are linting seems to contradict itself:
 #   ERROR pkglint.dupaction010.2      path etc/aliases has missing mediator attributes across actions in pkg:/service/network/smtp/postfix@3.0.3,5.11-0.151014
 # ... so just bypass that particular check.
-link mediator=mta mediator-implementation=postfix path=etc/aliases target=mail/aliases pkg.linted.pkglint.dupaction010=True
-link mediator=mta mediator-implementation=postfix path=usr/bin/mailq target=../../opt/niksula/sbin/sendmail pkg.linted.pkglint.dupaction010=True
-link mediator=mta mediator-implementation=postfix path=usr/sbin/sendmail target=../../opt/niksula/sbin/sendmail pkg.linted.pkglint.dupaction010=True
-link mediator=mta mediator-implementation=postfix path=usr/lib/sendmail target=../../opt/niksula/sbin/sendmail pkg.linted.pkglint.dupaction010=True
-link mediator=mta mediator-implementation=postfix path=usr/sbin/newaliases target=../../opt/niksula/sbin/sendmail pkg.linted.pkglint.dupaction010=True
+link mediator=mta mediator-implementation=postfix mediator-priority=vendor path=etc/aliases target=mail/aliases pkg.linted.pkglint.dupaction010=True
+link mediator=mta mediator-implementation=postfix mediator-priority=vendor path=usr/bin/mailq target=../../opt/niksula/sbin/sendmail pkg.linted.pkglint.dupaction010=True
+link mediator=mta mediator-implementation=postfix mediator-priority=vendor path=usr/sbin/sendmail target=../../opt/niksula/sbin/sendmail pkg.linted.pkglint.dupaction010=True
+link mediator=mta mediator-implementation=postfix mediator-priority=vendor path=usr/lib/sendmail target=../../opt/niksula/sbin/sendmail pkg.linted.pkglint.dupaction010=True
+link mediator=mta mediator-implementation=postfix mediator-priority=vendor path=usr/sbin/newaliases target=../../opt/niksula/sbin/sendmail pkg.linted.pkglint.dupaction010=True
