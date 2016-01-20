@@ -6,6 +6,7 @@ group groupname=postdrop
 <transform dir path=var/lib/postfix -> set group postfix>
 <transform dir path=var/spool/postfix/.+ -> set owner postfix>
 <transform dir path=var/spool/postfix/maildrop -> set group postdrop>
+<transform dir path=var/spool/postfix/maildrop -> set mode 1730>
 <transform dir path=var/spool/postfix/public -> set group postdrop>
 <transform dir path=var/spool/postfix/pid -> set owner root>
 # we only need setgid on the isaexec stubs
