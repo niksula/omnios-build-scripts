@@ -34,23 +34,27 @@ PKG=service/network/smtp/postfix
 SUMMARY="Postfix MTA"
 DESC="Wietse Venema's mail server that started life at IBM research as an alternative to the widely-used Sendmail program. "
 
-CCARGS='-DUSE_TLS -DHAS_LDAP -DUSE_SASL_AUTH -DDEF_SERVER_SASL_TYPE=\"dovecot\" -DNO_NIS -DDEF_MANPAGE_DIR=\"'$PREFIX/share/man'\" -DDEF_COMMAND_DIR=\"'${PREFIX}/sbin'\" -DDEF_MAILQ_PATH=\"'${PREFIX}/bin/mailq'\" -DDEF_NEWALIAS_PATH=\"'${PREFIX}/bin/newaliases'\" -DDEF_CONFIG_DIR=\"'${PREFIX}/etc/postfix'\" '"$CFLAGS"
-CCARGS32='-DDEF_DAEMON_DIR=\"'${PREFIX}/libexec/postfix'\"'
-CCARGS64='-DDEF_DAEMON_DIR=\"'${PREFIX}/libexec/$ISAPART64/postfix'\"'
-AUXLIBS='-lssl -lcrypto'
+BUILD_DEPENDS_IPS='pkg://niksula.hut.fi/database/bdb'
+
+CCARGS='-DUSE_TLS -DHAS_LDAP -DHAS_DB -DUSE_SASL_AUTH -DDEF_SERVER_SASL_TYPE=\"dovecot\" -DNO_NIS -DDEF_MANPAGE_DIR=\"'$PREFIX/share/man'\" -DDEF_COMMAND_DIR=\"'${PREFIX}/sbin'\" -DDEF_MAILQ_PATH=\"'${PREFIX}/bin/mailq'\" -DDEF_NEWALIAS_PATH=\"'${PREFIX}/bin/newaliases'\" -DDEF_CONFIG_DIR=\"'${PREFIX}/etc/postfix'\" '"$CFLAGS"
+CCARGS32='-DDEF_DAEMON_DIR=\"'${PREFIX}/libexec/postfix'\" -I'${PREFIX}/include
+CCARGS64='-DDEF_DAEMON_DIR=\"'${PREFIX}/libexec/$ISAPART64/postfix'\" -I'${PREFIX}/include/$ISAPART64
+AUXLIBS='-lssl -lcrypto -ldb'
+LIBDIR32="-L${PREFIX}/lib -R${PREFIX}/lib"
+LIBDIR64="-L${PREFIX}/lib/$ISAPART64 -R${PREFIX}/lib/$ISAPART64"
 AUXLIBS_LDAP='-lldap'
 
 NOSCRIPTSTUB=1
 
 configure32() {
     logmsg '--- make makefiles'
-    logcmd $MAKE makefiles CCARGS="$CCARGS $CCARGS32 $CFLAGS32" AUXLIBS="$AUXLIBS" AUXLIBS_LDAP="$AUXLIBS_LDAP"
+    logcmd $MAKE makefiles CCARGS="$CCARGS $CCARGS32 $CFLAGS32" AUXLIBS="$AUXLIBS $LIBDIR32" AUXLIBS_LDAP="$AUXLIBS_LDAP"
     cur_isa=${ISAPART}
 }
 
 configure64() {
     logmsg '--- make makefiles'
-    logcmd $MAKE makefiles CCARGS="$CCARGS $CCARGS64 $CFLAGS64" AUXLIBS="$AUXLIBS" AUXLIBS_LDAP="$AUXLIBS_LDAP"
+    logcmd $MAKE makefiles CCARGS="$CCARGS $CCARGS64 $CFLAGS64" AUXLIBS="$AUXLIBS $LIBDIR64" AUXLIBS_LDAP="$AUXLIBS_LDAP"
     cur_isa=${ISAPART64}
 }
 
