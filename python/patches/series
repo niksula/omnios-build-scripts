@@ -1,2 +1,4 @@
 cgi.patch
 pyconfig-includedir.patch
+fix-python-config-ldflags.patch
+fix-distutils-ldflags.patch

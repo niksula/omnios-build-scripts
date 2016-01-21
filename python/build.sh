@@ -31,18 +31,21 @@ PROG=Python
 VER=3.5.1
 VERHUMAN=$VER
 PKG=niksula/runtime/python
-SUMMARY="Python programming language"
+SUMMARY="Python programming language runtime"
 DESC="$SUMMARY"
 VERMAJOR=${VER%.*}
 
 # system ffi is required for 64bit ctypes module
 BUILD_DEPENDS_IPS='library/libffi'
 
-CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-shared --disable-static --with-system-ffi"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-shared --disable-static --with-system-ffi --without-ensurepip"
 
 # ncurses
 LDFLAGS64="$LDFLAGS64 -L/usr/gnu/lib/$ISAPART64 -R/usr/gnu/lib/$ISAPART64"
 CPPFLAGS="$CPPFLAGS -I/usr/include/ncurses"
+
+# make it easier to build native modules with 'pip install' later
+CC="${GCCPATH}/gcc"
 
 # multiarch python is a pain: there seems to be a builtin assumption in
 # Modules/getpath.c about extension modules having a 'lib/python$VERSION' path
@@ -55,12 +58,20 @@ CPPFLAGS="$CPPFLAGS -I/usr/include/ncurses"
 # 64 bit extensions in /64/ under lib-dynload but I can't seem to find how this
 # is being done... just build 64-only for now.
 BUILDARCH=64
+NOSCRIPTSTUB=1
 make_install64() {
     logmsg '--- make install'
     logcmd $MAKE DESTDIR=$DESTDIR DESTSHARED=${PREFIX}/lib/python${VERMAJOR}/lib-dynload install || logerr '--- make install failed'
+}
+ensurepip() {
+    logmsg '--- ensurepip'
     # 3.5.0 -> 3.5.1 upgrade managed to create a package that did not include
-    # bin/pip3 nor bin/pip3.5. Could not reproduce it rebuilding 3.5.1, so
-    # check for it here in case it happens in the future.
+    # bin/pip3 nor bin/pip3.5. That happened because the default
+    # --with-ensurepip option has $PREFIX (without DESTDIR) in its sys.path and
+    # it thinks pip is already installed. So let's just call it manually.
+    LD_LIBRARY_PATH="${DESTDIR}${PREFIX}/lib/amd64" logcmd \
+        ${DESTDIR}${PREFIX}/bin/python$VERMAJOR -E -m ensurepip \
+        || logerr 'pip install failed'
     [ -f "$DESTDIR$PREFIX"/bin/pip3 ] || logerr 'pip executable not installed; ensurepip problem?'
 }
 
@@ -73,6 +84,7 @@ patch_source
 prep_build
 build
 make_isa_stub
+ensurepip
 make_package
 clean_up
 

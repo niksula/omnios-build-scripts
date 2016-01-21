@@ -1,0 +1,38 @@
+diff --git a/Misc/python-config.in b/Misc/python-config.in
+index e13da75..d7c0ad2 100644
+--- a/Misc/python-config.in
++++ b/Misc/python-config.in
+@@ -47,7 +47,11 @@ for opt in opt_flags:
+         print(' '.join(flags))
+ 
+     elif opt in ('--libs', '--ldflags'):
+-        libs = ['-lpython' + pyver + sys.abiflags]
++        if opt == '--ldflags':
++            libs = getvar('LDFLAGS').split()
++        else:
++            libs = []
++        libs.append('-lpython' + pyver + sys.abiflags)
+         libs += getvar('LIBS').split()
+         libs += getvar('SYSLIBS').split()
+         # add the prefix/lib/pythonX.Y/config dir, but only if there is no
+diff --git a/Misc/python-config.sh.in b/Misc/python-config.sh.in
+index 30c6927..a86bd42 100644
+--- a/Misc/python-config.sh.in
++++ b/Misc/python-config.sh.in
+@@ -35,6 +35,7 @@ exec_prefix=$(echo "$exec_prefix_build" | sed "s#$exec_prefix_build#$prefix_real
+ includedir=$(echo "@includedir@" | sed "s#$prefix_build#$prefix_real#")
+ libdir=$(echo "@libdir@" | sed "s#$prefix_build#$prefix_real#")
+ CFLAGS=$(echo "@CFLAGS@" | sed "s#$prefix_build#$prefix_real#")
++LDFLAGS=$(echo "@LDFLAGS@" | sed "s#$prefix_build#$prefix_real#")
+ VERSION="@VERSION@"
+ LIBM="@LIBM@"
+ LIBC="@LIBC@"
+@@ -96,7 +97,7 @@ do
+             if [ "$PY_ENABLE_SHARED" = "0" ] ; then
+                 LIBPLUSED="-L$LIBPL"
+             fi
+-            echo "$LIBPLUSED -L$libdir $LIBS $LINKFORSHAREDUSED"
++            echo "$LDFLAGS $LIBPLUSED -L$libdir $LIBS $LINKFORSHAREDUSED"
+         ;;
+         --extension-suffix)
+             echo "$SO"
