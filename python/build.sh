@@ -38,7 +38,7 @@ VERMAJOR=${VER%.*}
 # system ffi is required for 64bit ctypes module
 BUILD_DEPENDS_IPS='library/libffi'
 
-CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-shared --disable-static --with-system-ffi --without-ensurepip"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-shared --disable-static --with-system-ffi --with-ensurepip=install"
 
 # ncurses
 LDFLAGS64="$LDFLAGS64 -L/usr/gnu/lib/$ISAPART64 -R/usr/gnu/lib/$ISAPART64"
@@ -66,13 +66,14 @@ make_install64() {
 ensurepip() {
     logmsg '--- ensurepip'
     # 3.5.0 -> 3.5.1 upgrade managed to create a package that did not include
-    # bin/pip3 nor bin/pip3.5. That happened because the default
-    # --with-ensurepip option has $PREFIX (without DESTDIR) in its sys.path and
-    # it thinks pip is already installed. So let's just call it manually.
-    LD_LIBRARY_PATH="${DESTDIR}${PREFIX}/lib/amd64" logcmd \
-        ${DESTDIR}${PREFIX}/bin/python$VERMAJOR -E -m ensurepip \
-        || logerr 'pip install failed'
-    [ -f "$DESTDIR$PREFIX"/bin/pip3 ] || logerr 'pip executable not installed; ensurepip problem?'
+    # bin/pip3 nor bin/pip3.5. That happened because the default ./python run
+    # from the builddir (called when --with-ensurepip is specified) has $PREFIX
+    # (without DESTDIR) in its sys.path and it thinks pip is already installed
+    # if a previously installed package contains it. we have a patch for this,
+    # but make sure that pip is *actually* installed and has the correct
+    # hashbang.
+    [ "$(head -1 $DESTDIR$PREFIX/bin/pip3)" = "#!${PREFIX}/bin/amd64/python$VERMAJOR" ] \
+        || logerr 'pip script not installed or has incorrect hashbang'
 }
 
 PKG_CONFIG="${PREFIX}/bin/pkg-config"

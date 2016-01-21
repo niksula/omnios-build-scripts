@@ -1,0 +1,15 @@
+diff --git a/Lib/ensurepip/__init__.py b/Lib/ensurepip/__init__.py
+index 1258833..1ad37d9 100644
+--- a/Lib/ensurepip/__init__.py
++++ b/Lib/ensurepip/__init__.py
+@@ -106,6 +106,10 @@ def bootstrap(*, root=None, upgrade=False, user=False,
+         args = ["install", "--no-index", "--find-links", tmpdir]
+         if root:
+             args += ["--root", root]
++            # remove sys.prefix from sys.path; if we are installing into a
++            # destdir we don't care if pip is already installed under
++            # sys.prefix on the build machine
++            sys.path = [x for x in sys.path if not x.startswith(sys.prefix + '/')]
+         if upgrade:
+             args += ["--upgrade"]
+         if user:
