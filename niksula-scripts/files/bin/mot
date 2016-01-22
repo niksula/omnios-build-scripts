@@ -4,19 +4,19 @@
 #        3.0, 12.02.2007 jasso@niksula.hut.fi
 #        3.1, 12.02.2007 sslaitin@niksula.hut.fi
 #	 3.2, 01.06.2009 jasso@niksula.hut.fi
+#             22.01.2016 ltirkkon@niksula.hut.fi
 
-url="http://mot.kielikone.fi/mot/tkk/netmot.exe?UI=file"
-englanti="&Opt=8&dic=1&SearchWord="
-espanja="&Opt=8&dic=6&SearchWord="
-italia="&Opt=8&dic=8&SearchWord="
-ranska="&Opt=8&dic=4&SearchWord="
-ruotsi="&Opt=8&dic=2&SearchWord="
-saksa="&Opt=8&dic=3&SearchWord="
-venaja="&Opt=8&dic=5&SearchWord="
-atk="&Opt=8&dic=13&SearchWord="
-globaldix="&Opt=8&dic=10&SearchWord="
-gummerus="&Opt=8&dic=11&SearchWord="
-vnkorkeakoulu="&Opt=8&dic=12&SearchWord="
+url="https://mot.kielikone.fi/mot/aalto/netmot.exe"
+englanti=1
+ruotsi=3
+saksa=5
+ranska=7
+espanja=9
+kielitoimisto=10
+venaja=18
+italia=19
+atk=26
+globaldix=28
 lang="$englanti"
 pager=${PAGER-less}
 AWK=nawk
@@ -26,38 +26,47 @@ usage () {
   echo "Lookup word in NetMOT's dictionary."
   echo ""
   echo "Language selection for dictionary:"
-  echo "  -e    English [default]"
-  echo "  -f    French"
-  echo "  -s    German"
-  echo "  -i    Italian"
-  echo "  -v    Russian"
-  echo "  -r    Swedish"
-  echo "  -ñ    Spanish"
-#  echo "  -a    ATK-sanakirja"
-#  echo "  -g    GlobalDix"
+  echo "  -e    English-Finnish [default]"
+  echo "  -f    French-Finnish"
+  echo "  -s    German-Finnish"
+  echo "  -i    Italian-Finnish"
+  echo "  -v    Russian-Finnish"
+  echo "  -r    Swedish-Finnish"
+  echo "  -es   Spanish-Finnish"
+  echo "  -fi   Kielitoimiston sanakirja"
+  echo "  -g    GlobalDix"
+  echo "  -a    Tietotekniikan liiton ATK-sanakirja"
   exit 2
 }
 
 while true; do
   case "$1" in
-   -e) lang="$englanti"; shift ;;
-   -s) lang="$saksa"; shift ;;
-   -f) lang="$ranska"; shift ;;
-   -i) lang="$italia"; shift ;;
-   -v) lang="$venaja"; shift ;;
-   -r) lang="$ruotsi"; shift ;;
-   -ñ) lang="$espanja"; shift ;;
-#   -a) lang="$atk"; shift ;;
-#   -g) lang="$globaldix"; shift ;;
+   -e) lang=$englanti; shift ;;
+   -s) lang=$saksa; shift ;;
+   -f) lang=$ranska; shift ;;
+   -i) lang=$italia; shift ;;
+   -v) lang=$venaja; shift ;;
+   -r) lang=$ruotsi; shift ;;
+   -es) lang=$espanja; shift ;;
+   -fi) lang=${kielitoimisto}; shift ;;
+   -g) lang=$globaldix; shift ;;
+   -a) lang=$atk; shift ;;
    --) shift; break ;;
    -*) usage ;;
    *)  break ;;
   esac
 done
 
-word=`echo "$@" | sed -e 's/ /%20/'`
-[ "$word" ] || usage
+[ -n "$1" ] || usage
 
-lynx -dump -nolist "$url$lang$word" | $AWK 'BEGIN { foo = 0 }
-foo == 4 && !(/__/ && NF == 1) && !/^$/ { print $0 }
-/__/ && NF == 1 { foo++ }'
+curl -isG -d "page=results&UI=fi80&Opt=8&dic=${lang}" \
+    --data-urlencode "SearchWord=$@" $url \
+    | $AWK '
+BEGIN { output = 0 }
+/<td>&nbsp;/ { gsub("<td>&nbsp;&nbsp;</td>", ""); }
+output == 1 { print }
+/class="dichead"/ { head = 1 }
+head == 1 && /<\/div>/ { output = 1 }
+/id="dicsep"/ { exit(0); }
+' \
+    | lynx -dump -nolist -stdin
