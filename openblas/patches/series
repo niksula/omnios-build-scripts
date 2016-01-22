@@ -1,0 +1,7 @@
+0001-don-t-pass-Y-at-all-to-the-linker.patch
+0001-illumos-fixes-to-memory.c.patch
+0002-make-parallel-make-work-on-illumos.patch
+0003-RLIMIT_NPROC-doesn-t-exist-on-illumos.patch
+0004-use-AWK-in-Makefile.install-and-switch-it-to-nawk.patch
+0005-actually-build-the-shared-lib-on-illumos.patch
+0006-actually-install-the-shared-lib-on-illumos.patch

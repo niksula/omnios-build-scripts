@@ -1,0 +1,29 @@
+From 66dcd655b665beebb1a7995a0c86cfd7af990dce Mon Sep 17 00:00:00 2001
+From: Lauri Tirkkonen <lotheac@iki.fi>
+Date: Fri, 22 Jan 2016 18:46:27 +0200
+Subject: [PATCH] don't pass -Y at all to the linker
+
+the illumos linker can't understand the "-Y/lib"... form that f_check
+generates, and -Wl, cannot pass options that include commas
+---
+ f_check | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/f_check b/f_check
+index e7e4688..9b92fab 100644
+--- a/f_check
++++ b/f_check
+@@ -272,8 +272,8 @@ if ($link ne "") {
+ 	}
+ 
+ 	if ($flags =~ /^\-Y/) {
+-	    $linker_L .= "-Wl,". $flags . " ";
+-	    }
++	    next;
++        }
+ 
+ 	if ($flags =~ /^\-rpath\@/) {
+ 	    $flags =~ s/\@/\,/g;
+-- 
+2.6.1
+
