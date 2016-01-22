@@ -59,14 +59,16 @@ done
 
 [ -n "$1" ] || usage
 
-curl -isG -d "page=results&UI=fi80&Opt=8&dic=${lang}" \
+html=$(
+curl -sG -d "page=results&UI=fi80&Opt=8&dic=${lang}" \
     --data-urlencode "SearchWord=$@" $url \
     | $AWK '
 BEGIN { output = 0 }
+/class="foundnone"/ { exit 1; }
 /<td>&nbsp;/ { gsub("<td>&nbsp;&nbsp;</td>", ""); }
 output == 1 { print }
 /class="dichead"/ { head = 1 }
 head == 1 && /<\/div>/ { output = 1 }
-/id="dicsep"/ { exit(0); }
-' \
-    | lynx -dump -nolist -stdin
+/id="dicsep"/ { exit; }
+') || { echo "Word not found." >&2; exit 1; }
+echo "$html" | lynx -dump -nolist -stdin
