@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=unbound
-VER=1.5.3
+VER=1.5.7
 VERHUMAN=$VER
 PKG=network/dns/unbound
 SUMMARY="Validating, recursive, and caching DNS resolver"
@@ -39,6 +39,7 @@ reset_configure_opts
 
 CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static --with-gnu-ld --with-conf-file=/opt/unbound/etc/unbound.conf --with-pidfile="
 NO_PARALLEL_MAKE=1
+BUILDARCH=64
 
 BUILD_DEPENDS_IPS=
 RUN_DEPENDS_IPS=
