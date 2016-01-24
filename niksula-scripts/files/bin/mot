@@ -20,6 +20,11 @@ globaldix=28
 lang="$englanti"
 pager=${PAGER-less}
 AWK=nawk
+if width=$(tput cols) 2>/dev/null; then
+    width="-width=$width"
+else
+    width=
+fi
 
 usage () {
   echo "usage: $0 [option]... word..."
@@ -71,4 +76,4 @@ output == 1 { print }
 head == 1 && /<\/div>/ { output = 1 }
 /id="dicsep"/ { exit; }
 ') || { echo "Word not found." >&2; exit 1; }
-echo "$html" | lynx -dump -nolist -stdin
+echo "$html" | lynx $width -dump -nolist -stdin
