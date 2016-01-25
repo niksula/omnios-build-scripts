@@ -54,12 +54,11 @@ make_install64() {
         || logerr '--- make install failed'
     # XXX: OmniOS r151014 note: libgfortran runtime is not delivered to /usr by
     # any package. Getting rpath options to the openblas build system seems
-    # more trouble than it's worth, so just copy the library to our $PREFIX in
-    # this package and elfedit the .so to add the rpath. yes, it's a hack, and
-    # we will depend on the gcc package at runtime, but it's hopefully
-    # temporary until such time that upstream ships a runtime package to /usr.
+    # more trouble than it's worth, so just and elfedit the .so to add the
+    # rpath. yes, it's a hack, and we will depend on the gcc package at
+    # runtime, but it's hopefully temporary until such time that upstream ships
+    # a runtime package to /usr.
     logmsg '--- hacking rpath'
-    cp -a ${GCCPATH}/../lib/amd64/libgfortran.so{,.3,.3.0.0} $DESTDIR$PREFIX/lib/$ISAPART64/ || logerr 'copying libgfortran failed'
     elfedit -e "dyn:runpath $(readlink -f $GCCPATH/../lib/$ISAPART64)" $DESTDIR$PREFIX/lib/$ISAPART64/libopenblas_sandybridgep-r${VER}.so || logerr 'elfedit dyn:runpath failed'
 }
 
