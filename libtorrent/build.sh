@@ -27,20 +27,30 @@
 # Load support functions
 . ../../lib/functions.sh
 
-# build fails on gcc 4.7.2 so use 4.6
-CC=/opt/gcc-4.6.3/bin/gcc
-CXX=/opt/gcc-4.6.3/bin/g++
-BUILD_DEPENDS_IPS='developer/gcc46'
+# XXX build fails on gcc > 4.6:
+# Text relocation remains                         referenced
+#     against symbol                  offset      in file
+# std::tr1::function<void (torrent::PeerInfo*)>::~function() 0x55         download/.libs/libsub_download.a(download_main.o)
+# std::tr1::function<void (torrent::PeerInfo*)>::~function() 0x6a         download/.libs/libsub_download.a(download_main.o)
+# std::tr1::_Maybe_unary_or_binary_function<void, torrent::PeerInfo*>::_Maybe_unary_or_binary_function() 0x19             download/.libs/libsub_download.a(download_main.o)
+# std::vector<torrent::BlockList*, std::allocator<torrent::BlockList*> >::size() const 0x1c1e     download/.libs/libsub_download.a(download_main.o)
+# ld: fatal: relocations remain against allocatable but non-writable sections
+# -- however, download_main.o *is* built with -fPIC. no idea what's up, so just compile with 4.4
+
+CC=/opt/gcc-4.4.4/bin/gcc
+CXX=/opt/gcc-4.4.4/bin/g++
+BUILD_DEPENDS_IPS='developer/gcc44'
 
 PROG=libtorrent
-VER=0.13.4
+VER=0.13.6
 VERHUMAN=$VER
 PKG=library/libtorrent
 SUMMARY="a BitTorrent library"
 DESC="LibTorrent is a BitTorrent library written in C++ for *nix, with a focus on high performance and good code. The library differentiates itself from other implementations by transfering directly from file pages to the network stack."
 
-# we need pkg-config in PATH
-PATH=$PATH:$PREFIX/bin
+BUILDARCH=64
+
+export PKG_CONFIG=${PREFIX}/bin/pkg-config
 
 init
 download_source $PROG $PROG $VER

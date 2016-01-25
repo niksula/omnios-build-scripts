@@ -28,22 +28,19 @@
 . ../../lib/functions.sh
 
 PROG=rtorrent
-VER=0.9.4
+VER=0.9.6
 VERHUMAN=$VER
 PKG=application/rtorrent
 SUMMARY="BitTorrent client on top of libtorrent with ncurses interface"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='library/libtorrent developer/build/pkg-config'
+BUILD_DEPENDS_IPS='library/libtorrent developer/build/pkgconf'
+BUILDARCH=64
 
 # we need pkg-config
-PATH=$PATH:$PREFIX/bin
-
-CPPFLAGS="$CPPFLAGS -I/usr/include/ncurses"
-CPPFLAGS64="$CPPFLAGS64 -I/usr/include/amd64"
+export PKG_CONFIG=${PREFIX}/bin/pkg-config
+CPPFLAGS64="$CPPFLAGS64 -I/usr/include/amd64 -I/usr/include/ncurses"
 LDFLAGS="$LDFLAGS -lnsl -lsocket"
-LDFLAGS32="$LDFLAGS32 -L/usr/gnu/lib -R/usr/gnu/lib"
-LDFLAGS64="$LDFLAGS64 -L/usr/gnu/lib/amd64 -R/usr/gnu/lib/amd64"
 
 init
 download_source $PROG $PROG $VER
