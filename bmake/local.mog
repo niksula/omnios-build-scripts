@@ -1,0 +1,2 @@
+<transform dir path=opt/niksula/share/man/cat1 -> set mode 0755>
+<transform dir path=opt/niksula/bin -> set mode 0755>
