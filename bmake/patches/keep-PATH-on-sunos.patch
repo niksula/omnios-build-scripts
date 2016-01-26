@@ -1,0 +1,11 @@
+--- a/mk/sys/SunOS.mk	Tue Jan 26 17:08:12 2016
++++ b/mk/sys/SunOS.mk	Tue Jan 26 17:11:54 2016
+@@ -22,7 +22,7 @@
+ .endif
+ 
+ # the stuff in /usr/xpg4/bin is usually more sane.
+-PATH=/usr/xpg4/bin:/usr/sbin:/usr/bin:/usr/ucb:/usr/sfw/bin:/opt/gnu/bin:/usr/ccs/bin:/usr/local/bin
++PATH:=/usr/xpg4/bin:${PATH}
+ .export PATH
+ 
+ DSHLIBEXT = .so
