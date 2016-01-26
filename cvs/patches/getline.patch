@@ -1,0 +1,22 @@
+--- a/lib/getline.h	Tue Jan 26 15:03:36 2016
++++ b/lib/getline.h	Tue Jan 26 15:04:13 2016
+@@ -12,12 +12,16 @@
+ #define GETLINE_NO_LIMIT -1
+ 
+ int
+-  getline __PROTO ((char **_lineptr, size_t *_n, FILE *_stream));
++  cvs_getline __PROTO ((char **_lineptr, size_t *_n, FILE *_stream));
+ int
+-  getline_safe __PROTO ((char **_lineptr, size_t *_n, FILE *_stream,
++  cvs_getline_safe __PROTO ((char **_lineptr, size_t *_n, FILE *_stream,
+                          int limit));
+ int
+-  getstr __PROTO ((char **_lineptr, size_t *_n, FILE *_stream,
++  cvs_getstr __PROTO ((char **_lineptr, size_t *_n, FILE *_stream,
+ 		   int _terminator, int _offset, int limit));
+ 
++#define getline cvs_getline
++#define getline_safe cvs_getline_safe
++#define getstr cvs_getstr
++
+ #endif /* _getline_h_ */
