@@ -1,0 +1,2 @@
+set name=pkg.fmri value=pkg://niksula.hut.fi/library/security/libgcrypt@1.6.4-@RELVER@
+set name=pkg.obsolete value=true
