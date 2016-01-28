@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=puppet
-VER=3.8.4
+VER=3.8.5
 VERHUMAN=$VER
 PKG=system/management/puppet
 SUMMARY="Declarative configuration management tool"
