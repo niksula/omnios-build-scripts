@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=socat
-VER=1.7.3.0
+VER=1.7.3.1
 VERHUMAN=$VER
 PKG=network/socat
 SUMMARY="Multipurpose relay (SOcket CAT)"
