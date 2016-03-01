@@ -28,15 +28,18 @@
 . ../../lib/functions.sh
 
 PROG=irssi
-VER=0.8.17
+VER=0.8.18
 VERHUMAN=$VER
 PKG=network/chat/irssi
 SUMMARY="terminal based IRC client"
 DESC="Irssi is a terminal based IRC client for UNIX systems."
 
-BUILD_DEPENDS_IPS='developer/build/pkg-config niksula/runtime/perl'
+BUILD_DEPENDS_IPS='developer/build/pkgconf niksula/runtime/perl'
 RUN_DEPENDS_IPS='niksula/runtime/perl@5.20.2 =niksula/runtime/perl@5.20.2'
 CONFIGURE_OPTS="$CONFIGURE_OPTS --with-perl=yes perlpath=${PREFIX}/perl5/bin/perl --with-perl-lib=vendor"
+# XXX https://illumos.org/issues/6409 causes 32-bit build to fail, and we don't
+# yet have updated libc on all machines.
+BUILDARCH=64 
 
 # configure script has some broken checks which use plain 'perl', so let's put
 # our own perl first in path
