@@ -53,6 +53,7 @@ while true; do
    -v) lang=$venaja; shift ;;
    -r) lang=$ruotsi; shift ;;
    -es) lang=$espanja; shift ;;
+   -ñ) lang=$espanja; shift ;;
    -fi) lang=${kielitoimisto}; shift ;;
    -g) lang=$globaldix; shift ;;
    -a) lang=$atk; shift ;;
