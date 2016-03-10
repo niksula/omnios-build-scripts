@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=unbound
-VER=1.5.7
+VER=1.5.8
 VERHUMAN=$VER
 PKG=network/dns/unbound
 SUMMARY="Validating, recursive, and caching DNS resolver"
