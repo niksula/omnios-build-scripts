@@ -1,1 +1,2 @@
 mutt_tunnel_stderr.patch
+stream.h-conflict-hack.diff
