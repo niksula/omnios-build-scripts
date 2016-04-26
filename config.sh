@@ -86,8 +86,8 @@ PERL_MAKE_TEST=1
 #############################################################################
 # Python
 #############################################################################
-PYTHONPATH=/usr
-PYTHON=$PYTHONPATH/bin/python2.6
+PYTHONPATH=/opt/niksula
+PYTHON=$PYTHONPATH/bin/python3
 PYTHONLIB=$PYTHONPATH/lib
 
 
