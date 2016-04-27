@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=pkgconf
-VER=0.9.11
+VER=0.9.12
 VERHUMAN=$VER
 PKG=developer/build/pkgconf
 SUMMARY="pkgconf provides compiler and linker configuration for development frameworks"
