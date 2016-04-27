@@ -3,3 +3,4 @@ perl-pure_install.patch
 915.patch
 hardcode_spamassassin_plugin_socket_path.patch
 automake-workaround.patch
+21ba59f8197dba0a72dbf5186bc0a5d7e5074496.patch

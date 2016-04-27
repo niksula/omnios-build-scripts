@@ -1,0 +1,88 @@
+From 21ba59f8197dba0a72dbf5186bc0a5d7e5074496 Mon Sep 17 00:00:00 2001
+From: Florian Forster <octo@collectd.org>
+Date: Thu, 11 Jun 2015 07:46:54 +0100
+Subject: [PATCH] dns plugin: Check for "struct ip6_ext".
+
+Solaris appears to declare the struct, but only when The Right defines
+are specified at compile time. As a quick and dirty fix, only build with
+IPv6 support when the struct is usable.
+
+Fixes: #348
+---
+ configure.ac    | 18 ++++++++++++++++++
+ src/utils_dns.c | 12 ++++++++----
+ 2 files changed, 26 insertions(+), 4 deletions(-)
+
+diff --git a/configure.ac b/configure.ac
+index 554a58b..8572749 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -276,6 +276,24 @@ AC_CHECK_HEADERS(netinet/udp.h, [], [],
+ #endif
+ ])
+ 
++AC_CHECK_TYPES([struct ip6_ext], [], [],
++[#if HAVE_STDINT_H
++# include <stdint.h>
++#endif
++#if HAVE_SYS_TYPES_H
++# include <sys/types.h>
++#endif
++#if HAVE_NETINET_IN_SYSTM_H
++# include <netinet/in_systm.h>
++#endif
++#if HAVE_NETINET_IN_H
++# include <netinet/in.h>
++#endif
++#if HAVE_NETINET_IP6_H
++# include <netinet/ip6.h>
++#endif
++])
++
+ # For cpu modules
+ AC_CHECK_HEADERS(sys/dkstat.h)
+ if test "x$ac_system" = "xDarwin"
+diff --git a/src/utils_dns.c b/src/utils_dns.c
+index 655c61e..fcc65a5 100644
+--- a/src/utils_dns.c
++++ b/src/utils_dns.c
+@@ -129,6 +129,10 @@
+ # error "`struct udphdr' is unusable."
+ #endif
+ 
++#if HAVE_NETINET_IP6_H && HAVE_STRUCT_IP6_EXT
++# define HAVE_IPV6 1
++#endif
++
+ #include "utils_dns.h"
+ 
+ /*
+@@ -444,7 +448,7 @@ handle_udp(const struct udphdr *udp, int len)
+     return 1;
+ }
+ 
+-#if HAVE_NETINET_IP6_H
++#if HAVE_IPV6
+ static int
+ handle_ipv6 (struct ip6_hdr *ipv6, int len)
+ {
+@@ -513,16 +517,16 @@ handle_ipv6 (struct ip6_hdr *ipv6, int len)
+ 
+     return (1); /* Success */
+ } /* int handle_ipv6 */
+-/* #endif HAVE_NETINET_IP6_H */
++/* #endif HAVE_IPV6 */
+ 
+-#else /* if !HAVE_NETINET_IP6_H */
++#else /* if !HAVE_IPV6 */
+ static int
+ handle_ipv6 (__attribute__((unused)) void *pkg,
+ 	__attribute__((unused)) int len)
+ {
+     return (0);
+ }
+-#endif /* !HAVE_NETINET_IP6_H */
++#endif /* !HAVE_IPV6 */
+ 
+ static int
+ handle_ip(const struct ip *ip, int len)
