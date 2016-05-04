@@ -75,6 +75,6 @@ BEGIN { output = 0 }
 output == 1 { print }
 /class="dichead"/ { head = 1 }
 head == 1 && /<\/div>/ { output = 1 }
-/id="dicsep"/ { exit; }
+/id="dicsep"/ { head = 0; output = 0; }
 ') || { echo "Word not found." >&2; exit 1; }
 echo "$html" | lynx $width -dump -nolist -stdin
