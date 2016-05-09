@@ -35,6 +35,7 @@ SUMMARY="converts ASCII files to PostScript, HTML, or RTF"
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS='niksula/runtime/perl'
+RUN_DEPENDS_IPS='=niksula/runtime/perl@5.22'
 export PERL=/opt/niksula/perl5/bin/perl
 
 init

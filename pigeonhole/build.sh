@@ -43,6 +43,7 @@ CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 --with-dovecot=${PREFIX}/lib/amd64/dovecot
 LDFLAGS64="$LDFLAGS64 -R${PREFIX}/lib/amd64/dovecot"
 
 BUILD_DEPENDS_IPS="service/network/imap/dovecot@$DOVECOT_VER"
+RUN_DEPENDS_IPS="=niksula/runtime/perl@5.22"
 
 install_procmail2sieve() {
     install -m 0755 ${SRCDIR}/files/procmail2sieve ${DESTDIR}${PREFIX}/bin || logerr 'failed to install procmail2sieve'

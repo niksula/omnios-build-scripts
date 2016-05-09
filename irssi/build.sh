@@ -35,7 +35,7 @@ SUMMARY="terminal based IRC client"
 DESC="Irssi is a terminal based IRC client for UNIX systems."
 
 BUILD_DEPENDS_IPS='developer/build/pkgconf niksula/runtime/perl'
-RUN_DEPENDS_IPS='niksula/runtime/perl@5.20.2 =niksula/runtime/perl@5.20.2'
+RUN_DEPENDS_IPS='niksula/runtime/perl@5.22 =niksula/runtime/perl@5.22'
 CONFIGURE_OPTS="$CONFIGURE_OPTS --with-perl=yes perlpath=${PREFIX}/perl5/bin/perl --with-perl-lib=vendor"
 # XXX https://illumos.org/issues/6409 causes 32-bit build to fail, and we don't
 # yet have updated libc on all machines.

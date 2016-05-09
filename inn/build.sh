@@ -36,8 +36,8 @@ DESC="$SUMMARY"
 
 BUILDARCH=64
 
-BUILD_DEPENDS_IPS='niksula/runtime/perl database/bdb'
-RUN_DEPENDS_IPS='security/gnupg'
+BUILD_DEPENDS_IPS='niksula/runtime/perl@5.22 database/bdb'
+RUN_DEPENDS_IPS='=niksula/runtime/perl@5.22 security/gnupg'
 
 export PERL=${PREFIX}/perl5/bin/perl
 export GPGV=${PREFIX}/bin/gpgv
