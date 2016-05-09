@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Test-Fatal
-VER=0.013
+VER=0.014
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Test-Fatal
 SUMMARY='incredibly simple helpers for testing code with exceptions'

@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=JSON-MaybeXS
-VER=1.002006
+VER=1.003005
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/JSON-MaybeXS
 SUMMARY='Use L<Cpanel::JSON::XS> with a fallback to L<JSON::XS> and L<JSON::PP>'
@@ -12,8 +12,7 @@ DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/perl5/Test-Without-Module
-pkg:/niksula/perl5/JSON-XS"
+pkg:/niksula/perl5/Test-Without-Module"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

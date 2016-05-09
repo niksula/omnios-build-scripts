@@ -29,7 +29,7 @@
 . ../../lib/functions.sh
 
 PROG=perl
-VER=5.20.2
+VER=5.22.2
 VERHUMAN=$VER
 PKG=niksula/runtime/perl
 SUMMARY="$PROG - Perl $VER Programming Language"

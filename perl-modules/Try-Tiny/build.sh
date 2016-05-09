@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Try-Tiny
-VER=0.22
+VER=0.24
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Try-Tiny
 SUMMARY='minimal try/catch with proper preservation of $@'
@@ -15,7 +15,7 @@ pkg:/niksula/runtime/perl@$PERLVER_MINOR"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/D/DO/DOY $PROG $VER
+download_source authors/id/E/ET/ETHER $PROG $VER
 patch_source
 prep_build
 buildperl

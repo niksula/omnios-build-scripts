@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=URI
-VER=1.65
+VER=1.71
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/URI
 SUMMARY='Uniform Resource Identifiers (absolute and relative)'

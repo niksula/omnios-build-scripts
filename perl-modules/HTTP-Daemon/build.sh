@@ -12,9 +12,9 @@ DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/perl5/LWP-MediaTypes
+pkg:/niksula/perl5/HTTP-Message
 pkg:/niksula/perl5/HTTP-Date
-pkg:/niksula/perl5/HTTP-Message"
+pkg:/niksula/perl5/LWP-MediaTypes"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

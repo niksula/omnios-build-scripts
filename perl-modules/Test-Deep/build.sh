@@ -4,16 +4,14 @@
 . ../cpan-inc.sh
 
 PROG=Test-Deep
-VER=0.113
+VER=1.120
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Test-Deep
 SUMMARY='unknown'
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/perl5/Test-Tester
-pkg:/niksula/perl5/Test-NoWarnings"
+pkg:/niksula/runtime/perl@$PERLVER_MINOR"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

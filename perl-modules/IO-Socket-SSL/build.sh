@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=IO-Socket-SSL
-VER=2.002
+VER=2.027
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/IO-Socket-SSL
 SUMMARY='Nearly transparent SSL encapsulation for IO::Socket::INET.'

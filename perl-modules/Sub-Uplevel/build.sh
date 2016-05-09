@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Sub-Uplevel
-VER=0.24
+VER=0.25
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Sub-Uplevel
 SUMMARY='apparently run a function in a higher stack frame'

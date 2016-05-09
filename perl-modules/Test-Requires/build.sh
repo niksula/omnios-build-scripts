@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Test-Requires
-VER=0.08
+VER=0.10
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Test-Requires
 SUMMARY='Checks to see if the module can be loaded'

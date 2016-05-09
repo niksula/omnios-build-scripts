@@ -4,10 +4,10 @@
 . ../cpan-inc.sh
 
 PROG=Test-Exception
-VER=0.35
+VER=0.43
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Test-Exception
-SUMMARY='unknown'
+SUMMARY='Test exception-based code'
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR

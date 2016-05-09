@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Net-SSLeay
-VER=1.66
+VER=1.74
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Net-SSLeay
 SUMMARY='Perl extension for using OpenSSL'

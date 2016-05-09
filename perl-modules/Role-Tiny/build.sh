@@ -4,15 +4,14 @@
 . ../cpan-inc.sh
 
 PROG=Role-Tiny
-VER=1.003004
+VER=2.000003
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Role-Tiny
 SUMMARY='Roles. Like a nouvelle cuisine portion size slice of Moose.'
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/perl5/Test-Fatal"
+pkg:/niksula/runtime/perl@$PERLVER_MINOR"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=HTML-Parser
-VER=3.71
+VER=3.72
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/HTML-Parser
 SUMMARY='HTML parser class'

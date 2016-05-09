@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Class-Method-Modifiers
-VER=2.11
+VER=2.12
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Class-Method-Modifiers
 SUMMARY='Provides Moose-like method modifiers'
@@ -12,8 +12,8 @@ DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/perl5/Test-Requires
-pkg:/niksula/perl5/Test-Fatal"
+pkg:/niksula/perl5/Test-Fatal
+pkg:/niksula/perl5/Test-Requires"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

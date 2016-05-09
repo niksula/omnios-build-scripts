@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Test-SharedFork
-VER=0.29
+VER=0.35
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Test-SharedFork
 SUMMARY='fork test'

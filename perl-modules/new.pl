@@ -85,6 +85,7 @@ sub all_deps {
 }
 
 sub add_deps {
+    return if $_[0] eq "if";
     my $mod = $client->module($_[0]);
     return if module_is_core($_[0]);
     my $rel = module_release($mod);

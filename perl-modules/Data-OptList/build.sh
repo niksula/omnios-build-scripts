@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Data-OptList
-VER=0.109
+VER=0.110
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Data-OptList
 SUMMARY='parse and validate simple name/value option pairs'

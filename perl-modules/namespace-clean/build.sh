@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=namespace-clean
-VER=0.25
+VER=0.26
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/namespace-clean
 SUMMARY='Keep imports and functions out of your namespace'
