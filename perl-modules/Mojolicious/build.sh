@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Mojolicious
-VER=5.60
+VER=6.61
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Mojolicious
 SUMMARY='Real-time web framework'
