@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Config-General
-VER=2.56
+VER=2.61
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Config-General
 SUMMARY='unknown'
