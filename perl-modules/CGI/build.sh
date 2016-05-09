@@ -1,25 +1,19 @@
 #!/usr/bin/bash
 
-#
-# NOTE: 'CGI' is also shipped with perl, but we need this newer version.
-#
-
 . ../../../lib/functions.sh
 . ../cpan-inc.sh
 
 PROG=CGI
-VER=4.09
+VER=4.28
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/CGI
-SUMMARY='unknown'
+SUMMARY='Handle Common Gateway Interface requests and responses'
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/runtime/perl@$PERLVER_MINOR"
+pkg:/niksula/runtime/perl@$PERLVER_MINOR
+pkg:/niksula/perl5/HTML-Parser"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
-
-# man pages are already shipped with perl runtime package
-PERL_MAKEFILE_OPTS="$PERL_MAKEFILE_OPTS INSTALLMAN3DIR=none"
 
 init
 download_source authors/id/L/LE/LEEJO $PROG $VER
