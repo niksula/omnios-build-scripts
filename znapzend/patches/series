@@ -1,2 +1,2 @@
 nonroot.patch
-no_arcfour.patch
+no-thirdparty.diff -p0

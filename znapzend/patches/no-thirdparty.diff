@@ -1,0 +1,11 @@
+--- Makefile.in.orig	Mon May  9 16:08:34 2016
++++ Makefile.in	Mon May  9 16:08:43 2016
+@@ -315,7 +315,7 @@
+ top_srcdir = @top_srcdir@
+ AUTOMAKE_OPTIONS = foreign
+ SUFFIXES = .1 .man .pm
+-SUBDIRS = thirdparty lib
++SUBDIRS = lib
+ BIN = bin/@PACKAGE@ bin/znapzendzetup bin/znapzendztatz
+ PM := $(shell find lib/ -name "*.pm")
+ MAN = man/znapzend.1 man/znapzendzetup.1 man/znapzendztatz.1

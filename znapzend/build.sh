@@ -28,16 +28,18 @@
 . ../../lib/functions.sh
 
 PROG=znapzend
-VER=0.15.1
+VER=0.15.7
 VERHUMAN=$VER
 PKG=service/storage/znapzend
 SUMMARY="zfs backup with mbuffer and ssh support"
 DESC="$SUMMARY"
 
 BUILDARCH=64
-BUILD_DEPENDS_IPS='pkg:/niksula/perl5/Mojolicious
-pkg:/niksula/perl5/Mojo-IOLoop-ForkCall'
-RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
+BUILD_DEPENDS_IPS='pkg:/niksula/runtime/perl@5.22
+pkg:/niksula/perl5/Mojolicious
+pkg:/niksula/perl5/Mojo-IOLoop-ForkCall
+pkg:/niksula/perl5/Scalar-List-Utils@1.45'
+RUN_DEPENDS_IPS="=pkg:/niksula/runtime/perl@5.22 $BUILD_DEPENDS_IPS"
 PREFIX=${PREFIX}/perl5
 PATH=${PREFIX}/bin:${PATH}
 CONFIGURE_OPTS_64="--prefix=$PREFIX --enable-pkgonly --mandir=/opt/niksula/share/man --exec-prefix=/opt/niksula --libdir=$(perl -MConfig -e 'print "$Config{sitelib}"') --enable-svcinstall=/lib/svc/manifest/oep"
