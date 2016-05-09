@@ -1,0 +1,3 @@
+# since this module is also shipped with perl 5.22, we need to drop the
+# duplicate manpages.
+<transform file path=opt/niksula/perl5/man/man3/.* -> drop>
