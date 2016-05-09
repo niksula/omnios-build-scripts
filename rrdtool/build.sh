@@ -28,14 +28,14 @@
 . ../../lib/functions.sh
 
 PROG=rrdtool
-VER=1.4.8
+VER=1.6.0
 VERHUMAN=$VER
 PKG=application/rrdtool
 SUMMARY="data logging and graphing system for time series data"
 DESC="$SUMMARY"
 
-BUILD_DEPENDS_IPS='library/cairo library/pango niksula/runtime/perl pkg://niksula.hut.fi/developer/build/pkg-config'
-RUN_DEPENDS_IPS='niksula/runtime/perl@5.20.2 =niksula/runtime/perl@5.20.2'
+BUILD_DEPENDS_IPS='library/cairo library/pango niksula/runtime/perl pkg://niksula.hut.fi/developer/build/pkgconf'
+RUN_DEPENDS_IPS='niksula/runtime/perl@5.22 =niksula/runtime/perl@5.22'
 
 PKGCONFIG=${PREFIX}/bin/pkg-config
 export PKGCONFIG
