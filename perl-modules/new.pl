@@ -125,7 +125,7 @@ foreach my $rel (@deps) {
     @depset{@deppkg} = ();
     my $perlpkg = 'pkg:/niksula/runtime/perl@$PERLVER_MINOR';
     # we need both incorporate dep ('=') and require for the perl package
-    my $depstr = join("\n", ("=${perlpkg}", $perlpkg, keys %depset));
+    my $depstr = join("\n", ("=${perlpkg}", $perlpkg, sort keys %depset));
     # This is pretty ugly, but our output here is a shell literal string in
     # single-quotes (because using double-quotes would be dangerous), which
     # does not allow single-quotes inside it. Additionally we can't put double
