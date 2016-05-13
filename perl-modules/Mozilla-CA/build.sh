@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Mozilla-CA
-VER=20130114
+VER=20160104
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Mozilla-CA
 SUMMARY='Mozillas CA cert bundle in PEM format'

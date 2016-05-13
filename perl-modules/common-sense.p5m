@@ -1,0 +1,2 @@
+set name=pkg.fmri value=pkg://niksula.hut.fi/niksula/perl5/common-sense@3.73-@RELVER@
+set name=pkg.obsolete value=true

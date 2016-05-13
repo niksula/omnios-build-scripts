@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=XML-Parser
-VER=2.41
+VER=2.44
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/XML-Parser
 SUMMARY='A perl module for parsing XML documents'

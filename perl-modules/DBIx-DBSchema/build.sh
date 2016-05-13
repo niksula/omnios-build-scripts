@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=DBIx-DBSchema
-VER=0.44
+VER=0.45
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/DBIx-DBSchema
 SUMMARY='unknown'

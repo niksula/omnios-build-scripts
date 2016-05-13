@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Class-Accessor-Lite
-VER=0.06
+VER=0.08
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Class-Accessor-Lite
 SUMMARY='a minimalistic variant of Class::Accessor'

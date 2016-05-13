@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=MIME-Types
-VER=2.09
+VER=2.13
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/MIME-Types
 SUMMARY='Definition of MIME types'

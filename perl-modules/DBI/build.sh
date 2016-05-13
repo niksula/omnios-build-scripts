@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=DBI
-VER=1.632
+VER=1.636
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/DBI
 SUMMARY='Database independent interface for Perl'

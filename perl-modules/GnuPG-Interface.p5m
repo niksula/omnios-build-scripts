@@ -1,0 +1,2 @@
+set name=pkg.fmri value=pkg://niksula.hut.fi/niksula/perl5/GnuPG-Interface@0.50-@RELVER@
+set name=pkg.obsolete value=true

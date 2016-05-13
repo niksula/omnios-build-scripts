@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Email-Address
-VER=1.905
+VER=1.908
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Email-Address
 SUMMARY='RFC 2822 Address Parsing and Creation'

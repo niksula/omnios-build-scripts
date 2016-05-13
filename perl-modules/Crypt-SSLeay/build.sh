@@ -13,8 +13,8 @@ DESC="$SUMMARY"
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/perl5/LWP-Protocol-https
-pkg:/niksula/perl5/Try-Tiny
-pkg:/niksula/perl5/Path-Class"
+pkg:/niksula/perl5/Path-Class
+pkg:/niksula/perl5/Try-Tiny"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

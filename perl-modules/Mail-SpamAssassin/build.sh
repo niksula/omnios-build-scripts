@@ -12,15 +12,15 @@ DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/perl5/HTML-Parser
-pkg:/niksula/perl5/NetAddr-IP
-pkg:/niksula/perl5/Mail-DKIM
-pkg:/niksula/perl5/Net-DNS
-pkg:/niksula/perl5/Digest-SHA1
 pkg:/niksula/perl5/DB_File
+pkg:/niksula/perl5/Digest-SHA1
 pkg:/niksula/perl5/Encode-Detect
+pkg:/niksula/perl5/HTML-Parser
 pkg:/niksula/perl5/HTTP-Date
 pkg:/niksula/perl5/IO-Socket-INET6
+pkg:/niksula/perl5/Mail-DKIM
+pkg:/niksula/perl5/Net-DNS
+pkg:/niksula/perl5/NetAddr-IP
 security/gnupg"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 

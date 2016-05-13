@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Test-TCP
-VER=2.06
+VER=2.16
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Test-TCP
 SUMMARY='testing TCP program'

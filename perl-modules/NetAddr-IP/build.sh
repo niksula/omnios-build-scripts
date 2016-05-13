@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=NetAddr-IP
-VER=4.075
+VER=4.079
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/NetAddr-IP
 SUMMARY='Manages IPv4 and IPv6 addresses and subnets'

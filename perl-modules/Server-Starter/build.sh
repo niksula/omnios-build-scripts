@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Server-Starter
-VER=0.17
+VER=0.32
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Server-Starter
 SUMMARY='a superdaemon for hot-deploying server programs'
@@ -12,9 +12,10 @@ DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/perl5/Proc-Wait3
-pkg:/niksula/perl5/List-MoreUtils
-pkg:/niksula/perl5/Scope-Guard"
+pkg:/niksula/perl5/Module-Build
+pkg:/niksula/perl5/Test-Requires
+pkg:/niksula/perl5/Test-SharedFork
+pkg:/niksula/perl5/Test-TCP"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

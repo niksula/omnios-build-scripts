@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Test-Number-Delta
-VER=1.04
+VER=1.06
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Test-Number-Delta
 SUMMARY='Compare the difference between numbers against a given tolerance'

@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Test-Warnings
-VER=0.016
+VER=0.026
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Test-Warnings
 SUMMARY='Test for warnings and the lack of them'

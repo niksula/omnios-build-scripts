@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Socket6
-VER=0.25
+VER=0.27
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Socket6
 SUMMARY='unknown'

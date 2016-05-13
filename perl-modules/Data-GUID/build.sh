@@ -12,9 +12,9 @@ DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/perl5/Sub-Install
 pkg:/niksula/perl5/Data-UUID
-pkg:/niksula/perl5/Sub-Exporter"
+pkg:/niksula/perl5/Sub-Exporter
+pkg:/niksula/perl5/Sub-Install"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

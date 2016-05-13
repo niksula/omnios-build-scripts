@@ -1,0 +1,2 @@
+set name=pkg.fmri value=pkg://niksula.hut.fi/niksula/perl5/MooX-HandlesVia@0.1005-@RELVER@
+set name=pkg.obsolete value=true

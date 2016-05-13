@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Module-Pluggable
-VER=5.1
+VER=5.2
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Module-Pluggable
 SUMMARY='automatically give your module the ability to have plugins'

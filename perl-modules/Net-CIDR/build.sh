@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Net-CIDR
-VER=0.17
+VER=0.18
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Net-CIDR
 SUMMARY='Manipulate IPv4/IPv6 netblocks in CIDR notation'

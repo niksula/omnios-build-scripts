@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=TermReadKey
-VER=2.32
+VER=2.33
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/TermReadKey
 SUMMARY='unknown'

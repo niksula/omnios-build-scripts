@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=FCGI
-VER=0.77
+VER=0.78
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/FCGI
 SUMMARY='Fast CGI module'

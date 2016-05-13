@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Alt
-VER=0.16
+VER=0.19
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Alt
 SUMMARY='Alternate Module Implementations'

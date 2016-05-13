@@ -4,11 +4,13 @@
 . ../cpan-inc.sh
 
 PROG=Proc-Wait3
-VER=0.04
+VER=0.05
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Proc-Wait3
 SUMMARY='Perl extension for wait3 system call'
 DESC="$SUMMARY"
+
+TAR=gtar
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR"

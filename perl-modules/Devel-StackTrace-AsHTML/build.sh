@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Devel-StackTrace-AsHTML
-VER=0.14
+VER=0.15
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Devel-StackTrace-AsHTML
 SUMMARY='Displays stack trace in HTML'

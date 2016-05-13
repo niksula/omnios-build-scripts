@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Crypt-OpenSSL-Random
-VER=0.04
+VER=0.11
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Crypt-OpenSSL-Random
 SUMMARY='unknown'
@@ -15,7 +15,7 @@ pkg:/niksula/runtime/perl@$PERLVER_MINOR"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/I/IR/IROBERTS $PROG $VER
+download_source authors/id/R/RU/RURBAN $PROG $VER
 patch_source
 prep_build
 buildperl

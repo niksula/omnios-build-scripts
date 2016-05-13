@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Data-UUID
-VER=1.219
+VER=1.221
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Data-UUID
 SUMMARY='Globally/Universally Unique Identifiers (GUIDs/UUIDs)'

@@ -13,8 +13,9 @@ DESC="$SUMMARY"
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/perl5/HTML-Parser
-pkg:/niksula/perl5/Test-Fatal
-pkg:/niksula/perl5/HTML-Tagset"
+pkg:/niksula/perl5/HTML-Tagset
+pkg:/niksula/perl5/Module-Build
+pkg:/niksula/perl5/Test-Fatal"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

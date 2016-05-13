@@ -1,4 +1,0 @@
-# it's a bit suboptimal to drop these from here (the newer version than shipped
-# with perl), but we have to do that to avoid duplicate actions (and we don't
-# want to require this package with perl)
-<transform file path=opt/niksula/perl5/(bin|man) -> drop>

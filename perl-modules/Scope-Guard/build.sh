@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Scope-Guard
-VER=0.20
+VER=0.21
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Scope-Guard
 SUMMARY='lexically-scoped resource management'

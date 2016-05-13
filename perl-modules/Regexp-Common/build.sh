@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Regexp-Common
-VER=2013031301
+VER=2016020301
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Regexp-Common
 SUMMARY='Provide commonly requested regular expressions'

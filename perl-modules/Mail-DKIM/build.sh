@@ -13,8 +13,8 @@ DESC="$SUMMARY"
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/perl5/Crypt-OpenSSL-RSA
-pkg:/niksula/perl5/Net-DNS
-pkg:/niksula/perl5/MailTools"
+pkg:/niksula/perl5/MailTools
+pkg:/niksula/perl5/Net-DNS"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

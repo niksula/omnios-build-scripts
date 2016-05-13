@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Tree-Simple
-VER=1.24
+VER=1.29
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Tree-Simple
 SUMMARY='A simple tree object'

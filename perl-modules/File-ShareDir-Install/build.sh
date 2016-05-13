@@ -4,10 +4,10 @@
 . ../cpan-inc.sh
 
 PROG=File-ShareDir-Install
-VER=0.09
+VER=0.10
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/File-ShareDir-Install
-SUMMARY='Install shared files'
+SUMMARY='unknown'
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR

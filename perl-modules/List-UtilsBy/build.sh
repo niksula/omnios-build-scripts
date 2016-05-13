@@ -4,14 +4,15 @@
 . ../cpan-inc.sh
 
 PROG=List-UtilsBy
-VER=0.09
+VER=0.10
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/List-UtilsBy
 SUMMARY='higher-order list utility functions'
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/runtime/perl@$PERLVER_MINOR"
+pkg:/niksula/runtime/perl@$PERLVER_MINOR
+pkg:/niksula/perl5/Module-Build"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

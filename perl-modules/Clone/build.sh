@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Clone
-VER=0.37
+VER=0.38
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Clone
 SUMMARY='recursively copy Perl datatypes'

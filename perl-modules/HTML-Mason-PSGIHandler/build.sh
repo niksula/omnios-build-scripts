@@ -12,9 +12,9 @@ DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/perl5/Plack
+pkg:/niksula/perl5/CGI-PSGI
 pkg:/niksula/perl5/HTML-Mason
-pkg:/niksula/perl5/CGI-PSGI"
+pkg:/niksula/perl5/Plack"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Data-ICal
-VER=0.21
+VER=0.22
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Data-ICal
 SUMMARY='Generates iCalendar (RFC 2445) calendar files'
@@ -12,12 +12,12 @@ DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/perl5/Text-vFile-asData
-pkg:/niksula/perl5/Class-ReturnValue
 pkg:/niksula/perl5/Class-Accessor
+pkg:/niksula/perl5/Class-ReturnValue
 pkg:/niksula/perl5/Test-LongString
 pkg:/niksula/perl5/Test-NoWarnings
-pkg:/niksula/perl5/Test-Warn"
+pkg:/niksula/perl5/Test-Warn
+pkg:/niksula/perl5/Text-vFile-asData"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

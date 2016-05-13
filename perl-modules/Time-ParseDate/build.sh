@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Time-ParseDate
-VER=2013.1113
+VER=2015.103
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Time-ParseDate
 SUMMARY='Parse and format time values'

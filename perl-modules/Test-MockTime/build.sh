@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Test-MockTime
-VER=0.13
+VER=0.15
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Test-MockTime
 SUMMARY='Replaces actual time with simulated time '

@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=MailTools
-VER=2.13
+VER=2.17
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/MailTools
 SUMMARY='Various e-mail related modules'

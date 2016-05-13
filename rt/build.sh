@@ -42,8 +42,8 @@ CONFIGURE_OPTS="$CONFIGURE_OPTS --with-db-type=Pg --disable-smime --with-my-user
 export PERL=/opt/niksula/perl5/bin/perl
 
 BUILD_DEPENDS_IPS='database/postgresql
-security/gnupg
 pkg:/niksula/perl5/Apache-Session
+pkg:/niksula/perl5/CGI
 pkg:/niksula/perl5/CGI-Emulate-PSGI
 pkg:/niksula/perl5/CGI-PSGI
 pkg:/niksula/perl5/Class-Accessor
@@ -68,9 +68,6 @@ pkg:/niksula/perl5/Email-Address-List
 pkg:/niksula/perl5/FCGI
 pkg:/niksula/perl5/FCGI-ProcManager
 pkg:/niksula/perl5/File-ShareDir
-pkg:/niksula/perl5/File-Which
-pkg:/niksula/perl5/GnuPG-Interface
-pkg:/niksula/perl5/HTML-FormatExternal
 pkg:/niksula/perl5/HTML-FormatText-WithLinks
 pkg:/niksula/perl5/HTML-FormatText-WithLinks-AndTables
 pkg:/niksula/perl5/HTML-Mason
@@ -95,7 +92,6 @@ pkg:/niksula/perl5/Module-Refresh
 pkg:/niksula/perl5/Module-Versions-Report
 pkg:/niksula/perl5/Mozilla-CA
 pkg:/niksula/perl5/Net-CIDR
-pkg:/niksula/perl5/PerlIO-eol
 pkg:/niksula/perl5/Plack
 pkg:/niksula/perl5/Regexp-Common
 pkg:/niksula/perl5/Regexp-Common-net-CIDR
@@ -113,9 +109,8 @@ pkg:/niksula/perl5/Time-ParseDate
 pkg:/niksula/perl5/Tree-Simple
 pkg:/niksula/perl5/UNIVERSAL-require
 pkg:/niksula/perl5/URI
-pkg:/niksula/perl5/XML-RSS'
-# modules shipped with perl, which we need a newer version of
-BUILD_DEPENDS_IPS="$BUILD_DEPENDS_IPS pkg:/niksula/perl5/CGI@4 pkg:/niksula/perl5/Encode@2.70"
+pkg:/niksula/perl5/XML-RSS
+'
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 install_manifest() {

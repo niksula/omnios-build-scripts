@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=DBD-SQLite
-VER=1.44
+VER=1.50
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/DBD-SQLite
 SUMMARY='Self Contained SQLite RDBMS in a DBI Driver'

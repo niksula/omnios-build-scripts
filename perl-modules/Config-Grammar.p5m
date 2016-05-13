@@ -1,0 +1,2 @@
+set name=pkg.fmri value=pkg://niksula.hut.fi/niksula/perl5/Config-Grammar@1.10-@RELVER@
+set name=pkg.obsolete value=true

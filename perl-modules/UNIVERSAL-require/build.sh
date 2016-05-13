@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=UNIVERSAL-require
-VER=0.17
+VER=0.18
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/UNIVERSAL-require
 SUMMARY='require() modules from a variable'

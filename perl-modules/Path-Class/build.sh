@@ -4,14 +4,15 @@
 . ../cpan-inc.sh
 
 PROG=Path-Class
-VER=0.35
+VER=0.36
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Path-Class
 SUMMARY='Cross-platform path specification manipulation'
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
-pkg:/niksula/runtime/perl@$PERLVER_MINOR"
+pkg:/niksula/runtime/perl@$PERLVER_MINOR
+pkg:/niksula/perl5/Module-Build"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

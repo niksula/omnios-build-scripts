@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Text-Quoted
-VER=2.08
+VER=2.09
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Text-Quoted
 SUMMARY='Extract the structure of a quoted mail message'
@@ -16,7 +16,7 @@ pkg:/niksula/perl5/Text-Autoformat"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
-download_source authors/id/T/TS/TSIBLEY $PROG $VER
+download_source authors/id/A/AL/ALEXMV $PROG $VER
 patch_source
 prep_build
 buildperl

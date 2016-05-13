@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Date-Manip
-VER=6.47
+VER=6.53
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Date-Manip
 SUMMARY='Date manipulation routines'

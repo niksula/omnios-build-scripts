@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=DateTime-Format-Mail
-VER=0.401
+VER=0.402
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/DateTime-Format-Mail
 SUMMARY='Convert between DateTime and RFC2822/822 formats'

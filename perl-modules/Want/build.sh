@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Want
-VER=0.23
+VER=0.29
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Want
 SUMMARY='unknown'

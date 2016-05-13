@@ -4,11 +4,13 @@
 . ../cpan-inc.sh
 
 PROG=Net-DNS
-VER=0.81
+VER=1.05
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Net-DNS
-SUMMARY='Perl DNS resolver module'
+SUMMARY='Perl Interface to the Domain Name System'
 DESC="$SUMMARY"
+
+PERL_MAKEFILE_OPTS="$PERL_MAKEFILE_OPTS --noonline-tests"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR

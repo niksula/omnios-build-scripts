@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Devel-StackTrace
-VER=2.00
+VER=2.01
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Devel-StackTrace
 SUMMARY='An object representing a stack trace'

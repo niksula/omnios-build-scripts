@@ -4,7 +4,7 @@
 . ../cpan-inc.sh
 
 PROG=Params-Validate
-VER=1.13
+VER=1.24
 VERHUMAN="$VER (perl$PERLVER)"
 PKG=niksula/perl5/Params-Validate
 SUMMARY='Validate method/function parameters'
@@ -12,9 +12,10 @@ DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR
+pkg:/niksula/perl5/Module-Build
 pkg:/niksula/perl5/Module-Implementation
-pkg:/niksula/perl5/Test-Requires
-pkg:/niksula/perl5/Test-Fatal"
+pkg:/niksula/perl5/Test-Fatal
+pkg:/niksula/perl5/Test-Requires"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init

@@ -13,9 +13,9 @@ DESC="$SUMMARY"
 BUILD_DEPENDS_IPS="=pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/runtime/perl@$PERLVER_MINOR
 pkg:/niksula/perl5/IO-Socket-SSL
+pkg:/niksula/perl5/Mozilla-CA
 pkg:/niksula/perl5/Net-HTTP
-pkg:/niksula/perl5/libwww-perl
-pkg:/niksula/perl5/Mozilla-CA"
+pkg:/niksula/perl5/libwww-perl"
 RUN_DEPENDS_IPS="$BUILD_DEPENDS_IPS"
 
 init
