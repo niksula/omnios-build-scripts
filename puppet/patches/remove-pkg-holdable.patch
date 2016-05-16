@@ -1,0 +1,39 @@
+All the unfreezing that happens makes pkg history much less useful, so just
+hack away the holdable feature. It's useless without being able to specify the
+held version anyway.
+--- a/lib/puppet/provider/package/pkg.rb	Fri May 13 12:36:18 2016
++++ b/lib/puppet/provider/package/pkg.rb	Fri May 13 12:36:44 2016
+@@ -17,8 +17,6 @@
+ 
+   has_feature :upgradable
+ 
+-  has_feature :holdable
+-
+   commands :pkg => "/usr/bin/pkg"
+ 
+   confine :osfamily => :solaris
+@@ -105,15 +103,6 @@
+     end).merge({:provider => self.name})
+   end
+ 
+-  def hold
+-    pkg(:freeze, @resource[:name])
+-  end
+-
+-  def unhold
+-    r = exec_cmd(command(:pkg), 'unfreeze', @resource[:name])
+-    raise Puppet::Error, "Unable to unfreeze #{r[:out]}" unless [0,4].include? r[:exit]
+-  end
+-
+   def insync?(is)
+     # this is called after the generic version matching logic (insync? for the
+     # type), so we only get here if should != is, and both are version numbers.
+@@ -196,8 +185,6 @@
+   def install(nofail = false)
+     name = @resource[:name]
+     should = @resource[:ensure]
+-    # always unhold if explicitly told to install/update
+-    self.unhold
+     is = self.query
+     if is[:ensure].to_sym == :absent
+       command = 'install'
