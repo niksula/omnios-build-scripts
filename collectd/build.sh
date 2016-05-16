@@ -42,6 +42,7 @@ RUN_DEPENDS_IPS='=niksula/runtime/perl@5.22 niksula/runtime/perl@5.22'
 
 CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static --with-libperl=/opt/niksula/perl5/bin/perl --with-perl-bindings=INSTALLDIRS=vendor --with-python=no"
 
+PERL=/opt/niksula/perl5/bin/perl
 PKG_CONFIG=${PREFIX}/bin/pkg-config
 export PKG_CONFIG
 
@@ -57,7 +58,8 @@ install_manifest() {
 
 install_contrib() {
     pushd ${TMPDIR}/${BUILDDIR}/contrib >/dev/null
-    spamassassin_plugindir=${DESTDIR}/opt/niksula/perl5/lib/vendor_perl/5.20.1/Mail/SpamAssassin/Plugin
+    PERLVER=$($PERL -e 'print $^V'|tr -d 'v')
+    spamassassin_plugindir=${DESTDIR}/opt/niksula/perl5/lib/vendor_perl/${PERLVER}/Mail/SpamAssassin/Plugin
     mkdir -p "${spamassassin_plugindir}"
     # remove hashbang - this isn't an executable
     sed 1d SpamAssassin/Collectd.pm > "${spamassassin_plugindir}/Collectd.pm" || logerr 'failed to install spamassassin plugin'
