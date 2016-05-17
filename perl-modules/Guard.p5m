@@ -1,2 +1,2 @@
-set name=pkg.fmri value=pkg://niksula.hut.fi/niksula/perl5/Guard@1.22-@RELVER@
+set name=pkg.fmri value=pkg://niksula.hut.fi/niksula/perl5/Guard@1.22-@PVER@
 set name=pkg.obsolete value=true
