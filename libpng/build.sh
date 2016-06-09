@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=libpng
-VER=1.6.22
+VER=1.6.23
 VERHUMAN=$VER
 PKG=library/libpng
 SUMMARY="Official PNG reference library"
