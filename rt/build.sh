@@ -68,6 +68,7 @@ pkg:/niksula/perl5/Email-Address-List
 pkg:/niksula/perl5/FCGI
 pkg:/niksula/perl5/FCGI-ProcManager
 pkg:/niksula/perl5/File-ShareDir
+pkg:/niksula/perl5/HTML-FormatExternal
 pkg:/niksula/perl5/HTML-FormatText-WithLinks
 pkg:/niksula/perl5/HTML-FormatText-WithLinks-AndTables
 pkg:/niksula/perl5/HTML-Mason

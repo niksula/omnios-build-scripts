@@ -1,2 +1,0 @@
-set name=pkg.fmri value=pkg://niksula.hut.fi/niksula/perl5/IO-Tty@1.12-@PVER@
-set name=pkg.obsolete value=true

@@ -1,2 +1,0 @@
-set name=pkg.fmri value=pkg://niksula.hut.fi/niksula/perl5/HTML-FormatExternal@22-@PVER@
-set name=pkg.obsolete value=true
