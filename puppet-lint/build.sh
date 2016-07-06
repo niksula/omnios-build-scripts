@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=puppet-lint
-VER=1.1.0
+VER=2.0.0
 VERHUMAN=$VER
 PKG=system/management/puppet/puppet-lint
 SUMMARY="Check that your Puppet manifests conform to the style guide"
