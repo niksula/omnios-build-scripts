@@ -35,9 +35,10 @@ SUMMARY="The continuation of the Alpine email client from University of Washingt
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS='library/aspell'
-RUN_DEPENDS_IPS='library/aspell@0.60.6.1,5.11-0.151006:20140922T115103Z'
+RUN_DEPENDS_IPS='library/aspell'
 # put aspell in PATH
 PATH=${PATH}:${PREFIX}/bin
+NO_PARALLEL_MAKE=1
 
 CONFIGURE_OPTS="--with-ssl-dir=/etc/ssl
 --with-ssl-include-dir=/usr/include/openssl
