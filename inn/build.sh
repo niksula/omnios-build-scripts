@@ -35,6 +35,7 @@ SUMMARY="INN (InterNetNews) is a very full-featured and flexible news server pac
 DESC="$SUMMARY"
 
 BUILDARCH=64
+NO_PARALLEL_MAKE=1
 
 BUILD_DEPENDS_IPS='niksula/runtime/perl@5.22 database/bdb'
 RUN_DEPENDS_IPS='=niksula/runtime/perl@5.22 security/gnupg'
