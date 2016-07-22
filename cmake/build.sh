@@ -28,13 +28,13 @@
 . ../../lib/functions.sh
 
 PROG=cmake
-VER=3.3.1
+VER=3.6.0
 VERHUMAN=$VER
 PKG=developer/build/cmake
 SUMMARY="portable build system"
 DESC="$SUMMARY"
 
-BUILDARCH=32
+BUILDARCH=64
 REMOVE_PREVIOUS=1
 
 CONFIGURE_CMD=./bootstrap
@@ -42,8 +42,8 @@ CONFIGURE_CMD=./bootstrap
 # libs. additionally, --no-system-liblzma is not implemented.
 # Also, the curses interface code does invalid conversions from const char* to
 # char* on illumos, so just don't build ccmake(1).
-CONFIGURE_OPTS="--prefix=${PREFIX} --mandir=share/man --system-libs --no-system-jsoncpp --no-system-libarchive -- -DCMAKE_USE_SYSTEM_LIBRARY_LIBLZMA=0 -DBUILD_CursesDialog=0"
-CONFIGURE_OPTS_32=
+CONFIGURE_OPTS="--prefix=${PREFIX} --mandir=share/man --system-libs --no-system-jsoncpp --no-system-libarchive --no-system-curl -- -DCMAKE_USE_SYSTEM_LIBRARY_LIBLZMA=0 -DBUILD_CursesDialog=0"
+CONFIGURE_OPTS_64=
 export DESTDIR
 
 init
