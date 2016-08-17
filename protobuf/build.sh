@@ -28,19 +28,16 @@
 . ../../lib/functions.sh
 
 PROG=protobuf
-VER=2.6.1
+VER=3.0.0
 VERHUMAN=$VER
 PKG=library/protobuf
 SUMMARY="Google protocol buffers"
 DESC="$SUMMARY"
 
-# protobuf builds against installed protobuf version,
-# so old one needs to be removed beforehand
-BUILD_DEPENDS_IPS="-$PKG"
 CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static" 
 
 init
-download_source $PROG $PROG $VER
+download_source $PROG ${PROG}-cpp $VER
 patch_source
 prep_build
 build
