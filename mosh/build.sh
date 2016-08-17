@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=mosh
-VER=1.2.5
+VER=1.2.6
 VERHUMAN=$VER
 PKG=network/mosh
 SUMMARY="Mobile shell: Remote terminal that supports roaming and intelligent local echo"
@@ -39,6 +39,7 @@ RUN_DEPENDS_IPS="library/ncurses library/zlib library/security/openssl"
 
 PROTOC="${PREFIX}/bin/protoc"
 PKG_CONFIG="${PREFIX}/bin/pkg-config"
+BUILDARCH=64
 export PROTOC PKG_CONFIG
 
 init
