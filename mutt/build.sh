@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=mutt
-VER=1.6.2
+VER=1.7.0
 VERHUMAN=$VER
 PKG=mail/mutt
 SUMMARY="The Mutt E-Mail Client"
@@ -36,7 +36,7 @@ DESC='All mail clients suck. This one just sucks less.'
 
 # pending https://www.illumos.org/issues/4006, don't use system wc functions;
 # we get invisible tree drawing characters otherwise.
-CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-imap --with-ssl --with-sasl --enable-hcache --with-libiconv-prefix=/usr --without-wc-funcs --without-tokyocabinet --with-bdb"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-imap --with-ssl --with-sasl --enable-hcache --with-libiconv-prefix=/usr --without-wc-funcs --without-tokyocabinet --with-bdb --enable-sidebar"
 BUILD_DEPENDS_IPS='database/bdb'
 
 init
