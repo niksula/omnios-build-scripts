@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=Python
-VER=3.5.1
+VER=3.5.2
 VERHUMAN=$VER
 PKG=niksula/runtime/python
 SUMMARY="Python programming language runtime"
@@ -43,9 +43,6 @@ CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-shared --disable-static --with-system-f
 # ncurses
 LDFLAGS64="$LDFLAGS64 -L/usr/gnu/lib/$ISAPART64 -R/usr/gnu/lib/$ISAPART64"
 CPPFLAGS="$CPPFLAGS -I/usr/include/ncurses"
-
-# make it easier to build native modules with 'pip install' later
-CC="${GCCPATH}/gcc"
 
 # multiarch python is a pain: there seems to be a builtin assumption in
 # Modules/getpath.c about extension modules having a 'lib/python$VERSION' path
