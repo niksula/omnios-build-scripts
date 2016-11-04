@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=nginx
-VER=1.10.1
+VER=1.10.2
 VERHUMAN=$VER
 PKG=service/network/http/nginx
 SUMMARY="nginx [engine x] is an HTTP and reverse proxy server"
