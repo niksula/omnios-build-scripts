@@ -27,15 +27,16 @@
 # Load support functions
 . ../../lib/functions.sh
 
-PROG=re-alpine
-VER=2.03
+PROG=alpine
+VER=2.20
 VERHUMAN=$VER
-PKG=mail/re-alpine
+PKG=mail/alpine
 SUMMARY="The continuation of the Alpine email client from University of Washington"
 DESC="$SUMMARY"
 
 BUILD_DEPENDS_IPS='library/aspell'
 RUN_DEPENDS_IPS='library/aspell'
+
 # put aspell in PATH
 PATH=${PATH}:${PREFIX}/bin
 NO_PARALLEL_MAKE=1
@@ -49,9 +50,7 @@ CONFIGURE_OPTS="--with-ssl-dir=/etc/ssl
 --with-passfile=.pine-passfile
 "
 
-CFLAGS="$CFLAGS -g"
-LDFLAGS="$LDFLAGS -g"
-
+TAR=gtar
 # configure will default to /usr/bin/make if MAKE is not set but it actually
 # needs gnu make, so put MAKE in env. It also needs to be a full path for this
 # to work
