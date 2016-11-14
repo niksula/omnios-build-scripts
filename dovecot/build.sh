@@ -41,8 +41,16 @@ install_manifest() {
 }
 
 BUILDARCH=64
-# by default we get libexec/amd64/dovecot, but we're not making isa stubs there
-CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64 --libexecdir=${PREFIX}/libexec --disable-static"
+# by default we get libexec/amd64/dovecot, but isa stubs don't belong there.
+# apparently, our epoll doesn't work so well with chroot, so use poll instead.
+# omnios has inotify symbols in libc because of lx, but we don't actually ship
+# the headers. autoconf only tests AC_CHECK_FUNCS(inotify_init) which succeeds,
+# but compilation will fail, so override that check.
+CONFIGURE_OPTS_64="$CONFIGURE_OPTS_64
+--libexecdir=${PREFIX}/libexec
+--disable-static
+--with-ioloop=poll
+--with-notify=none"
 
 init
 download_source $PROG $PROG $VER
