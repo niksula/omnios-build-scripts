@@ -1,0 +1,3 @@
+<transform -> set pkg.linted.pkglint.dupaction001 True>
+<transform -> set pkg.linted.pkglint.dupaction008 True>
+<transform -> set pkg.linted.pkglint.dupaction010 True>
