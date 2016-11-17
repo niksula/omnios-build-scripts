@@ -34,10 +34,9 @@ PKG=mail/mutt
 SUMMARY="The Mutt E-Mail Client"
 DESC='All mail clients suck. This one just sucks less.'
 
-# pending https://www.illumos.org/issues/4006, don't use system wc functions;
-# we get invisible tree drawing characters otherwise.
-CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-imap --with-ssl --with-sasl --enable-hcache --with-libiconv-prefix=/usr --without-wc-funcs --without-tokyocabinet --with-bdb --enable-sidebar"
+CONFIGURE_OPTS="$CONFIGURE_OPTS --enable-imap --with-ssl --with-sasl --enable-hcache --with-libiconv-prefix=/usr --without-tokyocabinet --with-bdb --enable-sidebar"
 BUILD_DEPENDS_IPS='database/bdb'
+RUN_DEPENDS_IPS='pkg://niksula.hut.fi/locale'
 
 init
 download_source $PROG $PROG $VER
