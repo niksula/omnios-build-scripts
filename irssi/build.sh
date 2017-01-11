@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=irssi
-VER=0.8.20
+VER=1.0.0
 VERHUMAN=$VER
 PKG=network/chat/irssi
 SUMMARY="terminal based IRC client"
