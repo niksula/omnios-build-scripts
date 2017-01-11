@@ -1,0 +1,24 @@
+mosh upstream intends the network timeout to be configured by an environment
+variable that is set for non-interactive login shells started by sshd. Issues
+with that approach include:
+ - cluttering the environment by default with variables intended for just mosh,
+   even if user isn't running mosh
+ - configuration depends on operating environment; you may use pam_env on some
+   OS and shell-specific configuration files on another
+
+A better approach would be a wrapper script that sources a configuration file.
+However, we just want sessions to get cleaned up eventually by default, so
+instead of adding the configurable wrapper, just change the default timeout to
+two weeks.
+
+--- mosh-1.2.6.orig/src/frontend/mosh-server.cc	Wed Aug 10 13:58:28 2016
++++ mosh-1.2.6/src/frontend/mosh-server.cc	Wed Jan 11 14:51:03 2017
+@@ -356,7 +356,7 @@
+ 		       const string &command_path, char *command_argv[],
+ 		       const int colors, bool verbose, bool with_motd ) {
+   /* get network idle timeout */
+-  long network_timeout = 0;
++  long network_timeout = 1209600;
+   char *timeout_envar = getenv( "MOSH_SERVER_NETWORK_TMOUT" );
+   if ( timeout_envar && *timeout_envar ) {
+     errno = 0;
