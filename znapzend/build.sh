@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=znapzend
-VER=0.15.7
+VER=0.16.0
 VERHUMAN=$VER
 PKG=service/storage/znapzend
 SUMMARY="zfs backup with mbuffer and ssh support"
