@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=nginx
-VER=1.10.2
+VER=1.10.3
 VERHUMAN=$VER
 PKG=service/network/http/nginx
 SUMMARY="nginx [engine x] is an HTTP and reverse proxy server"
@@ -47,13 +47,13 @@ CONFIGURE_OPTS_64="--prefix=$PREFIX
 --http-uwsgi-temp-path=tmp/uwsgi
 --http-scgi-temp-path=tmp/scgi"
 
-nginx_modules="ngx_http_auth_pam_module-1.3"
+nginx_modules="ngx_http_auth_pam_module-1.5.1"
 
 add_modules() {
     local orig_builddir="$BUILDDIR"
     for mod in $nginx_modules; do
         BUILDDIR=$mod
-        download_source $PROG $mod ""
+        TAR=gtar download_source $PROG $mod ""
         CONFIGURE_OPTS="$CONFIGURE_OPTS --add-module=../$mod"
     done
     BUILDDIR="$orig_builddir"
