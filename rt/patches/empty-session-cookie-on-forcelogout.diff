@@ -1,0 +1,14 @@
+diff --git a/lib/RT/Interface/Web.pm b/lib/RT/Interface/Web.pm
+index 126709f..a26202a 100644
+--- a/lib/RT/Interface/Web.pm
++++ b/lib/RT/Interface/Web.pm
+@@ -379,7 +379,9 @@ sub HandleRequest {
+ 
+ sub _ForceLogout {
+ 
++    $HTML::Mason::Commands::session{_session_id} = "";
+     delete $HTML::Mason::Commands::session{'CurrentUser'};
++    SendSessionCookie();
+ }
+ 
+ sub _UserLoggedIn {

@@ -1,1 +1,2 @@
 fulltext-indexer-lock.patch
+empty-session-cookie-on-forcelogout.diff
