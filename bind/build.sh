@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=bind
-VER=9.9.9-P5
+VER=9.9.9-P6
 VERHUMAN=$VER
 PKG=service/network/dns/bind
 SUMMARY="ISC BIND DNS server"
