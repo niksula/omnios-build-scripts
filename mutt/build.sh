@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=mutt
-VER=1.7.2
+VER=1.8.0
 VERHUMAN=$VER
 PKG=mail/mutt
 SUMMARY="The Mutt E-Mail Client"
