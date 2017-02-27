@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=dovecot
-VER=2.2.27
+VER=2.2.28
 VERHUMAN=$VER
 PKG=service/network/imap/dovecot
 SUMMARY="dovecot secure IMAP server"
