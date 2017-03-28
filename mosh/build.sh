@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=mosh
-VER=1.2.6
+VER=1.3.0
 VERHUMAN=$VER
 PKG=network/mosh
 SUMMARY="Mobile shell: Remote terminal that supports roaming and intelligent local echo"
