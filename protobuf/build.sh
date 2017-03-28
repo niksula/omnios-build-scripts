@@ -28,13 +28,14 @@
 . ../../lib/functions.sh
 
 PROG=protobuf
-VER=3.0.0
+VER=3.2.0
 VERHUMAN=$VER
 PKG=library/protobuf
 SUMMARY="Google protocol buffers"
 DESC="$SUMMARY"
 
 CONFIGURE_OPTS="$CONFIGURE_OPTS --disable-static" 
+BUILD_DEPENDS_IPS="-library/protobuf"
 
 init
 download_source $PROG ${PROG}-cpp $VER
