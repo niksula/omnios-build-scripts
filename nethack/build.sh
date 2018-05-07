@@ -28,7 +28,7 @@
 . ../../lib/functions.sh
 
 PROG=nethack
-VER=3.6.0
+VER=3.6.1
 VERHUMAN=$VER
 PKG=games/nethack
 SUMMARY="NetHack, roguelike dungeon crawl game"

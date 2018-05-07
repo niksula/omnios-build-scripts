@@ -1,6 +1,6 @@
---- a/sys/unix/sysconf	Tue Dec  8 12:26:25 2015
-+++ b/sys/unix/sysconf	Tue Dec  8 12:29:09 2015
-@@ -11,7 +11,7 @@
+--- a/sys/unix/sysconf
++++ b/sys/unix/sysconf
+@@ -13,7 +13,7 @@
  # Which users can use debug mode (aka wizard mode; accessed via '-D' command
  # line flag or OPTIONS=playmode:debug in the runtime options config file).
  # A value of * allows anyone to enter debugging mode.
@@ -9,16 +9,16 @@
  
  # Which users can use explore mode (aka discover mode; accessed via '-X'
  # command line flag or OPTIONS=playmode:explore in runtime options file or
-@@ -31,7 +31,7 @@
- #SHELLERS=
- 
- # Limit the number of simultaneous games (see also nethack.sh).
+@@ -48,7 +48,7 @@ GENERICUSERS=play player game games nethack nethacker
+ # but number of different players is not limited.
+ # Setting this to any other value constructs the lock files with
+ # letter and "lock" (eg. alock, block, ...)
 -MAXPLAYERS=10
 +#MAXPLAYERS=10
  
  # If not null, added to string "To get local support, " in the support
  # information help.
-@@ -76,8 +76,8 @@
+@@ -115,8 +115,8 @@ MAXPLAYERS=10
  # 'gdb' be available; using LIBC only works if NetHack is linked with a
  # libc that supports the backtrace(3) API.  Both require certain compilation
  # options.  See src/end.c and sys/unix/hints/* for more information.
